@@ -1,1 +1,1 @@
-require 'boxgrinder-build-fedora-os-plugin/rpm-based-os-plugin'
+require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
