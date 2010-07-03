@@ -18,6 +18,4 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build-fedora-os-plugin/fedora-plugin'
-
-plugin :class => BoxGrinder::FedoraPlugin, :type => :os, :name => :fedora, :full_name  => "Fedora", :versions   => ["11", "12", "13", "rawhide"]
+require 'boxgrinder-build-rhel-based-os-plugin/rhel-based-os-plugin'

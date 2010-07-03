@@ -18,22 +18,6 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build/plugins/os/base/rhel-based-os-plugin'
+require 'boxgrinder-build-rhel-os-plugin/rhel-plugin'
 
-module BoxGrinder
-  class RHELPlugin < RHELBasedOSPlugin
-    def info
-      {
-              :name       => :rhel,
-              :full_name  => "Red Hat Enterprise Linux",
-              :versions   => ["5"]
-      }
-    end
-
-    def execute
-      raise "Build cannot be started until the plugin isn't initialized" if @initialized.nil?
-
-      build_rhel
-    end
-  end
-end
+plugin :class => BoxGrinder::RHELPlugin, :type => :os, :name => :rhel, :full_name  => "Red Hat Enterprise Linux", :versions   => ["5"]

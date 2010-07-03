@@ -34,14 +34,6 @@ module BoxGrinder
             }
     }
 
-    def info
-      {
-              :name       => :centos,
-              :full_name  => "CentOS",
-              :versions   => ["5"]
-      }
-    end
-
     def execute
       raise "Build cannot be started until the plugin isn't initialized" if @initialized.nil?
 
