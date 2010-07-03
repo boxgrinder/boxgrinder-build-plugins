@@ -18,7 +18,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build/plugins/platform/base-platform-plugin'
+require 'boxgrinder-build/plugins/base-platform-plugin'
 require 'boxgrinder-build/helpers/appliance-customize-helper'
 
 module BoxGrinder

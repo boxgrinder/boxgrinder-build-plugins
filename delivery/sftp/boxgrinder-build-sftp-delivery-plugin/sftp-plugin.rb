@@ -21,7 +21,7 @@
 require 'net/ssh'
 require 'net/sftp'
 require 'progressbar'
-require 'boxgrinder-build/plugins/delivery/base/base-delivery-plugin'
+require 'boxgrinder-build/plugins/base-delivery-plugin'
 require 'boxgrinder-build/helpers/package-helper'
 
 module BoxGrinder

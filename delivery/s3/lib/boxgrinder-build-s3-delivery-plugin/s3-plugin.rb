@@ -18,7 +18,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build/plugins/delivery/base/base-delivery-plugin'
+require 'boxgrinder-build/plugins/base-delivery-plugin'
 require 'rubygems'
 require 'AWS'
 require 'aws/s3'

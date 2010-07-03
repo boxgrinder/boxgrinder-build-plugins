@@ -1,4 +1,4 @@
-require 'boxgrinder-build/plugins/delivery/base/base-delivery-plugin'
+require 'boxgrinder-build/plugins/base-delivery-plugin'
 
 module BoxGrinder
   class LocalPlugin < BaseDeliveryPlugin
