@@ -18,7 +18,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build/plugins/os/base-operating-system-plugin'
+require 'boxgrinder-build/plugins/base-operating-system-plugin'
 
 module BoxGrinder
   class RPMBasedOSPlugin < BaseOperatingSystemPlugin
