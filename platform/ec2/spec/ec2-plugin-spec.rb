@@ -1,4 +1,4 @@
-require 'boxgrinder-build/plugins/platform/ec2/ec2-plugin'
+require 'boxgrinder-build-ec2-platform-plugin/ec2-plugin'
 require 'rspec-helpers/rspec-config-helper'
 
 module BoxGrinder

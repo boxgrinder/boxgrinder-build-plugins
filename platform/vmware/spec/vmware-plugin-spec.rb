@@ -1,4 +1,4 @@
-require 'boxgrinder-build/plugins/platform/vmware/vmware-plugin'
+require 'boxgrinder-build-vmware-platform-plugin/vmware-plugin'
 require 'rspec-helpers/rspec-config-helper'
 require 'rbconfig'
 
