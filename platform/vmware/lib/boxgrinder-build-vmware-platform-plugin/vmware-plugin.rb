@@ -38,7 +38,6 @@ module BoxGrinder
       }
     end
 
-
     def execute( base_image_path )
       @log.info "Converting image to VMware format..."
       @log.debug "Copying VMware image file, this may take several minutes..."
@@ -64,14 +63,18 @@ module BoxGrinder
       build_vmware_enterprise
       build_vmware_personal
 
+      File.open( @deliverables[:other][:readme], "w") {|f| f.write( create_readme ) }
+
+      @log.info "Image converted to VMware format."
+    end
+
+    def create_readme
       readme = File.open( "#{File.dirname(__FILE__)}/src/README" ).read
       readme.gsub!( /#APPLIANCE_NAME#/, @appliance_config.name )
       readme.gsub!( /#NAME#/, @config.name )
       readme.gsub!( /#VERSION#/, @config.version_with_release )
 
-      File.open( @deliverables[:other][:readme], "w") {|f| f.write( readme ) }
-
-      @log.info "Image converted to VMware format."
+      readme
     end
 
     # returns value of cylinders, heads and sector for selected disk size (in GB)

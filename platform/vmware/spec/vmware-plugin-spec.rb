@@ -145,7 +145,22 @@ module BoxGrinder
       guestfs_mock.should_receive(:sh).once.ordered.with("two")
       guestfs_mock.should_receive(:sh).once.ordered.with("three")
 
+      FileUtils.should_receive(:mkdir_p).with("build/appliances/#{@arch}/fedora/11/full/vmware")
+
+      File.should_receive(:open)
+
       @plugin.execute( 'a/base/image/path.raw' )
+    end
+
+    it "should create a valid README file" do
+      prepare_image
+
+      file = mock(File)
+
+      File.should_receive(:open).and_return(file)
+      file.should_receive(:read).and_return("one #APPLIANCE_NAME# two #NAME# three #VERSION# four")
+
+      @plugin.create_readme.should == "one full two BoxGrinder three 1.0.0-SNAPSHOT four"
     end
 
 #    it "should customize image" do
@@ -158,7 +173,7 @@ module BoxGrinder
 #      @plugin.customize
 #    end
 
-    
+
 #    it "should install vmware tools" do
 #      prepare_image
 #
