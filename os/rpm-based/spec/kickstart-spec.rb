@@ -1,5 +1,5 @@
-require 'boxgrinder-build/plugins/os/base/kickstart'
-require 'rspec-helpers/rspec-config-helper'
+require 'boxgrinder-build-rpm-based-os-plugin/kickstart'
+require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe Kickstart do

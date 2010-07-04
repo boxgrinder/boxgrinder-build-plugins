@@ -1,0 +1,18 @@
+require 'rake'
+require 'spec/rake/spectask'
+
+libdir = Dir["../platform/**/lib"] + Dir["../os/**/lib"] + Dir["../delivery/**/lib"]
+
+desc "Run all examples"
+Spec::Rake::SpecTask.new('examples') do |t|
+
+  libdir.each do |d|
+    t.libs.unshift "#{d}"
+  end
+
+  t.libs.unshift "../../boxgrinder-build/lib"
+  t.libs.unshift "../../boxgrinder-core/lib"
+  t.libs.unshift "../../boxgrinder-core/spec"
+  
+  t.spec_files = FileList['../**/spec/**/*-spec.rb']
+end

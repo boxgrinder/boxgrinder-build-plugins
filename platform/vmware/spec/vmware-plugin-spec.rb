@@ -1,5 +1,5 @@
 require 'boxgrinder-build-vmware-platform-plugin/vmware-plugin'
-require 'rspec-helpers/rspec-config-helper'
+require 'rspec/rspec-config-helper'
 require 'rbconfig'
 
 module BoxGrinder

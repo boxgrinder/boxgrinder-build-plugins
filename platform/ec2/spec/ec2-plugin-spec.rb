@@ -1,5 +1,5 @@
 require 'boxgrinder-build-ec2-platform-plugin/ec2-plugin'
-require 'rspec-helpers/rspec-config-helper'
+require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe EC2Plugin do

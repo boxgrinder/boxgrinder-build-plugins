@@ -1,5 +1,5 @@
-require 'boxgrinder-build/plugins/delivery/s3/s3-plugin'
-require 'rspec-helpers/rspec-config-helper'
+require 'boxgrinder-build-s3-delivery-plugin/s3-plugin'
+require 'rspec/rspec-config-helper'
 require 'rbconfig'
 
 module BoxGrinder
