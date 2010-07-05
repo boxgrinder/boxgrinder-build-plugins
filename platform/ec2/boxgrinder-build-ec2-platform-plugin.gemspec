@@ -4,20 +4,31 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{boxgrinder-build-s3-delivery-plugin}
+  s.name = %q{boxgrinder-build-ec2-platform-plugin}
   s.version = "0.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Marek Goldmann"]
-  s.date = %q{2010-07-04}
-  s.description = %q{BoxGrinder Build Amazon Simple Storage Service (Amazon S3) Delivery Plugin}
+  s.date = %q{2010-07-05}
+  s.description = %q{BoxGrinder Build Elastic Compute Cloud (EC2) Platform Plugin}
   s.email = %q{info@boxgrinder.org}
+  s.files = [
+    "lib/boxgrinder-build-ec2-platform-plugin.rb",
+    "lib/boxgrinder-build-ec2-platform-plugin/ec2-plugin.rb",
+    "lib/boxgrinder-build-ec2-platform-plugin/src/f12-i386-boxgrinder.repo",
+    "lib/boxgrinder-build-ec2-platform-plugin/src/f12-x86_64-boxgrinder.repo",
+    "lib/boxgrinder-build-ec2-platform-plugin/src/f12/yum.conf",
+    "lib/boxgrinder-build-ec2-platform-plugin/src/fstab_32bit",
+    "lib/boxgrinder-build-ec2-platform-plugin/src/fstab_64bit",
+    "lib/boxgrinder-build-ec2-platform-plugin/src/ifcfg-eth0",
+    "lib/boxgrinder-build-ec2-platform-plugin/src/rc_local",
+    "spec/ec2-plugin-spec.rb"
+  ]
   s.homepage = %q{http://www.jboss.org/stormgrind/projects/boxgrinder/build.html}
-  s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{boxgrinder-build-plugins}
   s.rubygems_version = %q{1.3.6}
-  s.summary = %q{Amazon Simple Storage Service (Amazon S3) Delivery Plugin}
+  s.summary = %q{Elastic Compute Cloud (EC2) Platform Plugin}
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
