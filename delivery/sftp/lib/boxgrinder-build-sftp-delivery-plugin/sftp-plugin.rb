@@ -18,14 +18,15 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'rubygems'
 require 'net/ssh'
 require 'net/sftp'
 require 'progressbar'
-require 'boxgrinder-build/plugins/base-delivery-plugin'
+require 'boxgrinder-build/plugins/base-plugin'
 require 'boxgrinder-build/helpers/package-helper'
 
 module BoxGrinder
-  class SFTPPlugin < BaseDeliveryPlugin
+  class SFTPPlugin < BasePlugin
     def after_init
       set_default_config_value('overwrite', false)
       set_default_config_value('default_permissions', 0644)

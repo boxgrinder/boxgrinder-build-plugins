@@ -18,11 +18,11 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build/plugins/base-platform-plugin'
+require 'boxgrinder-build/plugins/base-plugin'
 require 'boxgrinder-build/helpers/appliance-customize-helper'
 
 module BoxGrinder
-  class VMwarePlugin < BasePlatformPlugin
+  class VMwarePlugin < BasePlugin
     def after_init
       @deliverables[:disk] = "#{@appliance_config.path.dir.build}/vmware/#{@appliance_config.name}.raw"
 

@@ -18,13 +18,13 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build/plugins/base-delivery-plugin'
+require 'boxgrinder-build/plugins/base-plugin'
 require 'rubygems'
 require 'AWS'
 require 'aws/s3'
 
 module BoxGrinder
-  class S3Plugin < BaseDeliveryPlugin
+  class S3Plugin < BasePlugin
 
     AMI_OSES = {
             'fedora'  => [ '11' ],

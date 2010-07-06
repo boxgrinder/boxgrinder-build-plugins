@@ -18,10 +18,10 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build/plugins/base-operating-system-plugin'
+require 'boxgrinder-build/plugins/base-plugin'
 
 module BoxGrinder
-  class RPMBasedOSPlugin < BaseOperatingSystemPlugin
+  class RPMBasedOSPlugin < BasePlugin
     def after_init
       @deliverables[:disk] = "#{@appliance_config.path.dir.raw.build_full}/#{@appliance_config.name}-sda.raw"
 
