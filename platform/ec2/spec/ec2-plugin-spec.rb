@@ -124,7 +124,7 @@ module BoxGrinder
       guestfs.should_receive(:mkdir_p).once.ordered.with("/tmp/rpms")
       guestfs.should_receive(:upload).once.ordered.with("/var/cache/boxgrinder/sources-cache/#{kernel_rpm}", "/tmp/rpms/#{kernel_rpm}")
       guestfs.should_receive(:upload).once.ordered.with("/var/cache/boxgrinder/sources-cache/ec2-ami-tools.noarch.rpm", "/tmp/rpms/ec2-ami-tools.noarch.rpm")
-      guestfs.should_receive(:sh).once.ordered.with("rpm -Fvh --nodeps /tmp/rpms/*.rpm")
+      guestfs.should_receive(:sh).once.ordered.with("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.should_receive(:rm_rf).once.ordered.with("/tmp/rpms")
 
       @log.should_receive(:debug).once.ordered.with("Installing additional packages (#{kernel_rpm}, ec2-ami-tools.noarch.rpm)...")

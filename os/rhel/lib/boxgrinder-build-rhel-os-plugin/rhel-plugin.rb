@@ -25,22 +25,14 @@ module BoxGrinder
     def build_rhel( repos = {} )
       adjust_partition_table
 
-      disk_path = build_with_appliance_creator( repos )  do |guestfs, guestfs_helper|
-        kernel_version = guestfs.ls("/lib/modules").first
-
-        @log.debug "Recreating initrd for #{kernel_version} kernel..."
-        guestfs.sh( "/sbin/mkinitrd -f -v --preload=mptspi /boot/initrd-#{kernel_version}.img #{kernel_version}" )
-        @log.debug "Initrd recreated."
+      build_with_appliance_creator( repos )  do |guestfs, guestfs_helper|
+        mkinitrd( guestfs, ['mptspi'] )
 
         @log.debug "Applying root password..."
         guestfs.sh( "/usr/bin/passwd -d root" )
         guestfs.sh( "/usr/sbin/usermod -p '#{@appliance_config.os.password.crypt((0...8).map{65.+(rand(25)).chr}.join)}' root" )
         @log.debug "Password applied."
       end
-
-      @log.info "Done."
-
-      disk_path
     end
 
     # https://bugzilla.redhat.com/show_bug.cgi?id=466275

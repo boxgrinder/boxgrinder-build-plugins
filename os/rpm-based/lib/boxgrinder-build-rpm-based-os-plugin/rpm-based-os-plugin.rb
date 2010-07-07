@@ -112,6 +112,21 @@ module BoxGrinder
       @log.debug "'/etc/motd' is nice now."
     end
 
+    def mkinitrd( guestfs, modules = [] )
+      kernel_version  = guestfs.ls("/lib/modules").first
+      preload_command = ""
+
+      modules.each do |mod|
+        preload_command  << " --preload=#{mod}"
+      end
+
+      @log.trace "Additional modules to preload in kernel: #{modules.join(', ')}"
+
+      @log.debug "Recreating initrd for #{kernel_version} kernel..."
+      guestfs.sh( "/sbin/mkinitrd -f -v #{preload_command} /boot/initrd-#{kernel_version}.img #{kernel_version}" )
+      @log.debug "Initrd recreated."
+    end
+
     def install_repos( guestfs )
       @log.debug "Installing repositories from appliance definition file..."
       @appliance_config.repos.each do |repo|

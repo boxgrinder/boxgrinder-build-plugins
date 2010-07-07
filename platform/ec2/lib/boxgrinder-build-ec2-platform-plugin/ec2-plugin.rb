@@ -279,7 +279,7 @@ module BoxGrinder
       }
 
       begin
-        kernel_rpm =  KERNELS[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:rpm]
+        kernel_rpm = KERNELS[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:rpm]
         rpms[File.basename(kernel_rpm)] = kernel_rpm
       rescue
       end
@@ -294,7 +294,7 @@ module BoxGrinder
         guestfs.upload(cache_file, "/tmp/rpms/#{name}")
       end
 
-      guestfs.sh("rpm -Fvh --nodeps /tmp/rpms/*.rpm")
+      guestfs.sh("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.rm_rf("/tmp/rpms")
       @log.debug "Additional packages installed."
     end
