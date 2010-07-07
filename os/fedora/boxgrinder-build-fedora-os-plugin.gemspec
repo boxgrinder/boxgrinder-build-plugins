@@ -9,12 +9,13 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Marek Goldmann"]
-  s.date = %q{2010-07-05}
+  s.date = %q{2010-07-07}
   s.description = %q{BoxGrinder Build Fedora Operating System Plugin}
   s.email = %q{info@boxgrinder.org}
   s.files = [
     "LICENSE",
     "README",
+    "boxgrinder-build-fedora-os-plugin.gemspec",
     "lib/boxgrinder-build-fedora-os-plugin.rb",
     "lib/boxgrinder-build-fedora-os-plugin/fedora-plugin.rb"
   ]

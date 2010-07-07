@@ -19,6 +19,8 @@
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 require 'boxgrinder-build/plugins/base-plugin'
+require 'boxgrinder-build-rpm-based-os-plugin/kickstart'
+require 'boxgrinder-build-rpm-based-os-plugin/rpm-dependency-validator'
 
 module BoxGrinder
   class RPMBasedOSPlugin < BasePlugin

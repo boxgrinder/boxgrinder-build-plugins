@@ -9,10 +9,11 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Marek Goldmann"]
-  s.date = %q{2010-07-05}
+  s.date = %q{2010-07-07}
   s.description = %q{BoxGrinder Build Elastic Compute Cloud (EC2) Platform Plugin}
   s.email = %q{info@boxgrinder.org}
   s.files = [
+    "boxgrinder-build-ec2-platform-plugin.gemspec",
     "lib/boxgrinder-build-ec2-platform-plugin.rb",
     "lib/boxgrinder-build-ec2-platform-plugin/ec2-plugin.rb",
     "lib/boxgrinder-build-ec2-platform-plugin/src/f12-i386-boxgrinder.repo",

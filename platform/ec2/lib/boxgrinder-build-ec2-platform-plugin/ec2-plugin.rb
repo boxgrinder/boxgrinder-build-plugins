@@ -294,7 +294,7 @@ module BoxGrinder
         guestfs.upload(cache_file, "/tmp/rpms/#{name}")
       end
 
-      guestfs.sh("rpm -Uvh --nodeps /tmp/rpms/*.rpm")
+      guestfs.sh("rpm -Fvh --nodeps /tmp/rpms/*.rpm")
       guestfs.rm_rf("/tmp/rpms")
       @log.debug "Additional packages installed."
     end

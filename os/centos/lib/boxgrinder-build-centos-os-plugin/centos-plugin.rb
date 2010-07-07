@@ -18,10 +18,10 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'boxgrinder-build/plugins/os/base/rhel-based-os-plugin'
+require 'boxgrinder-build-rhel-os-plugin'
 
 module BoxGrinder
-  class CentOSPlugin < RHELBasedOSPlugin
+  class CentOSPlugin < RHELPlugin
 
     CENTOS_REPOS = {
             "5" => {
@@ -35,8 +35,6 @@ module BoxGrinder
     }
 
     def execute
-      raise "Build cannot be started until the plugin isn't initialized" if @initialized.nil?
-
       build_rhel( CENTOS_REPOS )
     end
   end

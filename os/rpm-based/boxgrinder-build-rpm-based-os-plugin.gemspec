@@ -9,12 +9,13 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Marek Goldmann"]
-  s.date = %q{2010-07-05}
+  s.date = %q{2010-07-07}
   s.description = %q{BoxGrinder Build RPM Based Operating System Plugin}
   s.email = %q{info@boxgrinder.org}
   s.files = [
     "LICENSE",
     "README",
+    "boxgrinder-build-rpm-based-os-plugin.gemspec",
     "lib/boxgrinder-build-rpm-based-os-plugin.rb",
     "lib/boxgrinder-build-rpm-based-os-plugin/kickstart.rb",
     "lib/boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin.rb",

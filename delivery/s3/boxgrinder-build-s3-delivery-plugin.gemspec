@@ -9,10 +9,12 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Marek Goldmann"]
-  s.date = %q{2010-07-05}
+  s.date = %q{2010-07-07}
   s.description = %q{BoxGrinder Build Amazon Simple Storage Service (Amazon S3) Delivery Plugin}
   s.email = %q{info@boxgrinder.org}
   s.files = [
+    "LICENSE",
+    "boxgrinder-build-s3-delivery-plugin.gemspec",
     "lib/boxgrinder-build-s3-delivery-plugin.rb",
     "lib/boxgrinder-build-s3-delivery-plugin/s3-plugin.rb",
     "spec/s3-plugin-spec.rb"
@@ -28,14 +30,26 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<amazon-ec2>, [">= 0.9.6"])
+      s.add_runtime_dependency(%q<aws-s3>, [">= 0.6.2"])
       s.add_runtime_dependency(%q<boxgrinder-build>, [">= 0.4.2"])
+      s.add_runtime_dependency(%q<amazon-ec2>, [">= 0.9.6"])
+      s.add_runtime_dependency(%q<aws-s3>, [">= 0.6.2"])
       s.add_runtime_dependency(%q<boxgrinder-build>, [">= 0.4.2"])
     else
+      s.add_dependency(%q<amazon-ec2>, [">= 0.9.6"])
+      s.add_dependency(%q<aws-s3>, [">= 0.6.2"])
       s.add_dependency(%q<boxgrinder-build>, [">= 0.4.2"])
+      s.add_dependency(%q<amazon-ec2>, [">= 0.9.6"])
+      s.add_dependency(%q<aws-s3>, [">= 0.6.2"])
       s.add_dependency(%q<boxgrinder-build>, [">= 0.4.2"])
     end
   else
+    s.add_dependency(%q<amazon-ec2>, [">= 0.9.6"])
+    s.add_dependency(%q<aws-s3>, [">= 0.6.2"])
     s.add_dependency(%q<boxgrinder-build>, [">= 0.4.2"])
+    s.add_dependency(%q<amazon-ec2>, [">= 0.9.6"])
+    s.add_dependency(%q<aws-s3>, [">= 0.6.2"])
     s.add_dependency(%q<boxgrinder-build>, [">= 0.4.2"])
   end
 end

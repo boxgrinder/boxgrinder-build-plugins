@@ -112,7 +112,7 @@ module BoxGrinder
     end
 
     def upload_to_bucket(deliverables, permissions = :private)
-      package = PackageHelper.new(@config, @appliance_config, {:log => @log, :exec_helper => @exec_helper}).package(deliverables)
+      package = PackageHelper.new(@config, @appliance_config, {:log => @log, :exec_helper => @exec_helper}).package( deliverables, :plugin_info => @previous_plugin_info )
 
       @log.info "Uploading #{@appliance_config.name} appliance to S3 bucket '#{@plugin_config['bucket']}'..."
 
