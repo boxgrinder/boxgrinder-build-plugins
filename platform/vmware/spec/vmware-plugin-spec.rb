@@ -10,7 +10,7 @@ module BoxGrinder
       @arch = RbConfig::CONFIG['host_cpu']
     end
 
-    def prepare_image
+    def prepare_image( options = {} )
       params = OpenStruct.new
       params.base_vmdk = "../src/base.vmdk"
       params.base_vmx  = "../src/base.vmx"
@@ -18,7 +18,9 @@ module BoxGrinder
       @config           = generate_config( params )
       @appliance_config = generate_appliance_config
 
-      @plugin = VMwarePlugin.new.init( @config, @appliance_config, :log => Logger.new('/dev/null') )
+      options[:log] = Logger.new('/dev/null')
+
+      @plugin = VMwarePlugin.new.init( @config, @appliance_config, options )
 
       @exec_helper = @plugin.instance_variable_get(:@exec_helper)
     end
@@ -129,7 +131,7 @@ module BoxGrinder
     end
 
     it "should convert image to vmware" do
-      prepare_image
+      prepare_image( :previous_deliverables => { :disk => 'a/base/image/path.raw' } )
 
       @appliance_config.post['vmware'] = ["one", "two", "three"]
 
@@ -149,7 +151,7 @@ module BoxGrinder
 
       File.should_receive(:open)
 
-      @plugin.execute( 'a/base/image/path.raw' )
+      @plugin.execute
     end
 
     it "should create a valid README file" do

@@ -78,16 +78,16 @@ module BoxGrinder
       supported
     end
 
-    def execute( deliverables, type = :ami )
+    def execute( type = :ami )
       validate_plugin_config(['bucket', 'access_key', 'secret_access_key'], 'http://community.jboss.org/docs/DOC-15217')
 
       AWS::S3::Base.establish_connection!(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'] )
 
       case type
         when :s3
-          upload_to_bucket(deliverables)
+          upload_to_bucket(@previous_deliverables)
         when :cloudfront
-          upload_to_bucket(deliverables, :public_read)
+          upload_to_bucket(@previous_deliverables, :public_read)
         when :ami
           validate_plugin_config(['cert_file', 'key_file', 'account_number'], 'http://community.jboss.org/docs/DOC-15217')
 
@@ -101,7 +101,7 @@ module BoxGrinder
           end
 
           unless image_already_uploaded?
-            bundle_image( deliverables )
+            bundle_image( @previous_deliverables )
             upload_image
           else
             @log.debug "AMI for #{@appliance_config.name} appliance already uploaded, skipping..."

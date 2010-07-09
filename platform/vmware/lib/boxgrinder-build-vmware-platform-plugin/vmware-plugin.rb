@@ -38,13 +38,13 @@ module BoxGrinder
       }
     end
 
-    def execute( base_image_path )
+    def execute
       @log.info "Converting image to VMware format..."
       @log.debug "Copying VMware image file, this may take several minutes..."
 
       FileUtils.mkdir_p File.dirname( @deliverables[:disk] )
 
-      @exec_helper.execute "cp #{base_image_path} #{@deliverables[:disk]}" if ( !File.exists?( @deliverables[:disk] ) || File.new( base_image_path ).mtime > File.new( @deliverables[:disk] ).mtime )
+      @exec_helper.execute "cp #{@previous_deliverables[:disk]} #{@deliverables[:disk]}" if ( !File.exists?( @deliverables[:disk] ) || File.new( @previous_deliverables[:disk] ).mtime > File.new( @deliverables[:disk] ).mtime )
 
       @log.debug "VMware image copied."
 

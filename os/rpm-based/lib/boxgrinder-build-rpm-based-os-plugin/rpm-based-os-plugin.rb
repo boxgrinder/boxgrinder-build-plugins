@@ -112,6 +112,7 @@ module BoxGrinder
       @log.debug "'/etc/motd' is nice now."
     end
 
+    # TODO add dracut support https://jira.jboss.org/browse/BGBUILD-30
     def mkinitrd( guestfs, modules = [] )
       kernel_version  = guestfs.ls("/lib/modules").first
       preload_command = ""

@@ -27,18 +27,18 @@ module BoxGrinder
       set_default_config_value('package', true)
     end
 
-    def execute(deliverables, type = :local)
+    def execute( type = :local )
       validate_plugin_config( [ 'path' ], 'http://community.jboss.org/docs/DOC-15216' )
 
       files = []
 
       if @plugin_config['package']
-        files <<  PackageHelper.new(@config, @appliance_config, {:log => @log, :exec_helper => @exec_helper}).package( deliverables, :plugin_info => @previous_plugin_info )
+        files <<  PackageHelper.new(@config, @appliance_config, {:log => @log, :exec_helper => @exec_helper}).package( @previous_deliverables, :plugin_info => @previous_plugin_info )
       else
-        files << deliverables[:disk]
+        files << @previous_deliverables[:disk]
 
         [:metadata, :other].each do |deliverable_type|
-          deliverables[deliverable_type].each_value do |file|
+          @previous_deliverables[deliverable_type].each_value do |file|
             files << file
           end
         end

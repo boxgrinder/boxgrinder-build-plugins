@@ -65,7 +65,7 @@ module BoxGrinder
       supported
     end
 
-    def execute(raw_disk)
+    def execute
       if File.exists?(@deliverables[:disk])
         @log.info "EC2 image for #{@appliance_config.name} appliance already exists, skipping..."
         return
@@ -93,7 +93,7 @@ module BoxGrinder
 
       begin
         ec2_mounts = mount_image( @deliverables[:disk], ec2_disk_mount_dir )
-        raw_mounts = mount_image( raw_disk, raw_disk_mount_dir )
+        raw_mounts = mount_image( @previous_deliverables[:disk], raw_disk_mount_dir )
       rescue => e
         @log.debug e
         raise "Error while mounting image. See logs for more info"
@@ -101,7 +101,7 @@ module BoxGrinder
 
       sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
 
-      umount_image(raw_disk, raw_disk_mount_dir, raw_mounts)
+      umount_image(@previous_deliverables[:disk], raw_disk_mount_dir, raw_mounts)
       umount_image(@deliverables[:disk], ec2_disk_mount_dir, ec2_mounts)
 
       customize(@deliverables[:disk]) do |guestfs, guestfs_helper|
