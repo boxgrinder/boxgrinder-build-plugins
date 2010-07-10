@@ -32,7 +32,7 @@ module BoxGrinder
               :descriptor   => "#{@appliance_config.path.dir.raw.build_full}/#{@appliance_config.name}.xml"
       }
 
-      @linux_helper = LinuxHelper.new
+      @linux_helper = LinuxHelper.new( :log => @log )
     end
 
     def build_with_appliance_creator( repos = {} )

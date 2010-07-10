@@ -77,7 +77,7 @@ module BoxGrinder
         return
       end
 
-      @linux_helper = LinuxHelper.new
+      @linux_helper = LinuxHelper.new( :log => @log )
 
       FileUtils.mkdir_p File.dirname(@deliverables[:disk])
 
