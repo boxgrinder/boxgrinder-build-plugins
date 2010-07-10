@@ -21,6 +21,7 @@
 require 'boxgrinder-build/plugins/base-plugin'
 require 'boxgrinder-build-rpm-based-os-plugin/kickstart'
 require 'boxgrinder-build-rpm-based-os-plugin/rpm-dependency-validator'
+require 'boxgrinder-build/helpers/linux-helper'
 
 module BoxGrinder
   class RPMBasedOSPlugin < BasePlugin
@@ -30,6 +31,8 @@ module BoxGrinder
       @deliverables[:metadata]  = {
               :descriptor   => "#{@appliance_config.path.dir.raw.build_full}/#{@appliance_config.name}.xml"
       }
+
+      @linux_helper = LinuxHelper.new
     end
 
     def build_with_appliance_creator( repos = {} )
@@ -46,7 +49,7 @@ module BoxGrinder
       # fix permissions
       @exec_helper.execute "sudo chmod 777 #{@appliance_config.path.dir.raw.build_full}"
       @exec_helper.execute "sudo chmod 666 #{@deliverables[:disk]}"
-      @exec_helper.execute "sudo chmod 666 #{@deliverables[:metadata][:descriptor]}"
+      @exec_helper.execute "sudo chmod 666 #{@deliverables[:metadata][:descriptor]}"     
 
       customize( @deliverables[:disk] ) do |guestfs, guestfs_helper|
         # TODO is this really needed?
@@ -112,20 +115,8 @@ module BoxGrinder
       @log.debug "'/etc/motd' is nice now."
     end
 
-    # TODO add dracut support https://jira.jboss.org/browse/BGBUILD-30
-    def mkinitrd( guestfs, modules = [] )
-      kernel_version  = guestfs.ls("/lib/modules").first
-      preload_command = ""
-
-      modules.each do |mod|
-        preload_command  << " --preload=#{mod}"
-      end
-
-      @log.trace "Additional modules to preload in kernel: #{modules.join(', ')}"
-
-      @log.debug "Recreating initrd for #{kernel_version} kernel..."
-      guestfs.sh( "/sbin/mkinitrd -f -v #{preload_command} /boot/initrd-#{kernel_version}.img #{kernel_version}" )
-      @log.debug "Initrd recreated."
+    def recreate_kernel_image( guestfs, modules = [] )
+      @linux_helper.recreate_kernel_image( guestfs, modules )
     end
 
     def install_repos( guestfs )

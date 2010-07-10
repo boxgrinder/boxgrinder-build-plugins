@@ -19,13 +19,14 @@
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 require 'boxgrinder-build/plugins/base-plugin'
+require 'boxgrinder-build/helpers/linux-helper'
 
 module BoxGrinder
   class EC2Plugin < BasePlugin
     SUPPORTED_OSES = {
             'rhel'    => [ '5' ],
             'centos'  => [ '5' ],
-            'fedora'  => [ '11' ]
+            'fedora'  => [ '11', '13' ]
     }
 
     REGIONS = {'us_east' => 'url'}
@@ -76,6 +77,8 @@ module BoxGrinder
         return
       end
 
+      @linux_helper = LinuxHelper.new
+
       FileUtils.mkdir_p File.dirname(@deliverables[:disk])
 
       @log.info "Converting #{@appliance_config.name} appliance image to EC2 format..."
@@ -122,6 +125,7 @@ module BoxGrinder
 
         install_additional_packages(guestfs)
         change_configuration(guestfs)
+        install_menu_lst( guestfs )
 
         unless @appliance_config.post['ec2'].nil?
           @appliance_config.post['ec2'].each do |cmd|
@@ -251,6 +255,24 @@ module BoxGrinder
       fstab_file = @appliance_config.is64bit? ? "#{File.dirname(__FILE__)}/src/fstab_64bit" : "#{File.dirname(__FILE__)}/src/fstab_32bit"
       guestfs.upload(fstab_file, "/etc/fstab")
       @log.debug "'/etc/fstab' file uploaded."
+    end
+
+    def install_menu_lst( guestfs )
+      @log.debug "Uploading '/boot/grub/menu.lst' file..."
+      menu_lst_data = File.open( "#{File.dirname( __FILE__ )}/src/menu.lst" ).read
+
+      menu_lst_data.gsub!( /#TITLE#/, @appliance_config.name )
+      menu_lst_data.gsub!( /#KERNEL_VERSION#/, @linux_helper.kernel_version( guestfs ) )
+      menu_lst_data.gsub!( /#KERNEL_IMAGE_NAME#/, @linux_helper.kernel_image_name( guestfs ) )
+
+      menu_lst = Tempfile.new('menu_lst')
+      menu_lst << menu_lst_data
+      menu_lst.flush
+
+      guestfs.upload(menu_lst.path, "/boot/grub/menu.lst")
+
+      menu_lst.close
+      @log.debug "'/boot/grub/menu.lst' file uploaded."
     end
 
     # enable networking on default runlevels

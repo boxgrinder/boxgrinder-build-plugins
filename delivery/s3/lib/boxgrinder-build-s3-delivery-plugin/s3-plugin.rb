@@ -27,7 +27,7 @@ module BoxGrinder
   class S3Plugin < BasePlugin
 
     AMI_OSES = {
-            'fedora'  => [ '11' ],
+            'fedora'  => [ '11', '13' ],
             'centos'  => [ '5' ],
             'rhel'    => [ '5' ]
     }
@@ -35,6 +35,10 @@ module BoxGrinder
     KERNELS = {
             'us_east' => {
                     'fedora' => {
+                            '13' => {
+                                    'i386'     => { :aki => 'aki-407d9529' },
+                                    'x86_64'   => { :aki => 'aki-427d952b' }
+                            },
                             '11' => {
                                     'i386'     => { :aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc' },
                                     'x86_64'   => { :aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da' }
@@ -142,7 +146,10 @@ module BoxGrinder
 
       FileUtils.mkdir_p( @ami_build_dir )
 
-      @exec_helper.execute("ec2-bundle-image -i #{deliverables[:disk]} --kernel #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:aki]} --ramdisk #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:ari]} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.arch} -d #{@ami_build_dir}")
+      aki = "--kernel #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:aki]}"
+      ari = KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:ari].nil? ? "" : "--ramdisk #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:ari]}"
+
+      @exec_helper.execute("ec2-bundle-image -i #{deliverables[:disk]} #{aki} #{ari} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.arch} -d #{@ami_build_dir}")
 
       @log.info "Bundling AMI finished."
     end
