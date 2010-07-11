@@ -136,29 +136,6 @@ module BoxGrinder
         else
           @log.debug "No commands specified, skipping."
         end
-
-        #        if @appliance_config.os.name.eql?("fedora") and @appliance_config.os.version.to_s.eql?("12")
-        #          @log.debug "Downgrading udev package to use in EC2 environment..."
-        #
-        #          repo_included = false
-        #
-        #          @appliance_config.repos.each do |repo|
-        #            repo_included = true if repo['baseurl'] == "http://repo.boxgrinder.org/boxgrinder/packages/fedora/12/RPMS/#{@appliance_config.hardware.arch}"
-        #          end
-        #
-        #          guestfs.upload( "#{File.dirname( __FILE__ )}/src/f12-#{@appliance_config.hardware.arch}-boxgrinder.repo", "/etc/yum.repos.d/f12-#{@appliance_config.hardware.arch}-boxgrinder.repo" ) unless repo_included
-        #          guestfs.sh( "yum -y downgrade udev-142" )
-        #          guestfs.upload( "#{File.dirname( __FILE__ )}/src/f12/yum.conf", "/etc/yum.conf" )
-        #          guestfs.rm_rf( "/etc/yum.repos.d/f12-#{@appliance_config.hardware.arch}-boxgrinder.repo" ) unless repo_included
-        #
-        #          @log.debug "Package udev downgraded."
-        #
-        #          # TODO EC2 fix, remove that after Fedora pushes kernels to Amazon
-        #          @log.debug "Disabling unnecessary services..."
-        #          guestfs.sh( "/sbin/chkconfig ksm off" ) if guestfs.exists( "/etc/init.d/ksm" ) != 0
-        #          guestfs.sh( "/sbin/chkconfig ksmtuned off" ) if guestfs.exists( "/etc/init.d/ksmtuned" ) != 0
-        #          @log.debug "Services disabled."
-        #        end
       end
 
       @log.info "Image converted to EC2 format."
@@ -252,7 +229,7 @@ module BoxGrinder
 
     def disk_device
       disk = 'sda'
-      disk = 'xvda' if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == 13
+      disk = 'xvda' if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == '13'
 
       disk
     end
