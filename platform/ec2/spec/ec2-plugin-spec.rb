@@ -146,6 +146,21 @@ module BoxGrinder
       @plugin.change_configuration( guestfs )
     end
 
+    it "should use xvda disks for Fedora 13" do
+      @appliance_config.os.version = '13'
+      @plugin.disk_device_prefix.should == 'xv'
+    end
+
+    it "should use xvda disks for Fedora 12" do
+      @appliance_config.os.version = '12'
+      @plugin.disk_device_prefix.should == 'xv'
+    end
+
+    it "should use sda disks for Fedora < 12" do
+      @appliance_config.os.version = '11'
+      @plugin.disk_device_prefix.should == 's'
+    end
+
   end
 end
 

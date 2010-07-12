@@ -55,11 +55,6 @@ module BoxGrinder
                                     'i386'     => { :aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc' },
                                     'x86_64'   => { :aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da' }
                             }
-                            #                            '5' => {
-                            #                                    'i386'     => { :aki => 'aki-e3a54b8a', :ari => 'ari-f9a54b90' },
-                            #                                    'x86_64'   => { :aki => 'aki-ffa54b96', :ari => 'ari-fda54b94' }
-                            #                            }
-
                     }
             }
     }
@@ -106,6 +101,7 @@ module BoxGrinder
 
           unless image_already_uploaded?
             bundle_image( @previous_deliverables )
+            fix_sha1_sum
             upload_image
           else
             @log.debug "AMI for #{@appliance_config.name} appliance already uploaded, skipping..."
@@ -113,6 +109,14 @@ module BoxGrinder
 
           register_image
       end
+    end
+
+    # https://jira.jboss.org/browse/BGBUILD-34
+    def fix_sha1_sum
+      ami_manifest = File.open( @ami_manifest ).read
+      ami_manifest.gsub!( '(stdin)= ', '' )
+
+      File.open( @ami_manifest, "w" ) {|f| f.write( ami_manifest ) }
     end
 
     def upload_to_bucket(deliverables, permissions = :private)

@@ -227,9 +227,13 @@ module BoxGrinder
       @log.debug "Devices created."
     end
 
-    def disk_device
-      disk = 'sda'
-      disk = 'xvda' if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == '13'
+    def disk_device_prefix
+      disk = 's'
+
+      case @appliance_config.os.name
+        when 'fedora'
+          disk = 'xv' if @appliance_config.os.version != '11'
+      end
 
       disk
     end
@@ -240,7 +244,7 @@ module BoxGrinder
       fstab_file = @appliance_config.is64bit? ? "#{File.dirname(__FILE__)}/src/fstab_64bit" : "#{File.dirname(__FILE__)}/src/fstab_32bit"
 
       fstab_data = File.open( fstab_file ).read
-      fstab_data.gsub!( /#DISK#/, disk_device )
+      fstab_data.gsub!( /#DISK_DEVICE_PREFIX#/, disk_device_prefix )
 
       fstab = Tempfile.new('fstab')
       fstab << fstab_data
@@ -260,7 +264,7 @@ module BoxGrinder
       menu_lst_data.gsub!( /#TITLE#/, @appliance_config.name )
       menu_lst_data.gsub!( /#KERNEL_VERSION#/, @linux_helper.kernel_version( guestfs ) )
       menu_lst_data.gsub!( /#KERNEL_IMAGE_NAME#/, @linux_helper.kernel_image_name( guestfs ) )
-      menu_lst_data.gsub!( /#DISK#/, disk_device )
+      menu_lst_data.gsub!( /#DISK_DEVICE_PREFIX#/, disk_device_prefix )
 
       menu_lst = Tempfile.new('menu_lst')
       menu_lst << menu_lst_data
