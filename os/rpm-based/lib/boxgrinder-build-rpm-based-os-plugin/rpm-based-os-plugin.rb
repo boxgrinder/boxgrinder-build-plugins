@@ -44,12 +44,12 @@ module BoxGrinder
 
       @log.info "Building #{@appliance_config.name} appliance..."
 
-      @exec_helper.execute "sudo appliance-creator -d -v -t #{tmp_dir} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.main_path} --config #{@appliance_config.path.file.raw.kickstart} -o #{@appliance_config.path.dir.raw.build} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus}"
+      @exec_helper.execute "appliance-creator -d -v -t #{tmp_dir} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.main_path} --config #{@appliance_config.path.file.raw.kickstart} -o #{@appliance_config.path.dir.raw.build} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus}"
 
       # fix permissions
-      @exec_helper.execute "sudo chmod 777 #{@appliance_config.path.dir.raw.build_full}"
-      @exec_helper.execute "sudo chmod 666 #{@deliverables[:disk]}"
-      @exec_helper.execute "sudo chmod 666 #{@deliverables[:metadata][:descriptor]}"     
+      @exec_helper.execute "chmod 777 #{@appliance_config.path.dir.raw.build_full}"
+      @exec_helper.execute "chmod 666 #{@deliverables[:disk]}"
+      @exec_helper.execute "chmod 666 #{@deliverables[:metadata][:descriptor]}"
 
       customize( @deliverables[:disk] ) do |guestfs, guestfs_helper|
         # TODO is this really needed?

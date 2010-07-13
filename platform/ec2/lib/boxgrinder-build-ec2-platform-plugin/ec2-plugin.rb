@@ -159,9 +159,9 @@ module BoxGrinder
       @log.debug "Calculating offsets for '#{File.basename(disk)}' disk..."
       loop_device = get_loop_device
 
-      @exec_helper.execute("sudo losetup #{loop_device} #{disk}")
-      offsets = @exec_helper.execute("sudo parted #{loop_device} 'unit B print' | grep -e '^ [0-9]' | awk '{ print $2 }'").scan(/\d+/)
-      @exec_helper.execute("sudo losetup -d #{loop_device}")
+      @exec_helper.execute("losetup #{loop_device} #{disk}")
+      offsets = @exec_helper.execute("parted #{loop_device} 'unit B print' | grep -e '^ [0-9]' | awk '{ print $2 }'").scan(/\d+/)
+      @exec_helper.execute("losetup -d #{loop_device}")
 
       @log.trace "Offsets:\n#{offsets}"
 
@@ -178,15 +178,15 @@ module BoxGrinder
 
       offsets.each do |offset|
         loop_device = get_loop_device
-        @exec_helper.execute("sudo losetup -o #{offset.to_s} #{loop_device} #{disk}")
-        label = @exec_helper.execute("sudo e2label #{loop_device}").strip.chomp
+        @exec_helper.execute("losetup -o #{offset.to_s} #{loop_device} #{disk}")
+        label = @exec_helper.execute("e2label #{loop_device}").strip.chomp
         label = '/' if label == ''
         mounts[label] = loop_device
       end
 
-      @exec_helper.execute("sudo mount #{mounts['/']} -t ext3 #{mount_dir}")
+      @exec_helper.execute("mount #{mounts['/']} -t ext3 #{mount_dir}")
 
-      mounts.each { |mount_point, loop_device| @exec_helper.execute("sudo mount #{loop_device} -t ext3 #{mount_dir}/#{mount_point}") unless mount_point == '/' }
+      mounts.each { |mount_point, loop_device| @exec_helper.execute("mount #{loop_device} -t ext3 #{mount_dir}/#{mount_point}") unless mount_point == '/' }
 
       @log.trace "Mounts:\n#{mounts}"
 
@@ -196,9 +196,9 @@ module BoxGrinder
     def umount_image(disk, mount_dir, mounts)
       @log.debug "Unmounting image '#{File.basename(disk)}'..."
 
-      mounts.each { |mount_point, loop_device| @exec_helper.execute("sudo umount -d #{loop_device}") unless mount_point == '/' }
+      mounts.each { |mount_point, loop_device| @exec_helper.execute("umount -d #{loop_device}") unless mount_point == '/' }
 
-      @exec_helper.execute("sudo umount -d #{mounts['/']}")
+      @exec_helper.execute("umount -d #{mounts['/']}")
 
       FileUtils.rm_rf(mount_dir)
     end
@@ -206,7 +206,7 @@ module BoxGrinder
 
     def sync_files(from_dir, to_dir)
       @log.debug "Syncing files between #{from_dir} and #{to_dir}..."
-      @exec_helper.execute "sudo rsync -u -r -a  #{from_dir}/* #{to_dir}"
+      @exec_helper.execute "rsync -u -r -a  #{from_dir}/* #{to_dir}"
       @log.debug "Sync finished."
     end
 
@@ -214,8 +214,8 @@ module BoxGrinder
       for name in rpms.keys
         cache_file = "#{@config.dir.src_cache}/#{name}"
 
-        @exec_helper.execute "sudo mkdir -p #{@config.dir.src_cache}"
-        @exec_helper.execute "sudo wget #{rpms[name]} -O #{cache_file}" unless File.exist?(cache_file)
+        @exec_helper.execute "mkdir -p #{@config.dir.src_cache}"
+        @exec_helper.execute "wget #{rpms[name]} -O #{cache_file}" unless File.exist?(cache_file)
       end
     end
 
@@ -333,7 +333,7 @@ module BoxGrinder
 
     def get_loop_device
       begin
-        loop_device = @exec_helper.execute("sudo losetup -f 2>&1").strip
+        loop_device = @exec_helper.execute("losetup -f 2>&1").strip
       rescue
         raise "No free loop devices available, please free at least one. See 'losetup -d' command."
       end

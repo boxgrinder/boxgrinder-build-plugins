@@ -15,13 +15,13 @@ module BoxGrinder
     end
 
     it "should download a rpm to cache directory" do
-      @exec_helper.should_receive(:execute).with( "sudo mkdir -p /var/cache/boxgrinder/sources-cache" )
-      @exec_helper.should_receive(:execute).with( "sudo wget http://rpm_location -O /var/cache/boxgrinder/sources-cache/rpm_name" )
+      @exec_helper.should_receive(:execute).with( "mkdir -p /var/cache/boxgrinder/sources-cache" )
+      @exec_helper.should_receive(:execute).with( "wget http://rpm_location -O /var/cache/boxgrinder/sources-cache/rpm_name" )
       @plugin.cache_rpms( 'rpm_name' => 'http://rpm_location' )
     end
 
     it "should get new free loop device" do
-      @exec_helper.should_receive(:execute).with( "sudo losetup -f 2>&1" ).and_return(" /dev/loop1   ")
+      @exec_helper.should_receive(:execute).with( "losetup -f 2>&1" ).and_return(" /dev/loop1   ")
       @plugin.get_loop_device.should == "/dev/loop1"
     end
 
@@ -39,20 +39,20 @@ module BoxGrinder
       FileUtils.should_receive(:mkdir_p).with("mount_dir").once
 
       @plugin.should_receive(:get_loop_device).and_return("/dev/loop0")
-      @exec_helper.should_receive(:execute).with( "sudo losetup /dev/loop0 disk" )
-      @exec_helper.should_receive(:execute).with( "sudo parted /dev/loop0 'unit B print' | grep -e '^ [0-9]' | awk '{ print $2 }'" ).and_return("1234")
-      @exec_helper.should_receive(:execute).with( "sudo losetup -d /dev/loop0" )
+      @exec_helper.should_receive(:execute).with( "losetup /dev/loop0 disk" )
+      @exec_helper.should_receive(:execute).with( "parted /dev/loop0 'unit B print' | grep -e '^ [0-9]' | awk '{ print $2 }'" ).and_return("1234")
+      @exec_helper.should_receive(:execute).with( "losetup -d /dev/loop0" )
 
       @plugin.should_receive(:get_loop_device).and_return("/dev/loop1")
-      @exec_helper.should_receive(:execute).with( "sudo losetup -o 1234 /dev/loop1 disk" )
-      @exec_helper.should_receive(:execute).with( "sudo e2label /dev/loop1" ).and_return("/")
-      @exec_helper.should_receive(:execute).with( "sudo mount /dev/loop1 -t ext3 mount_dir" )
+      @exec_helper.should_receive(:execute).with( "losetup -o 1234 /dev/loop1 disk" )
+      @exec_helper.should_receive(:execute).with( "e2label /dev/loop1" ).and_return("/")
+      @exec_helper.should_receive(:execute).with( "mount /dev/loop1 -t ext3 mount_dir" )
 
       @plugin.mount_image("disk", "mount_dir")
     end
 
     it "should sync files" do
-      @exec_helper.should_receive(:execute).with( "sudo rsync -u -r -a  from/* to" )
+      @exec_helper.should_receive(:execute).with( "rsync -u -r -a  from/* to" )
       @plugin.sync_files("from", "to")
     end
 
