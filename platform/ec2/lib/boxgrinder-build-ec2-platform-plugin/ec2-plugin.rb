@@ -53,7 +53,7 @@ module BoxGrinder
     }
 
     def after_init
-      @deliverables[:disk] = "#{@appliance_config.path.dir.build}/ec2/#{@appliance_config.name}.ec2"
+      register_deliverable( :disk, "#{@appliance_config.name}.ec2" )
     end
 
     def supported_os
@@ -67,7 +67,7 @@ module BoxGrinder
     end
 
     def execute
-      if File.exists?(@deliverables[:disk])
+      if File.exists?( @deliverables.disk )
         @log.info "EC2 image for #{@appliance_config.name} appliance already exists, skipping..."
         return
       end
@@ -79,7 +79,7 @@ module BoxGrinder
 
       @linux_helper = LinuxHelper.new( :log => @log )
 
-      FileUtils.mkdir_p File.dirname(@deliverables[:disk])
+      FileUtils.mkdir_p File.dirname( @deliverables.disk )
 
       @log.info "Converting #{@appliance_config.name} appliance image to EC2 format..."
 
@@ -90,13 +90,12 @@ module BoxGrinder
         raise "Error while preparing EC2 disk image. See logs for more info"
       end
 
-      ec2_disk_mount_dir = "#{@appliance_config.path.dir.build}/tmp/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
-      raw_disk_mount_dir = "#{@appliance_config.path.dir.build}/tmp/raw-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
-
+      ec2_disk_mount_dir = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
+      raw_disk_mount_dir = "#{@dir.tmp}/raw-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
 
       begin
-        ec2_mounts = mount_image( @deliverables[:disk], ec2_disk_mount_dir )
-        raw_mounts = mount_image( @previous_deliverables[:disk], raw_disk_mount_dir )
+        ec2_mounts = mount_image( @deliverables.disk, ec2_disk_mount_dir )
+        raw_mounts = mount_image( @previous_deliverables.disk, raw_disk_mount_dir )
       rescue => e
         @log.debug e
         raise "Error while mounting image. See logs for more info"
@@ -104,10 +103,10 @@ module BoxGrinder
 
       sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
 
-      umount_image(@previous_deliverables[:disk], raw_disk_mount_dir, raw_mounts)
-      umount_image(@deliverables[:disk], ec2_disk_mount_dir, ec2_mounts)
+      umount_image(@previous_deliverables.disk, raw_disk_mount_dir, raw_mounts)
+      umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts)
 
-      customize(@deliverables[:disk]) do |guestfs, guestfs_helper|
+      customize(@deliverables.disk) do |guestfs, guestfs_helper|
         # TODO is this really needed?
         @log.debug "Uploading '/etc/resolv.conf'..."
         guestfs.upload( "/etc/resolv.conf", "/etc/resolv.conf" )
@@ -145,13 +144,13 @@ module BoxGrinder
       # TODO add progress bar?
       # TODO using whole 10GB is fine?
       @log.debug "Preparing disk for EC2 image..."
-      @exec_helper.execute "dd if=/dev/zero of=#{@deliverables[:disk]} bs=1 count=0 seek=#{10 * 1024}M"
+      @exec_helper.execute "dd if=/dev/zero of=#{@deliverables.disk} bs=1 count=0 seek=#{10 * 1024}M"
       @log.debug "Disk for EC2 image prepared"
     end
 
     def ec2_create_filesystem
       @log.debug "Creating filesystem..."
-      @exec_helper.execute "mkfs.ext3 -F #{@deliverables[:disk]}"
+      @exec_helper.execute "mkfs.ext3 -F #{@deliverables.disk}"
       @log.debug "Filesystem created"
     end
 

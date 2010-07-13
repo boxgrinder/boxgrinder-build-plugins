@@ -11,7 +11,7 @@ module BoxGrinder
     end
 
     before(:each) do
-      @plugin = RPMBasedOSPlugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'))
+      @plugin = RPMBasedOSPlugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => { :name => :rpm_based })
 
       @config             = @plugin.instance_variable_get(:@config)
       @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
@@ -30,7 +30,7 @@ module BoxGrinder
     end
 
     it "should not install ephemeral repos" do
-      @plugin = RPMBasedOSPlugin.new.init(generate_config, generate_appliance_config( "#{RSpecConfigHelper::RSPEC_BASE_LOCATION}/src/appliances/ephemeral-repo.appl" ), :log => Logger.new('/dev/null'))
+      @plugin = RPMBasedOSPlugin.new.init(generate_config, generate_appliance_config( "#{RSpecConfigHelper::RSPEC_BASE_LOCATION}/src/appliances/ephemeral-repo.appl" ), :log => Logger.new('/dev/null'), :plugin_info => { :name => :rpm_based })
 
       guestfs = mock("guestfs")
 

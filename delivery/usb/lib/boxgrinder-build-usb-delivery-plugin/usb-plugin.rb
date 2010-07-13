@@ -30,7 +30,7 @@ module BoxGrinder
       validate_device
 
       @log.debug "Using '#{@plugin_config['device']}' as a target device..."
-      @exec_helper.execute( "dd if=#{@previous_deliverables[:disk]} of=#{@plugin_config['device']} bs=1M" )
+      @exec_helper.execute( "dd if=#{@previous_deliverables.disk} of=#{@plugin_config['device']} bs=1M" )
 
     end
 

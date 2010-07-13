@@ -6,7 +6,7 @@ module BoxGrinder
     include RSpecConfigHelper
 
     before(:each) do
-      @plugin = EC2Plugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'))
+      @plugin = EC2Plugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name  => "Amazon Elastic Compute Cloud (Amazon EC2)"})
 
       @config             = @plugin.instance_variable_get(:@config)
       @appliance_config   = @plugin.instance_variable_get(:@appliance_config)

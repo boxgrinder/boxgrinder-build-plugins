@@ -35,7 +35,7 @@ module BoxGrinder
       if @plugin_config['package']
         files <<  PackageHelper.new(@config, @appliance_config, {:log => @log, :exec_helper => @exec_helper}).package( @previous_deliverables, :plugin_info => @previous_plugin_info )
       else
-        files << @previous_deliverables[:disk]
+        files << @previous_deliverables.disk
 
         [:metadata, :other].each do |deliverable_type|
           @previous_deliverables[deliverable_type].each_value do |file|

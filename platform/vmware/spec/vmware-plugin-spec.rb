@@ -10,6 +10,10 @@ module BoxGrinder
       @arch = RbConfig::CONFIG['host_cpu']
     end
 
+    before(:each) do
+      prepare_image
+    end
+
     def prepare_image( options = {} )
       params = OpenStruct.new
       params.base_vmdk = "../src/base.vmdk"
@@ -19,6 +23,7 @@ module BoxGrinder
       @appliance_config = generate_appliance_config
 
       options[:log] = Logger.new('/dev/null')
+      options[:plugin_info] = {:class => BoxGrinder::VMwarePlugin, :type => :platform, :name => :vmware, :full_name  => "VMware"}
 
       @plugin = VMwarePlugin.new.init( @config, @appliance_config, options )
 
@@ -26,7 +31,7 @@ module BoxGrinder
     end
 
     it "should calculate good CHS value for 1GB disk" do
-      c, h, s, total_sectors = VMwarePlugin.new.init( generate_config, generate_appliance_config ).generate_scsi_chs(1)
+      c, h, s, total_sectors = @plugin.generate_scsi_chs(1)
 
       c.should == 512
       h.should == 128
@@ -35,7 +40,7 @@ module BoxGrinder
     end
 
     it "should calculate good CHS value for 40GB disk" do
-      c, h, s, total_sectors = VMwarePlugin.new.init( generate_config, generate_appliance_config ).generate_scsi_chs(40)
+      c, h, s, total_sectors = @plugin.generate_scsi_chs(40)
 
       c.should == 5221
       h.should == 255
@@ -44,7 +49,7 @@ module BoxGrinder
     end
 
     it "should calculate good CHS value for 160GB disk" do
-      c, h, s, total_sectors = VMwarePlugin.new.init( generate_config, generate_appliance_config ).generate_scsi_chs(160)
+      c, h, s, total_sectors = @plugin.generate_scsi_chs(160)
 
       c.should == 20886
       h.should == 255
@@ -53,8 +58,6 @@ module BoxGrinder
     end
 
     it "should change vmdk data (vmfs)" do
-      prepare_image
-
       vmdk_image = @plugin.change_vmdk_values("vmfs")
 
       vmdk_image.scan(/^createType="(.*)"\s?$/).to_s.should == "vmfs"
@@ -74,8 +77,6 @@ module BoxGrinder
     end
 
     it "should change vmdk data (flat)" do
-      prepare_image
-
       vmdk_image = @plugin.change_vmdk_values("monolithicFlat")
 
       vmdk_image.scan(/^createType="(.*)"\s?$/).to_s.should == "monolithicFlat"
@@ -95,8 +96,6 @@ module BoxGrinder
     end
 
     it "should change vmx data" do
-      prepare_image
-
       vmx_file = @plugin.change_common_vmx_values
 
       vmx_file.scan(/^guestOS = "(.*)"\s?$/).to_s.should == (@arch == "x86_64" ? "otherlinux-64" : "linux")
@@ -111,8 +110,6 @@ module BoxGrinder
     end
 
     it "should build personal image" do
-      prepare_image
-
       File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware/full-personal.vmx", "w")
       File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware/full-personal.vmdk", "w")
 
@@ -120,8 +117,6 @@ module BoxGrinder
     end
 
     it "should build enterprise image" do
-      prepare_image
-
       @plugin.should_receive(:change_common_vmx_values).with(no_args()).and_return("")
 
       File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware/full-enterprise.vmx", "w")
@@ -155,8 +150,6 @@ module BoxGrinder
     end
 
     it "should create a valid README file" do
-      prepare_image
-
       file = mock(File)
 
       File.should_receive(:open).and_return(file)
