@@ -53,7 +53,7 @@ module BoxGrinder
     }
 
     def after_init
-      register_deliverable( :disk, "#{@appliance_config.name}.ec2" )
+      register_deliverable( :disk => "#{@appliance_config.name}.ec2" )
     end
 
     def supported_os

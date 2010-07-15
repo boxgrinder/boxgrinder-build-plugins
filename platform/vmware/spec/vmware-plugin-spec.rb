@@ -157,25 +157,5 @@ module BoxGrinder
 
       @plugin.create_readme.should == "one full two BoxGrinder three 1.0.0-SNAPSHOT four"
     end
-
-#    it "should customize image" do
-#      prepare_image
-#
-#      customize_helper_mock = mock("ApplianceCustomizeHelper")
-#      ApplianceCustomizeHelper.should_receive(:new).with( @config, @appliance_config, "build/appliances/#{@arch}/fedora/12/valid-appliance/vmware/valid-appliance-sda.raw" ).and_return(customize_helper_mock)
-#      customize_helper_mock.should_receive(:customize).with(no_args())
-#
-#      @plugin.customize
-#    end
-
-
-#    it "should install vmware tools" do
-#      prepare_image
-#
-#      customize_helper_mock = mock("ApplianceCustomizeHelper")
-#      customize_helper_mock.should_receive(:install_packages).once.with("build/appliances/#{@arch}/fedora/12/valid-appliance/vmware/valid-appliance-sda.raw", {:packages=>{:yum=>["kmod-open-vm-tools"]}, :repos=>["http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm", "http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm"]})
-#
-#      @plugin.install_vmware_tools( customize_helper_mock )
-#    end
   end
 end

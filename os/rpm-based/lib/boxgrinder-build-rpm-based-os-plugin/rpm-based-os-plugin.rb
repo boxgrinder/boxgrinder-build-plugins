@@ -26,8 +26,10 @@ require 'boxgrinder-build/helpers/linux-helper'
 module BoxGrinder
   class RPMBasedOSPlugin < BasePlugin
     def after_init
-      register_deliverable(:disk, "#{@appliance_config.name}-sda.raw")
-      register_deliverable(:metadata, :descriptor => "#{@appliance_config.name}.xml")
+      register_deliverable(
+              :disk       => "#{@appliance_config.name}-sda.raw",
+              :descriptor => "#{@appliance_config.name}.xml"
+      )
 
       @linux_helper = LinuxHelper.new( :log => @log )
     end
@@ -46,7 +48,7 @@ module BoxGrinder
       # fix permissions
       @exec_helper.execute "chmod 777 #{@appliance_config.path.dir.raw.build_full}"
       @exec_helper.execute "chmod 666 #{@deliverables.disk}"
-      @exec_helper.execute "chmod 666 #{@deliverables.metadata[:descriptor]}"
+      @exec_helper.execute "chmod 666 #{@deliverables.descriptor}"
 
       customize( @deliverables.disk ) do |guestfs, guestfs_helper|
         # TODO is this really needed?
