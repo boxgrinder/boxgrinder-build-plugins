@@ -35,20 +35,15 @@ module BoxGrinder
     end
 
     def build_with_appliance_creator( repos = {} )
-      Kickstart.new( @config, @appliance_config, repos, :log => @log ).create
-      RPMDependencyValidator.new( @config, @appliance_config, @options ).resolve_packages
-
-      tmp_dir = "#{@config.dir.root}/#{@config.dir.build}/tmp"
-      FileUtils.mkdir_p( tmp_dir )
+      kickstart_file = Kickstart.new( @config, @appliance_config, repos, @dir, :log => @log ).create
+      RPMDependencyValidator.new( @config, @appliance_config, @dir, kickstart_file, @options ).resolve_packages
 
       @log.info "Building #{@appliance_config.name} appliance..."
 
-      @exec_helper.execute "appliance-creator -d -v -t #{tmp_dir} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.main_path} --config #{@appliance_config.path.file.raw.kickstart} -o #{@appliance_config.path.dir.raw.build} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus}"
+      @exec_helper.execute "appliance-creator -d -v -t #{@dir.tmp} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.path.main} --config #{kickstart_file} -o #{@dir.base} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus}"
 
-      # fix permissions
-      @exec_helper.execute "chmod 777 #{@appliance_config.path.dir.raw.build_full}"
-      @exec_helper.execute "chmod 666 #{@deliverables.disk}"
-      @exec_helper.execute "chmod 666 #{@deliverables.descriptor}"
+      FileUtils.mv( Dir.glob("#{@dir.base}/#{@appliance_config.name}/*"), @dir.base )
+      FileUtils.rm_rf( "#{@dir.base}/#{@appliance_config.name}/")
 
       customize( @deliverables.disk ) do |guestfs, guestfs_helper|
         # TODO is this really needed?

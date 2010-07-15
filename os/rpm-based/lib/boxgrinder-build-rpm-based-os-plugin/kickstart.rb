@@ -25,20 +25,22 @@ require 'erb'
 module BoxGrinder
 
   class Kickstart
-
-    def initialize(config, appliance_config, repos, options = {})
+    def initialize(config, appliance_config, repos, dir, options = {})
       @config           = config
       @repos            = repos
       @appliance_config = appliance_config
+      @dir              = dir
       @log              = options[:log] || Logger.new(STDOUT)
+
+      @kickstart_file   = "#{@dir.base}/#{@appliance_config.name}.ks"
     end
 
     def create
-      FileUtils.mkdir_p @appliance_config.path.dir.raw.build
-
       template = "#{File.dirname(__FILE__)}/src/appliance.ks.erb"
       kickstart = ERB.new(File.read(template)).result(build_definition.send(:binding))
-      File.open(@appliance_config.path.file.raw.kickstart, 'w') { |f| f.write(kickstart) }
+      File.open( @kickstart_file, 'w') { |f| f.write(kickstart) }
+
+      @kickstart_file
     end
 
     def build_definition
@@ -83,6 +85,8 @@ module BoxGrinder
       if @appliance_config.os.name.eql?("fedora")
         definition['packages'].push("kernel", "passwd")
         case @appliance_config.os.version.to_s
+          when "13" then
+            definition['packages'].push "system-config-firewall-base"
           when "12" then
             definition['packages'].push "system-config-firewall-base"
           # default filesystem for fedora 12

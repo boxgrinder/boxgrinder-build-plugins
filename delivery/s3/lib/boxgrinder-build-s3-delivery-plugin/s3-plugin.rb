@@ -63,7 +63,7 @@ module BoxGrinder
       set_default_config_value('overwrite', false)
       set_default_config_value('path', '/')
 
-      @ami_build_dir  = "#{@appliance_config.path.dir.build}/ec2/ami"
+      @ami_build_dir  = "#{@dir.base}/ami"
       @ami_manifest   = "#{@ami_build_dir}/#{@appliance_config.name}.ec2.manifest.xml"
     end
 

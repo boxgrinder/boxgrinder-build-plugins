@@ -10,7 +10,7 @@ module BoxGrinder
     end
 
     def prepare_kickstart
-      @kickstart = Kickstart.new( generate_config, generate_appliance_config, {} )
+      @kickstart = Kickstart.new( generate_config, generate_appliance_config, {}, OpenHash.new(:base => 'a/base/dir') )
     end
 
     it "should prepare valid definition" do

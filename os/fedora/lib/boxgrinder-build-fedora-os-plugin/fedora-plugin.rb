@@ -57,10 +57,7 @@ module BoxGrinder
     }
 
     def execute
-      build_with_appliance_creator( FEDORA_REPOS )  do |guestfs, guestfs_helper|
-        # required when running on Amazon EC2
-        @linux_helper.recreate_kernel_image( guestfs, ['xenblk', 'xennet'] )
-      end
+      build_with_appliance_creator( FEDORA_REPOS )
     end
   end
 end

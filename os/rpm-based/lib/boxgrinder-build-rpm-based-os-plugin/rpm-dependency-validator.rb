@@ -34,12 +34,16 @@ module BoxGrinder
   end
 
   class RPMDependencyValidator
-    def initialize( config, appliance_config, options = {} )
-      @config = config
+    def initialize( config, appliance_config, dir, kickstart_file, options = {} )
+      @config           = config
       @appliance_config = appliance_config
+      @kickstart_file   = kickstart_file
+      @dir              = dir
 
       @log          = options[:log]         || Logger.new(STDOUT)
       @exec_helper  = options[:exec_helper] || ExecHelper.new( { :log => @log } )
+
+      @yum_config_file = "#{@dir.tmp}/yum.conf"
 
       # Because we're using repoquery command from our building environment, we must ensure, that our repository
       # names are unique
@@ -47,7 +51,7 @@ module BoxGrinder
     end
 
     def resolve_packages
-      @log.info "Resolving packages added to #{@appliance_config.simple_name} appliance definition file..."
+      @log.info "Resolving packages added to #{@appliance_config.name} appliance definition file..."
 
       repos = read_repos_from_kickstart_file
       package_list = generate_package_list
@@ -58,9 +62,9 @@ module BoxGrinder
       invalid_names = invalid_names( repo_list, package_list )
 
       if invalid_names.size == 0
-        @log.info "All additional packages for #{@appliance_config.simple_name} appliance successfully resolved."
+        @log.info "All additional packages for #{@appliance_config.name} appliance successfully resolved."
       else
-        raise "Package#{invalid_names.size > 1 ? "s" : ""} #{invalid_names.join(', ')} for #{@appliance_config.simple_name} appliance not found in repositories. Please check package names in appliance definition file."
+        raise "Package#{invalid_names.size > 1 ? "s" : ""} #{invalid_names.join(', ')} for #{@appliance_config.name} appliance not found in repositories. Please check package names in appliance definition file."
       end
     end
 
@@ -73,7 +77,7 @@ module BoxGrinder
         arches = "x86_64"
       end
 
-      repoquery_output = @exec_helper.execute( "repoquery --quiet --disablerepo=* --enablerepo=#{repo_list} -c #{@appliance_config.path.file.raw.yum} list available #{package_list.join( ' ' )} --nevra --archlist=#{arches},noarch" )
+      repoquery_output = @exec_helper.execute( "repoquery --quiet --disablerepo=* --enablerepo=#{repo_list} -c #{@yum_config_file} list available #{package_list.join( ' ' )} --nevra --archlist=#{arches},noarch" )
       invalid_names = []
 
       for name in package_list
@@ -114,7 +118,7 @@ module BoxGrinder
     end
 
     def read_repos_from_kickstart_file
-      repos = `grep -e "^repo" #{@appliance_config.path.file.raw.kickstart}`
+      repos = `grep -e "^repo" #{@kickstart_file}`
       repo_list = []
 
       repos.each do |repo_line|
@@ -132,7 +136,7 @@ module BoxGrinder
     end
 
     def generate_yum_config( repo_list )
-      File.open( @appliance_config.path.file.raw.yum, "w") do |f|
+      File.open( @yum_config_file, "w") do |f|
 
         f.puts( "[main]\r\ncachedir=/tmp/#{@magic_hash}#{@appliance_config.hardware.arch}-yum-cache/\r\n\r\n" )
 
