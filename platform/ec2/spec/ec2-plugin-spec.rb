@@ -26,12 +26,12 @@ module BoxGrinder
     end
 
     it "should prepare disk for EC2 image" do
-      @exec_helper.should_receive(:execute).with( "dd if=/dev/zero of=build/appliances/#{RbConfig::CONFIG['host_cpu']}/fedora/11/full/ec2-plugin/full.ec2 bs=1 count=0 seek=10240M")
+      @exec_helper.should_receive(:execute).with( "dd if=/dev/zero of=build/appliances/#{RbConfig::CONFIG['host_cpu']}/fedora/11/full/ec2-plugin/tmp/full.ec2 bs=1 count=0 seek=10240M")
       @plugin.ec2_prepare_disk
     end
 
     it "should create filesystem" do
-      @exec_helper.should_receive(:execute).with( "mkfs.ext3 -F build/appliances/#{RbConfig::CONFIG['host_cpu']}/fedora/11/full/ec2-plugin/full.ec2")
+      @exec_helper.should_receive(:execute).with( "mkfs.ext3 -F build/appliances/#{RbConfig::CONFIG['host_cpu']}/fedora/11/full/ec2-plugin/tmp/full.ec2")
       @plugin.ec2_create_filesystem
     end
 

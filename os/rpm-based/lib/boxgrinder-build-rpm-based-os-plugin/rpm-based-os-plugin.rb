@@ -40,10 +40,10 @@ module BoxGrinder
 
       @log.info "Building #{@appliance_config.name} appliance..."
 
-      @exec_helper.execute "appliance-creator -d -v -t #{@dir.tmp} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.path.main} --config #{kickstart_file} -o #{@dir.base} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus}"
+      @exec_helper.execute "appliance-creator -d -v -t #{@dir.tmp} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.path.main} --config #{kickstart_file} -o #{@dir.tmp} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus}"
 
-      FileUtils.mv( Dir.glob("#{@dir.base}/#{@appliance_config.name}/*"), @dir.base )
-      FileUtils.rm_rf( "#{@dir.base}/#{@appliance_config.name}/")
+      FileUtils.mv( Dir.glob("#{@dir.tmp}/#{@appliance_config.name}/*"), @dir.tmp )
+      FileUtils.rm_rf( "#{@dir.tmp}/#{@appliance_config.name}/")
 
       customize( @deliverables.disk ) do |guestfs, guestfs_helper|
         # TODO is this really needed?

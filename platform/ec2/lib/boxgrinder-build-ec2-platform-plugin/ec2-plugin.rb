@@ -67,11 +67,6 @@ module BoxGrinder
     end
 
     def execute
-      if File.exists?( @deliverables.disk )
-        @log.info "EC2 image for #{@appliance_config.name} appliance already exists, skipping..."
-        return
-      end
-
       unless !SUPPORTED_OSES[@appliance_config.os.name].nil? and SUPPORTED_OSES[@appliance_config.os.name].include?(@appliance_config.os.version)
         @log.error "EC2 platform plugin for Linux operating systems supports: #{supported_os}. Your OS is #{@appliance_config.os.name} #{@appliance_config.os.version}."
         return
@@ -79,15 +74,14 @@ module BoxGrinder
 
       @linux_helper = LinuxHelper.new( :log => @log )
 
-      FileUtils.mkdir_p File.dirname( @deliverables.disk )
-
       @log.info "Converting #{@appliance_config.name} appliance image to EC2 format..."
 
       begin
         ec2_prepare_disk
         ec2_create_filesystem
       rescue => e
-        raise "Error while preparing EC2 disk image. See logs for more info"
+        @log.error "Error while preparing EC2 disk image. See logs for more info"
+        raise
       end
 
       ec2_disk_mount_dir = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
@@ -120,13 +114,13 @@ module BoxGrinder
         enable_networking(guestfs)
         upload_rc_local(guestfs)
 
-        guestfs_helper.rebuild_rpm_database
+        guestfs_helper.rebuild_rpm_database if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == '11'
 
         install_additional_packages(guestfs)
         change_configuration(guestfs)
         install_menu_lst( guestfs )
 
-        @linux_helper.recreate_kernel_image( guestfs, ['xenblk', 'xennet'] ) if @appliance_config.os.name == 'fedora' and @appliance_config.os.version != '11'
+        #@linux_helper.recreate_kernel_image( guestfs, ['xenblk', 'xennet'] ) if @appliance_config.os.name == 'fedora' and @appliance_config.os.version != '11'
 
         unless @appliance_config.post['ec2'].nil?
           @appliance_config.post['ec2'].each do |cmd|

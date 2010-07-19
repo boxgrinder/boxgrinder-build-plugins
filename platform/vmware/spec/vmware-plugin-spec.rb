@@ -110,8 +110,8 @@ module BoxGrinder
     end
 
     it "should build personal image" do
-      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/full-personal.vmx", "w")
-      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/full-personal.vmdk", "w")
+      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full-personal.vmx", "w")
+      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full-personal.vmdk", "w")
 
       @plugin.build_vmware_personal
     end
@@ -119,8 +119,8 @@ module BoxGrinder
     it "should build enterprise image" do
       @plugin.should_receive(:change_common_vmx_values).with(no_args()).and_return("")
 
-      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/full-enterprise.vmx", "w")
-      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/full-enterprise.vmdk", "w")
+      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full-enterprise.vmx", "w")
+      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full-enterprise.vmdk", "w")
 
       @plugin.build_vmware_enterprise
     end
@@ -130,19 +130,17 @@ module BoxGrinder
 
       @appliance_config.post['vmware'] = ["one", "two", "three"]
 
-      @exec_helper.should_receive(:execute).with( "cp a/base/image/path.raw build/appliances/#{@arch}/fedora/11/full/vmware-plugin/full.raw" )
+      @exec_helper.should_receive(:execute).with( "cp a/base/image/path.raw build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw" )
       @plugin.should_receive(:build_vmware_enterprise).with(no_args())
       @plugin.should_receive(:build_vmware_personal).with(no_args())
 
       guestfs_mock = mock("GuestFS")
 
-      @plugin.should_receive(:customize).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/full.raw").and_yield(guestfs_mock, nil)
+      @plugin.should_receive(:customize).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, nil)
 
       guestfs_mock.should_receive(:sh).once.ordered.with("one")
       guestfs_mock.should_receive(:sh).once.ordered.with("two")
       guestfs_mock.should_receive(:sh).once.ordered.with("three")
-
-      FileUtils.should_receive(:mkdir_p).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin")
 
       File.should_receive(:open)
 

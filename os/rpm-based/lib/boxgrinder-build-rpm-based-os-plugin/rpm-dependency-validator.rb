@@ -78,6 +78,7 @@ module BoxGrinder
       end
 
       repoquery_output = @exec_helper.execute( "repoquery --quiet --disablerepo=* --enablerepo=#{repo_list} -c #{@yum_config_file} list available #{package_list.join( ' ' )} --nevra --archlist=#{arches},noarch" )
+
       invalid_names = []
 
       for name in package_list

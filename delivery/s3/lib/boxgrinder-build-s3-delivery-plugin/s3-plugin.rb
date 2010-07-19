@@ -120,7 +120,7 @@ module BoxGrinder
     end
 
     def upload_to_bucket(deliverables, permissions = :private)
-      package = PackageHelper.new(@config, @appliance_config, {:log => @log, :exec_helper => @exec_helper}).package( deliverables, :plugin_info => @previous_plugin_info )
+      package = PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( deliverables, :plugin_info => @previous_plugin_info )
 
       @log.info "Uploading #{@appliance_config.name} appliance to S3 bucket '#{@plugin_config['bucket']}'..."
 
@@ -134,7 +134,7 @@ module BoxGrinder
       remote_path = "#{@plugin_config['path']}/#{File.basename(package)}"
       size_b      = File.size(package)
 
-      unless S3Object.exists?(remote_path, @plugin_config['bucket']) or @plugin_config['overwrite']
+      unless AWS::S3::S3Object.exists?(remote_path, @plugin_config['bucket']) or @plugin_config['overwrite']
         @log.info "Uploading #{File.basename(package)} (#{size_b/1024/1024}MB)..."
         AWS::S3::S3Object.store(remote_path, open(package), @plugin_config['bucket'], :access => permissions)
       end
