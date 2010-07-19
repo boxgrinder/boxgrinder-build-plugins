@@ -1,0 +1,11 @@
+CHANGELOG
+Manifest
+Rakefile
+lib/boxgrinder-build-ec2-platform-plugin.rb
+lib/boxgrinder-build-ec2-platform-plugin/ec2-plugin.rb
+lib/boxgrinder-build-ec2-platform-plugin/src/fstab_32bit
+lib/boxgrinder-build-ec2-platform-plugin/src/fstab_64bit
+lib/boxgrinder-build-ec2-platform-plugin/src/ifcfg-eth0
+lib/boxgrinder-build-ec2-platform-plugin/src/menu.lst
+lib/boxgrinder-build-ec2-platform-plugin/src/rc_local
+spec/ec2-plugin-spec.rb

@@ -1,0 +1,7 @@
+CHANGELOG
+LICENSE
+Manifest
+README
+Rakefile
+lib/boxgrinder-build-rhel-os-plugin.rb
+lib/boxgrinder-build-rhel-os-plugin/rhel-plugin.rb

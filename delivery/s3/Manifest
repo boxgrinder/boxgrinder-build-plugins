@@ -1,0 +1,7 @@
+CHANGELOG
+LICENSE
+Manifest
+Rakefile
+lib/boxgrinder-build-s3-delivery-plugin.rb
+lib/boxgrinder-build-s3-delivery-plugin/s3-plugin.rb
+spec/s3-plugin-spec.rb

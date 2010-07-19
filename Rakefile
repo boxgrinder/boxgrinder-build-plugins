@@ -1,7 +1,4 @@
-require 'rubygems'
-require 'jeweler'
-require 'spec/rake/spectask'
-require 'rcov'
+require 'rake'
 
 MAIN_PLUGIN_VERSION = '0.0.1'
 
@@ -19,29 +16,32 @@ plugins = {
         "boxgrinder-build-ec2-platform-plugin"    => { :dir => "platform/ec2", :desc => 'Elastic Compute Cloud (EC2) Platform Plugin' }
 }
 
-plugins.each do |name, info|
-  Jeweler::Tasks.new( :base_dir => info[:dir] ) do |s|
-    s.name              = name
-    s.summary           = info[:desc]
-    s.version           = info[:version].nil? ? MAIN_PLUGIN_VERSION : info[:version]
-    s.email             = "info@boxgrinder.org"
-    s.homepage          = "http://www.jboss.org/stormgrind/projects/boxgrinder/build.html"
-    s.description       = "BoxGrinder Build #{info[:desc]}"
-    s.authors           = ["Marek Goldmann"]
-    s.rubyforge_project = "boxgrinder-build-plugins"
-
-    info[:deps].each do |dep, version|
-      s.add_dependency dep, version
-    end unless info[:deps].nil?
-
-    s.add_dependency 'boxgrinder-build', '>= 0.4.2'
-  end
-end
-
-desc "Install all built gems"
-task "go" => [ "gemspec", "build" ] do
+task "rakefiles" do
   plugins.each do |name, info|
-    puts `gem uninstall -I #{name}`
-    puts `gem install --ignore-dependencies #{info[:dir]}/pkg/#{name}*.gem`
+
+    rakefile = "require 'echoe'
+
+Echoe.new('#{name}') do |p|
+  p.project     = 'BoxGrinder Build'
+  p.author      = 'Marek Goldmann'
+  p.summary     = '#{info[:desc]}'
+  p.description = 'BoxGrinder Build #{info[:desc]}'
+  p.url         = 'http://www.jboss.org/stormgrind/projects/boxgrinder.html'
+  p.email       = 'info@boxgrinder.org'
+end"
+
+    File.open( "#{info[:dir]}/Rakefile", "w" ) {|f| f.write( rakefile ) }
   end
 end
+
+desc "Cleans and builds gems for all plugins"
+task "package" => "rakefiles" do
+  unless ARGV.empty?
+    plugins.each do |name, info|
+      Dir.chdir(info[:dir]) do
+        puts `rake clean manifest repackage` if File.exists?( "Rakefile" )
+      end
+    end
+  end
+end
+

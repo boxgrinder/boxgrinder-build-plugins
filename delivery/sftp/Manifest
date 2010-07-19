@@ -1,0 +1,6 @@
+CHANGELOG
+LICENSE
+Manifest
+Rakefile
+lib/boxgrinder-build-sftp-delivery-plugin.rb
+lib/boxgrinder-build-sftp-delivery-plugin/sftp-plugin.rb

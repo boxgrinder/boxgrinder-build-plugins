@@ -1,0 +1,14 @@
+CHANGELOG
+LICENSE
+Manifest
+README
+Rakefile
+lib/boxgrinder-build-rpm-based-os-plugin.rb
+lib/boxgrinder-build-rpm-based-os-plugin/kickstart.rb
+lib/boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin.rb
+lib/boxgrinder-build-rpm-based-os-plugin/rpm-dependency-validator.rb
+lib/boxgrinder-build-rpm-based-os-plugin/src/appliance.ks.erb
+lib/boxgrinder-build-rpm-based-os-plugin/src/base.repo
+lib/boxgrinder-build-rpm-based-os-plugin/src/motd.init
+spec/kickstart-spec.rb
+spec/rpm-based-os-plugin-spec.rb
