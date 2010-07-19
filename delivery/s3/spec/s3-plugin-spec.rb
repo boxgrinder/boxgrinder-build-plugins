@@ -32,15 +32,15 @@ module BoxGrinder
     end
 
     it "should generate valid bucket_key" do
-      @plugin.bucket_key( "name", "this/is/a/path" ).should == "bucket/this/is/a/path/name/1.0/#{@arch}"
+      @plugin.ami_bucket_key( "name", "this/is/a/path" ).should == "bucket/this/is/a/path/name/1.0/#{@arch}"
     end
 
     it "should generate valid bucket_key with mixed slashes" do
-      @plugin.bucket_key( "name", "//this/" ).should == "bucket/this/name/1.0/#{@arch}"
+      @plugin.ami_bucket_key( "name", "//this/" ).should == "bucket/this/name/1.0/#{@arch}"
     end
 
     it "should generate valid bucket_key with root path" do
-      @plugin.bucket_key( "name", "/" ).should == "bucket/name/1.0/#{@arch}"
+      @plugin.ami_bucket_key( "name", "/" ).should == "bucket/name/1.0/#{@arch}"
     end
 
     it "should generate valid bucket manifest key" do

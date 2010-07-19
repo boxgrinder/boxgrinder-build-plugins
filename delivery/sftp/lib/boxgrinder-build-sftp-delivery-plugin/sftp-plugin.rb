@@ -76,7 +76,7 @@ module BoxGrinder
       @log.debug "Files to upload:"
 
       files.each do |remote, local|
-        @log.debug "#{local} => #{remote}"
+        @log.debug "#{File.basename(local)} => #{path}/#{remote}"
       end
 
       global_size = 0

@@ -19,6 +19,7 @@
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 require 'boxgrinder-build/plugins/base-plugin'
+require 'boxgrinder-build/helpers/package-helper'
 require 'rubygems'
 require 'AWS'
 require 'aws/s3'
@@ -122,8 +123,6 @@ module BoxGrinder
     def upload_to_bucket(deliverables, permissions = :private)
       package = PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( deliverables, :plugin_info => @previous_plugin_info )
 
-      @log.info "Uploading #{@appliance_config.name} appliance to S3 bucket '#{@plugin_config['bucket']}'..."
-
       begin
         AWS::S3::Bucket.find(@plugin_config['bucket'])
       rescue AWS::S3::NoSuchBucket
@@ -131,17 +130,17 @@ module BoxGrinder
         retry
       end
 
-      remote_path = "#{@plugin_config['path']}/#{File.basename(package)}"
+      remote_path = "#{s3_path( @plugin_config['path'] )}/#{File.basename(package)}"
       size_b      = File.size(package)
 
       unless AWS::S3::S3Object.exists?(remote_path, @plugin_config['bucket']) or @plugin_config['overwrite']
-        @log.info "Uploading #{File.basename(package)} (#{size_b/1024/1024}MB)..."
+        @log.info "Uploading #{File.basename(package)} (#{size_b/1024/1024}MB) to '#{@plugin_config['bucket']}#{remote_path}' path..."
         AWS::S3::S3Object.store(remote_path, open(package), @plugin_config['bucket'], :access => permissions)
+        @log.info "Appliance #{@appliance_config.name} uploaded to S3."
+      else
+        @log.info "File '#{@plugin_config['bucket']}#{remote_path}' already uploaded, skipping."
       end
-
-      @log.info "Appliance #{@appliance_config.name} uploaded to S3."
     end
-
 
     def bundle_image( deliverables )
       return if File.exists?( @ami_build_dir )
@@ -178,7 +177,7 @@ module BoxGrinder
     def upload_image
       @log.info "Uploading #{@appliance_config.name} AMI to bucket '#{@plugin_config['bucket']}'..."
 
-      @exec_helper.execute("ec2-upload-bundle -b #{bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']} --retry")
+      @exec_helper.execute("ec2-upload-bundle -b #{ami_bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']} --retry")
     end
 
     def register_image
@@ -207,13 +206,18 @@ module BoxGrinder
       ami_info
     end
 
-    def bucket_key( appliance_name, path )
-      path = "/#{path.gsub(/^(\/)*/, '').gsub(/(\/)*$/, '')}/" unless path == '/'
-      "#{@plugin_config['bucket']}#{path}#{appliance_name}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
+    def s3_path( path )
+      return path if path == '/'
+
+      "/#{path.gsub(/^(\/)*/, '').gsub(/(\/)*$/, '')}/"
+    end
+
+    def ami_bucket_key( appliance_name, path )
+      "#{@plugin_config['bucket']}#{s3_path( path )}#{appliance_name}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
     end
 
     def bucket_manifest_key( appliance_name, path )
-      "#{bucket_key( appliance_name, path )}/#{appliance_name}.ec2.manifest.xml"
+      "#{ami_bucket_key( appliance_name, path )}/#{appliance_name}.ec2.manifest.xml"
     end
   end
 end

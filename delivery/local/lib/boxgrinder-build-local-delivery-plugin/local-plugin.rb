@@ -35,7 +35,6 @@ module BoxGrinder
       if @plugin_config['package']
         files << PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( @previous_deliverables, :plugin_info => @previous_plugin_info )
       else
-
         @previous_deliverables.each_value do |file|
           files << file
         end
@@ -44,11 +43,11 @@ module BoxGrinder
       if @plugin_config['overwrite'] or !already_delivered?(files)
         FileUtils.mkdir_p @plugin_config['path']
 
-        @log.debug "Copying files to destination..."
+        @log.debug "Copying files to '#{@plugin_config['path']}'..."
 
         files.each do |file|
           @log.debug "Copying #{file}..."
-          FileUtils.cp(file, @plugin_config['path'])
+          @exec_helper.execute("cp #{file} #{@plugin_config['path']}")
         end
         @log.info "Appliance delivered to #{@plugin_config['path']}."
       else
