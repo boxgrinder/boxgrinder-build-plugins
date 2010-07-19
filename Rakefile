@@ -1,7 +1,5 @@
 require 'rake'
 
-MAIN_PLUGIN_VERSION = '0.0.1'
-
 plugins = {
         "boxgrinder-build-local-delivery-plugin"  => { :dir => "delivery/local", :desc => 'Local Delivery Plugin' },
         "boxgrinder-build-s3-delivery-plugin"     => { :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :deps => { 'aws-s3' => '>= 0.6.2', 'amazon-ec2' => '>= 0.9.6' }},
@@ -36,11 +34,9 @@ end
 
 desc "Cleans and builds gems for all plugins"
 task "package" => "rakefiles" do
-  unless ARGV.empty?
-    plugins.each do |name, info|
-      Dir.chdir(info[:dir]) do
-        puts `rake clean manifest repackage` if File.exists?( "Rakefile" )
-      end
+  plugins.each_value do |info|
+    Dir.chdir(info[:dir]) do
+      puts `rake clean manifest repackage` if File.exists?( "Rakefile" )
     end
   end
 end
