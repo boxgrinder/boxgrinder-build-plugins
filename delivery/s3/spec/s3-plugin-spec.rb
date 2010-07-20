@@ -47,6 +47,19 @@ module BoxGrinder
       @plugin.bucket_manifest_key( "name", "/a/asd/f/sdf///" ).should == "bucket/a/asd/f/sdf/name/1.0/#{@arch}/name.ec2.manifest.xml"
     end
 
+    it "should fix sha1 sum" do
+      ami_manifest = mock('ami_manifest')
+      ami_manifest.should_receive(:read).and_return("!sdfrthty54623r2gertyhe(stdin)= wf34r32tewrgeg")
+
+      File.should_receive(:open).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/ami/full.ec2.manifest.xml").and_return(ami_manifest)
+
+      f = mock('File')
+      f.should_receive(:write).with('!sdfrthty54623r2gertyhewf34r32tewrgeg')
+
+      File.should_receive(:open).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/ami/full.ec2.manifest.xml", 'w').and_yield(f)
+
+      @plugin.fix_sha1_sum
+    end
   end
 end
 

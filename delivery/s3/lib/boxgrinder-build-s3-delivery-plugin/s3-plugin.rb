@@ -130,7 +130,7 @@ module BoxGrinder
         retry
       end
 
-      remote_path = "#{s3_path( @plugin_config['path'] )}/#{File.basename(package)}"
+      remote_path = "#{s3_path( @plugin_config['path'] )}#{File.basename(package)}"
       size_b      = File.size(package)
 
       unless AWS::S3::S3Object.exists?(remote_path, @plugin_config['bucket']) or @plugin_config['overwrite']
