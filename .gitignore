@@ -4,3 +4,4 @@ log
 *.gemspec
 pkg
 Rakefile
+coverage

@@ -1,18 +1,17 @@
 require 'rake'
 require 'spec/rake/spectask'
 
-libdir = Dir["../platform/**/lib"] + Dir["../os/**/lib"] + Dir["../delivery/**/lib"]
+libdir = Dir["../platform/**/lib"] + Dir["../os/**/lib"] + Dir["../delivery/**/lib"] + ["../../boxgrinder-build/lib", "../../boxgrinder-build/spec", "../../boxgrinder-core/lib", "../../boxgrinder-core/spec" ]
 
 desc "Run all examples"
-Spec::Rake::SpecTask.new('examples') do |t|
+Spec::Rake::SpecTask.new(:default) do |t|
 
   libdir.each do |d|
     t.libs.unshift "#{d}"
   end
 
-  t.libs.unshift "../../boxgrinder-build/lib"
-  t.libs.unshift "../../boxgrinder-core/lib"
-  t.libs.unshift "../../boxgrinder-core/spec"
-  
-  t.spec_files = FileList['../**/spec/**/*-spec.rb']
+  t.spec_files = FileList['../*/*/spec/**/*-spec.rb']
+  t.spec_opts = [ '--format', 's']
+  t.rcov = true
+  t.rcov_opts = ['--exclude', 'spec,teamcity/*,/usr/lib/ruby/,.gem/ruby,/pkg/']
 end
