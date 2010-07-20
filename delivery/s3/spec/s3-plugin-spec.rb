@@ -17,6 +17,7 @@ module BoxGrinder
       @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
       @exec_helper        = @plugin.instance_variable_get(:@exec_helper)
       @log                = @plugin.instance_variable_get(:@log)
+      @dir                = @plugin.instance_variable_get(:@dir)
 
       @plugin_config = {
               'access_key'        => 'access_key',
@@ -24,11 +25,16 @@ module BoxGrinder
               'bucket'            => 'bucket',
               'account_number'    => '0000-0000-0000',
               'cert_file'         => '/path/to/cert/file',
-              'key_file'          => '/path/to/key/file'
+              'key_file'          => '/path/to/key/file',
+              'path'              => '/'
       }
 
       @plugin.instance_variable_set(:@plugin_config, @plugin_config)
 
+    end
+
+    it "should generate valid s3 path" do
+      @plugin.s3_path( '/' ).should == "/"
     end
 
     it "should generate valid bucket_key" do
@@ -59,6 +65,24 @@ module BoxGrinder
       File.should_receive(:open).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/ami/full.ec2.manifest.xml", 'w').and_yield(f)
 
       @plugin.fix_sha1_sum
+    end
+
+    it "should upload to a S3 bucket" do
+      package_helper = mock(PackageHelper)
+      package_helper.should_receive(:package).with( {:disk => "adisk"}, {:plugin_info => nil} ).and_return("a_built_package.zip")
+
+      PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
+
+      AWS::S3::Bucket.should_receive(:find).with('bucket').and_return("something")
+      File.should_receive(:size).with('a_built_package.zip').and_return(23234566)
+
+       AWS::S3::S3Object.should_receive(:exists?).with('/a_built_package.zip', 'bucket').and_return(false)
+
+      @plugin.should_receive(:open).with('a_built_package.zip').and_return("abc")
+
+      AWS::S3::S3Object.should_receive(:store).with('/a_built_package.zip', 'abc', 'bucket', :access => :private)
+
+      @plugin.upload_to_bucket(:disk => "adisk")
     end
   end
 end
