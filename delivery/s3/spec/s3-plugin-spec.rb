@@ -38,19 +38,19 @@ module BoxGrinder
     end
 
     it "should generate valid bucket_key" do
-      @plugin.ami_bucket_key( "name", "this/is/a/path" ).should == "bucket/this/is/a/path/name/1.0/#{@arch}"
+      @plugin.ami_bucket_key( "name", "this/is/a/path" ).should == "bucket/this/is/a/path/name/fedora/11/1.0/#{@arch}"
     end
 
     it "should generate valid bucket_key with mixed slashes" do
-      @plugin.ami_bucket_key( "name", "//this/" ).should == "bucket/this/name/1.0/#{@arch}"
+      @plugin.ami_bucket_key( "name", "//this/" ).should == "bucket/this/name/fedora/11/1.0/#{@arch}"
     end
 
     it "should generate valid bucket_key with root path" do
-      @plugin.ami_bucket_key( "name", "/" ).should == "bucket/name/1.0/#{@arch}"
+      @plugin.ami_bucket_key( "name", "/" ).should == "bucket/name/fedora/11/1.0/#{@arch}"
     end
 
     it "should generate valid bucket manifest key" do
-      @plugin.bucket_manifest_key( "name", "/a/asd/f/sdf///" ).should == "bucket/a/asd/f/sdf/name/1.0/#{@arch}/name.ec2.manifest.xml"
+      @plugin.bucket_manifest_key( "name", "/a/asd/f/sdf///" ).should == "bucket/a/asd/f/sdf/name/fedora/11/1.0/#{@arch}/name.ec2.manifest.xml"
     end
 
     it "should fix sha1 sum" do

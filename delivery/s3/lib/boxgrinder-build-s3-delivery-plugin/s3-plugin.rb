@@ -213,7 +213,7 @@ module BoxGrinder
     end
 
     def ami_bucket_key( appliance_name, path )
-      "#{@plugin_config['bucket']}#{s3_path( path )}#{appliance_name}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
+      "#{@plugin_config['bucket']}#{s3_path( path )}#{appliance_name}/#{@appliance_config.os.name}/#{@appliance_config.os.version}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
     end
 
     def bucket_manifest_key( appliance_name, path )

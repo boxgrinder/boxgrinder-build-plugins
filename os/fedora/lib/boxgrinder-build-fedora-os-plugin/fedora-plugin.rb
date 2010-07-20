@@ -57,7 +57,15 @@ module BoxGrinder
     }
 
     def execute
+      normalize_kernel( @appliance_config.packages.includes )
       build_with_appliance_creator( FEDORA_REPOS )
+    end
+
+    def normalize_kernel( packages )
+      packages.delete('kernel')
+      packages.delete('kernel-PAE')
+
+      packages << (@appliance_config.is64bit? ? "kernel" : "kernel-PAE")
     end
   end
 end
