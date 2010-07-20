@@ -120,7 +120,7 @@ module BoxGrinder
         change_configuration(guestfs)
         install_menu_lst( guestfs )
 
-        #@linux_helper.recreate_kernel_image( guestfs, ['xenblk', 'xennet'] ) if @appliance_config.os.name == 'fedora' and @appliance_config.os.version != '11'
+        @linux_helper.recreate_kernel_image( guestfs, ['xenblk', 'xennet'] ) if @appliance_config.os.name == 'fedora' and @appliance_config.os.version != '11'
 
         unless @appliance_config.post['ec2'].nil?
           @appliance_config.post['ec2'].each do |cmd|

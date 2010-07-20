@@ -22,9 +22,13 @@ module BoxGrinder
     it "should normalize the kernel" do
       packages = ['abc', 'def', 'kernel']
 
+      @appliance_config.hardware.arch = "i386"
       @plugin.normalize_kernel( packages )
+      packages.should == ['abc', 'def', 'kernel-PAE']
 
-      packages.should == (@arch == 'i386' ? ['abc', 'def', 'kernel-PAE'] : ['abc', 'def', 'kernel'])
+      @appliance_config.hardware.arch = "x86_64"
+      @plugin.normalize_kernel( packages )
+      packages.should == ['abc', 'def', 'kernel']
     end
   end
 end
