@@ -5,3 +5,4 @@ README
 Rakefile
 lib/boxgrinder-build-fedora-os-plugin.rb
 lib/boxgrinder-build-fedora-os-plugin/fedora-plugin.rb
+spec/fedora-plugin-spec.rb
