@@ -20,8 +20,8 @@ task "rakefiles" do
     dependencies = ["'boxgrinder-build >=0.5.0'"]
 
     unless info[:deps].nil?
-      info[:deps].each  do |name, version|
-        dependencies << "'#{name} #{version}'"
+      info[:deps].each  do |n, v|
+        dependencies << "'#{n} #{v}'"
       end
     end
 
@@ -42,7 +42,7 @@ end"
 end
 
 desc "Cleans and builds gems for all plugins"
-task "package" => "rakefiles" do
+task "package" => [ "rakefiles" ] do
   plugins.each_value do |info|
     Dir.chdir(info[:dir]) do
       puts `rake clean manifest repackage` if File.exists?( "Rakefile" )
