@@ -53,6 +53,8 @@ module BoxGrinder
 
         change_configuration( guestfs )
 
+        guestfs.sh( "chkconfig firstboot off" ) if guestfs.exists( '/etc/init.d/firstboot' ) != 0
+
         @log.info "Executing post operations after build..."
 
         unless @appliance_config.post['base'].nil?

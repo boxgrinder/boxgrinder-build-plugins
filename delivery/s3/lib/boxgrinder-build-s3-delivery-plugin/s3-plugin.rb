@@ -123,12 +123,7 @@ module BoxGrinder
     def upload_to_bucket(deliverables, permissions = :private)
       package = PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( deliverables, :plugin_info => @previous_plugin_info )
 
-      begin
-        AWS::S3::Bucket.find(@plugin_config['bucket'])
-      rescue AWS::S3::NoSuchBucket
-        AWS::S3::Bucket.create(@plugin_config['bucket'])
-        retry
-      end
+      find_or_create_bucket
 
       remote_path = "#{s3_path( @plugin_config['path'] )}#{File.basename(package)}"
       size_b      = File.size(package)
@@ -158,8 +153,9 @@ module BoxGrinder
     end
 
     def image_already_uploaded?
+
       begin
-        bucket = Bucket.find(@plugin_config['bucket'])
+        bucket = AWS::S3::Bucket.find(@plugin_config['bucket'])
       rescue
         return false
       end
@@ -189,6 +185,15 @@ module BoxGrinder
       else
         info = @ec2.register_image(:image_location => bucket_manifest_key(@appliance_config.name, @plugin_config['path']))
         @log.info "Image successfully registered under id: #{info.imageId}."
+      end
+    end
+
+    def find_or_create_bucket
+      begin
+        AWS::S3::Bucket.find(@plugin_config['bucket'])
+      rescue AWS::S3::NoSuchBucket
+        AWS::S3::Bucket.create(@plugin_config['bucket'])
+        retry
       end
     end
 
