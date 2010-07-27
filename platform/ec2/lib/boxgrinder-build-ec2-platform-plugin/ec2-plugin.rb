@@ -20,6 +20,7 @@
 
 require 'boxgrinder-build/plugins/base-plugin'
 require 'boxgrinder-build/helpers/linux-helper'
+require 'tempfile'
 
 module BoxGrinder
   class EC2Plugin < BasePlugin

@@ -26,6 +26,7 @@ module BoxGrinder
       adjust_partition_table
 
       build_with_appliance_creator( repos )  do |guestfs, guestfs_helper|
+        # required for VMware
         @linux_helper.recreate_kernel_image( guestfs, ['mptspi'] )
 
         @log.debug "Applying root password..."

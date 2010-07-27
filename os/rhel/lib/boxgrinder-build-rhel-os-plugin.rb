@@ -20,4 +20,4 @@
 
 require 'boxgrinder-build-rhel-os-plugin/rhel-plugin'
 
-plugin :class => BoxGrinder::RHELPlugin, :type => :os, :name => :rhel, :full_name  => "Red Hat Enterprise Linux", :versions   => ["5"]
+plugin :class => BoxGrinder::RHELPlugin, :type => :os, :name => :rhel, :full_name  => "Red Hat Enterprise Linux", :versions => ['5', '6']
