@@ -19,17 +19,22 @@ module BoxGrinder
       @log                = @plugin.instance_variable_get(:@log)
     end
 
-    it "should normalize the kernel" do
+    it "should normalize packages for i386" do
       packages = ['abc', 'def', 'kernel']
 
       @appliance_config.hardware.arch = "i386"
-      @plugin.normalize_kernel( packages )
-      packages.should == ['abc', 'def', 'kernel-PAE']
+      @plugin.normalize_packages( packages )
+      packages.should == ['abc', 'def', 'passwd', 'lokkit', 'kernel-PAE']
+    end
+
+    it "should normalize packages for x86_64" do
+      packages = ['abc', 'def', 'kernel']
 
       @appliance_config.hardware.arch = "x86_64"
-      @plugin.normalize_kernel( packages )
-      packages.should == ['abc', 'def', 'kernel']
+      @plugin.normalize_packages( packages )
+      packages.should == ['abc', 'def', 'passwd', 'lokkit', 'kernel']
     end
+
   end
 end
 

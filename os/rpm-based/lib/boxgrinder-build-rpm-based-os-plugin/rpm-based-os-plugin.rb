@@ -51,7 +51,7 @@ module BoxGrinder
         guestfs.upload( "/etc/resolv.conf", "/etc/resolv.conf" )
         @log.debug "'/etc/resolv.conf' uploaded."
 
-        change_configuration( guestfs )
+        change_configuration( guestfs_helper )
 
         guestfs.sh( "chkconfig firstboot off" ) if guestfs.exists( '/etc/init.d/firstboot' ) != 0
 
@@ -67,8 +67,9 @@ module BoxGrinder
           @log.debug "No commands specified, skipping."
         end
 
-        change_configuration( guestfs )
         set_motd( guestfs )
+
+        # TODO remove this (make sure CirrAS build will not break!)
         install_version_files( guestfs )
         install_repos( guestfs )
 
@@ -80,15 +81,11 @@ module BoxGrinder
       @log.info "Base image for #{@appliance_config.name} appliance was built successfully."
     end
 
-    def change_configuration( guestfs )
-      @log.debug "Changing configuration files using augeas..."
-      guestfs.aug_init( "/", 0 )
-      # don't use DNS for SSH
-      guestfs.aug_set( "/files/etc/ssh/sshd_config/UseDNS", "no" ) if guestfs.exists( '/etc/ssh/sshd_config' ) != 0
-      # setting SELinux into permissive mode
-      guestfs.aug_set("/files/etc/sysconfig/selinux/SELINUX", "permissive")
-      guestfs.aug_save
-      @log.debug "Augeas changes saved."
+    def change_configuration( guestfs_helper )
+      guestfs_helper.augeas do
+        set( '/etc/ssh/sshd_config', 'UseDNS', 'no')
+        set( '/etc/sysconfig/selinux', 'SELINUX', 'permissive')
+      end
     end
 
     def install_version_files( guestfs )

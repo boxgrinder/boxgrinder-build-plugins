@@ -81,21 +81,6 @@ module BoxGrinder
       # defautlt filesystem
       definition['fstype'] = "ext3"
 
-      # fix for F12; this is needed because of selinux management in appliance-creator
-      if @appliance_config.os.name.eql?("fedora")
-        definition['packages'].push("kernel", "passwd")
-        case @appliance_config.os.version.to_s
-          when "13" then
-            definition['packages'].push "system-config-firewall-base"
-          when "12" then
-            definition['packages'].push "system-config-firewall-base"
-          # default filesystem for fedora 12
-          #definition['fstype'] = "ext4"
-          when "11" then
-            definition['packages'].push "lokkit"
-        end
-      end
-
       definition['root_password'] = @appliance_config.os.password
 
       def definition.method_missing(sym, * args)
@@ -124,7 +109,7 @@ module BoxGrinder
       definition
     end
 
-    def valid_repos
+    def valid_repos    
       os_repos = @repos[@appliance_config.os.version]
 
       repos = Array.new

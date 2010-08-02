@@ -134,16 +134,11 @@ module BoxGrinder
     end
 
     it "should change configuration" do
-      guestfs = mock("guestfs")
+      guestfs_helper = mock("GuestFSHelper")
 
-      guestfs.should_receive(:aug_init).once.ordered.with("/", 0)
-      guestfs.should_receive(:aug_set).once.ordered.with( "/files/etc/ssh/sshd_config/PasswordAuthentication", "no" )
-      guestfs.should_receive(:aug_save).once.ordered
+      guestfs_helper.should_receive(:augeas)
 
-      @log.should_receive(:debug).once.ordered.with("Changing configuration files using augeas...")
-      @log.should_receive(:debug).once.ordered.with("Augeas changes saved.")
-
-      @plugin.change_configuration( guestfs )
+      @plugin.change_configuration( guestfs_helper )
     end
 
     it "should use xvda disks for Fedora 13" do

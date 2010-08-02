@@ -24,8 +24,8 @@ module BoxGrinder
       definition['repos'][1].should == "repo --name=abc --cost=41 --mirrorlist=http://repo.boxgrinder.org/packages/fedora/11/RPMS/#{@current_arch}"
       definition['repos'][2].should == "repo --name=boxgrinder-f11-testing-#{@current_arch} --cost=42 --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-testing-f11&arch=#{@current_arch}"
 
-      definition['packages'].size.should == 5
-      definition['packages'].should == ["gcc-c++", "wget", "kernel", "passwd", "lokkit"]
+      definition['packages'].size.should == 2
+      definition['packages'].should == ["gcc-c++", "wget"]
 
       definition['root_password'].should == "boxgrinder"
       definition['fstype'].should == "ext3"

@@ -118,7 +118,7 @@ module BoxGrinder
         guestfs_helper.rebuild_rpm_database if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == '11'
 
         install_additional_packages(guestfs)
-        change_configuration(guestfs)
+        change_configuration( guestfs_helper )
         install_menu_lst( guestfs )
 
         @linux_helper.recreate_kernel_image( guestfs, ['xenblk', 'xennet'] ) if @appliance_config.os.name == 'fedora' and @appliance_config.os.version != '11'
@@ -318,13 +318,11 @@ module BoxGrinder
       @log.debug "Additional packages installed."
     end
 
-    def change_configuration(guestfs)
-      @log.debug "Changing configuration files using augeas..."
-      guestfs.aug_init("/", 0)
-      # disable password authentication
-      guestfs.aug_set("/files/etc/ssh/sshd_config/PasswordAuthentication", "no")
-      guestfs.aug_save
-      @log.debug "Augeas changes saved."
+    def change_configuration( guestfs_helper )
+      guestfs_helper.augeas do
+        # disable password authentication
+        set("/etc/ssh/sshd_config", "PasswordAuthentication", "no")
+      end
     end
 
     def get_loop_device

@@ -53,15 +53,27 @@ module BoxGrinder
                             "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=#ARCH#"
                     }
             }
-
     }
 
     def execute
-      normalize_kernel( @appliance_config.packages.includes )
+      normalize_packages( @appliance_config.packages.includes )
+
       build_with_appliance_creator( FEDORA_REPOS )
     end
 
-    def normalize_kernel( packages )
+    def normalize_packages( packages )
+      packages << 'passwd'
+
+      case @appliance_config.os.version
+        when "13" then
+          packages << "system-config-firewall-base"
+        when "12" then
+          packages << "system-config-firewall-base"
+        when "11" then
+          packages << "lokkit"
+      end
+
+      # kernel_PAE for 32 bit, kernel for 64 bit
       packages.delete('kernel')
       packages.delete('kernel-PAE')
 
