@@ -25,6 +25,8 @@ module BoxGrinder
     def build_rhel( repos = {} )
       adjust_partition_table
 
+      normalize_packages( @appliance_config.packages.includes )
+
       build_with_appliance_creator( repos )  do |guestfs, guestfs_helper|
         # required for VMware
         @linux_helper.recreate_kernel_image( guestfs, ['mptspi'] )
@@ -33,6 +35,13 @@ module BoxGrinder
         guestfs.sh( "/usr/bin/passwd -d root" )
         guestfs.sh( "/usr/sbin/usermod -p '#{@appliance_config.os.password.crypt((0...8).map{65.+(rand(25)).chr}.join)}' root" )
         @log.debug "Password applied."
+      end
+    end
+
+    def normalize_packages( packages )
+      case @appliance_config.os.version
+        when "5" then
+          packages << "system-config-securitylevel-tui" unless packages.include?("system-config-securitylevel-tui")
       end
     end
 
