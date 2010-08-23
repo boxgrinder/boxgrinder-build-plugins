@@ -127,6 +127,8 @@ module BoxGrinder
       guestfs.should_receive(:sh).once.ordered.with("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.should_receive(:rm_rf).once.ordered.with("/tmp/rpms")
 
+      guestfs.should_receive(:sh).once.ordered.with("yum -y install ruby rsync")
+
       @log.should_receive(:debug).once.ordered.with("Installing additional packages (#{kernel_rpm}, ec2-ami-tools.noarch.rpm)...")
       @log.should_receive(:debug).once.ordered.with("Additional packages installed.")
 
@@ -155,7 +157,6 @@ module BoxGrinder
       @appliance_config.os.version = '11'
       @plugin.disk_device_prefix.should == 's'
     end
-
   end
 end
 

@@ -1,7 +1,11 @@
 
+v0.0.3
+
+* [BGBUILD-43] ec2-ami-tools is not usable on EC2 appliances
+
 v0.0.2
 
-* BGBUILD-39
+* [BGBUILD-39] EC2 plugin does not have "require 'tempfile'" but Temfile is used causing an error
 
 v0.0.1
 

@@ -1,7 +1,6 @@
 CHANGELOG
 Manifest
 Rakefile
-boxgrinder-build-ec2-platform-plugin.gemspec
 lib/boxgrinder-build-ec2-platform-plugin.rb
 lib/boxgrinder-build-ec2-platform-plugin/ec2-plugin.rb
 lib/boxgrinder-build-ec2-platform-plugin/src/fstab_32bit

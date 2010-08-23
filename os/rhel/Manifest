@@ -5,3 +5,4 @@ README
 Rakefile
 lib/boxgrinder-build-rhel-os-plugin.rb
 lib/boxgrinder-build-rhel-os-plugin/rhel-plugin.rb
+spec/rhel-plugin-spec.rb

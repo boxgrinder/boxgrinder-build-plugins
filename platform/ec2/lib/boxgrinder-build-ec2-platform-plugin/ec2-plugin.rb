@@ -82,7 +82,7 @@ module BoxGrinder
         ec2_create_filesystem
       rescue => e
         @log.error "Error while preparing EC2 disk image. See logs for more info"
-        raise
+        raise e
       end
 
       ec2_disk_mount_dir = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
@@ -315,6 +315,9 @@ module BoxGrinder
 
       guestfs.sh("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.rm_rf("/tmp/rpms")
+
+      guestfs.sh( "yum -y install ruby rsync" ) unless (@appliance_config.packages.includes.include?( 'ruby' ) and @appliance_config.packages.includes.include?( 'rsync' ))
+
       @log.debug "Additional packages installed."
     end
 
