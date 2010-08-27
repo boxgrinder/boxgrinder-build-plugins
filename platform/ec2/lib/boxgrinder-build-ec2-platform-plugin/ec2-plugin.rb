@@ -305,19 +305,13 @@ module BoxGrinder
 
       cache_rpms(rpms)
 
-      puts "a"
-
       @log.debug "Installing additional packages (#{rpms.keys.join(", ")})..."
       guestfs.mkdir_p("/tmp/rpms")
-
-      puts "b"
 
       for name in rpms.keys
         cache_file = "#{@config.dir.src_cache}/#{name}"
         guestfs.upload(cache_file, "/tmp/rpms/#{name}")
       end
-
-      puts "c"
 
       guestfs.sh("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.rm_rf("/tmp/rpms")

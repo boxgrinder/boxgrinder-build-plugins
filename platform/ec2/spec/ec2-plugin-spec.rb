@@ -119,7 +119,7 @@ module BoxGrinder
     it "should install additional packages" do
       guestfs = mock("guestfs")
 
-      kernel_rpm = (`uname -m`.chomp.strip == "x86_64" ? "kernel-xen-2.6.21.7-2.fc8.x86_64.rpm" : "kernel-xen-2.6.21.7-2.fc8.i686.rpm")
+      kernel_rpm = (@arch == "x86_64" ? "kernel-xen-2.6.21.7-2.fc8.x86_64.rpm" : "kernel-xen-2.6.21.7-2.fc8.i686.rpm")
 
       rpms = { kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}", "ec2-ami-tools.noarch.rpm" => "http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.noarch.rpm" }
 
