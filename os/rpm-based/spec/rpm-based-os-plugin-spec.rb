@@ -1,13 +1,12 @@
 require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 require 'rspec/rspec-config-helper'
-require 'rbconfig'
 
 module BoxGrinder
   describe RPMBasedOSPlugin do
     include RSpecConfigHelper
 
     before(:all) do
-      @arch = RbConfig::CONFIG['host_cpu']
+      @arch = `uname -m`.chomp.strip
     end
 
     before(:each) do

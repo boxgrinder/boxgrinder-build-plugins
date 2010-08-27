@@ -126,7 +126,7 @@ module BoxGrinder
         unless @appliance_config.post['ec2'].nil?
           @appliance_config.post['ec2'].each do |cmd|
             @log.debug "Executing #{cmd}"
-            guestfs.sh( cmd )
+            guestfs.sh( "setarch #{@appliance_config.hardware.arch} #{cmd}" )
           end
           @log.debug "Post commands from appliance definition file executed."
         else
@@ -298,25 +298,31 @@ module BoxGrinder
       }
 
       begin
-        kernel_rpm = KERNELS[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:rpm]
+        kernel_rpm = KERNELS[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:rpm]
         rpms[File.basename(kernel_rpm)] = kernel_rpm
       rescue
       end
 
       cache_rpms(rpms)
 
+      puts "a"
+
       @log.debug "Installing additional packages (#{rpms.keys.join(", ")})..."
       guestfs.mkdir_p("/tmp/rpms")
+
+      puts "b"
 
       for name in rpms.keys
         cache_file = "#{@config.dir.src_cache}/#{name}"
         guestfs.upload(cache_file, "/tmp/rpms/#{name}")
       end
 
+      puts "c"
+
       guestfs.sh("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.rm_rf("/tmp/rpms")
 
-      guestfs.sh( "yum -y install ruby rsync" ) unless (@appliance_config.packages.includes.include?( 'ruby' ) and @appliance_config.packages.includes.include?( 'rsync' ))
+      guestfs.sh( "setarch #{@appliance_config.hardware.arch} yum -y install ruby rsync" ) unless (@appliance_config.packages.includes.include?( 'ruby' ) and @appliance_config.packages.includes.include?( 'rsync' ))
 
       @log.debug "Additional packages installed."
     end

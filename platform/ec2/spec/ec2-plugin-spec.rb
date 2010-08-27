@@ -5,6 +5,10 @@ module BoxGrinder
   describe EC2Plugin do
     include RSpecConfigHelper
 
+    before(:all) do
+      @arch = `uname -m`.chomp.strip
+    end
+
     before(:each) do
       @plugin = EC2Plugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name  => "Amazon Elastic Compute Cloud (Amazon EC2)"})
 
@@ -26,12 +30,12 @@ module BoxGrinder
     end
 
     it "should prepare disk for EC2 image" do
-      @exec_helper.should_receive(:execute).with( "dd if=/dev/zero of=build/appliances/#{RbConfig::CONFIG['host_cpu']}/fedora/11/full/ec2-plugin/tmp/full.ec2 bs=1 count=0 seek=10240M")
+      @exec_helper.should_receive(:execute).with( "dd if=/dev/zero of=build/appliances/#{`uname -m`.chomp.strip}/fedora/11/full/ec2-plugin/tmp/full.ec2 bs=1 count=0 seek=10240M")
       @plugin.ec2_prepare_disk
     end
 
     it "should create filesystem" do
-      @exec_helper.should_receive(:execute).with( "mkfs.ext3 -F build/appliances/#{RbConfig::CONFIG['host_cpu']}/fedora/11/full/ec2-plugin/tmp/full.ec2")
+      @exec_helper.should_receive(:execute).with( "mkfs.ext3 -F build/appliances/#{`uname -m`.chomp.strip}/fedora/11/full/ec2-plugin/tmp/full.ec2")
       @plugin.ec2_create_filesystem
     end
 
@@ -115,22 +119,22 @@ module BoxGrinder
     it "should install additional packages" do
       guestfs = mock("guestfs")
 
-      kernel_rpm = (RbConfig::CONFIG['host_cpu'] == "x86_64" ? "kernel-xen-2.6.21.7-2.fc8.x86_64.rpm" : "kernel-xen-2.6.21.7-2.fc8.i686.rpm")
+      kernel_rpm = (`uname -m`.chomp.strip == "x86_64" ? "kernel-xen-2.6.21.7-2.fc8.x86_64.rpm" : "kernel-xen-2.6.21.7-2.fc8.i686.rpm")
 
       rpms = { kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}", "ec2-ami-tools.noarch.rpm" => "http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.noarch.rpm" }
 
-      @plugin.should_receive(:cache_rpms).once.with(rpms)
+      @plugin.should_receive(:cache_rpms).ordered.with(rpms)
 
-      guestfs.should_receive(:mkdir_p).once.ordered.with("/tmp/rpms")
-      guestfs.should_receive(:upload).once.ordered.with("/var/cache/boxgrinder/sources-cache/#{kernel_rpm}", "/tmp/rpms/#{kernel_rpm}")
-      guestfs.should_receive(:upload).once.ordered.with("/var/cache/boxgrinder/sources-cache/ec2-ami-tools.noarch.rpm", "/tmp/rpms/ec2-ami-tools.noarch.rpm")
-      guestfs.should_receive(:sh).once.ordered.with("rpm -ivh --nodeps /tmp/rpms/*.rpm")
-      guestfs.should_receive(:rm_rf).once.ordered.with("/tmp/rpms")
+      guestfs.should_receive(:mkdir_p).ordered.with("/tmp/rpms")
+      guestfs.should_receive(:upload).ordered.with("/var/cache/boxgrinder/sources-cache/#{kernel_rpm}", "/tmp/rpms/#{kernel_rpm}")
+      guestfs.should_receive(:upload).ordered.with("/var/cache/boxgrinder/sources-cache/ec2-ami-tools.noarch.rpm", "/tmp/rpms/ec2-ami-tools.noarch.rpm")
+      guestfs.should_receive(:sh).ordered.with("rpm -ivh --nodeps /tmp/rpms/*.rpm")
+      guestfs.should_receive(:rm_rf).ordered.with("/tmp/rpms")
 
-      guestfs.should_receive(:sh).once.ordered.with("yum -y install ruby rsync")
+      guestfs.should_receive(:sh).ordered.with("setarch #{@arch} yum -y install ruby rsync")
 
-      @log.should_receive(:debug).once.ordered.with("Installing additional packages (#{kernel_rpm}, ec2-ami-tools.noarch.rpm)...")
-      @log.should_receive(:debug).once.ordered.with("Additional packages installed.")
+      @log.should_receive(:debug).ordered.with("Installing additional packages (#{kernel_rpm}, ec2-ami-tools.noarch.rpm)...")
+      @log.should_receive(:debug).ordered.with("Additional packages installed.")
 
       @plugin.install_additional_packages( guestfs )
     end

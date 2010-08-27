@@ -1,13 +1,12 @@
 require 'boxgrinder-build-s3-delivery-plugin/s3-plugin'
 require 'rspec/rspec-config-helper'
-require 'rbconfig'
 
 module BoxGrinder
   describe S3Plugin do
     include RSpecConfigHelper
 
     before(:all) do
-      @arch = RbConfig::CONFIG['host_cpu']
+      @arch = `uname -m`.chomp.strip
     end
 
     before(:each) do

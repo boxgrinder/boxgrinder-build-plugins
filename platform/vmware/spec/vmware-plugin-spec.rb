@@ -1,13 +1,12 @@
 require 'boxgrinder-build-vmware-platform-plugin/vmware-plugin'
 require 'rspec/rspec-config-helper'
-require 'rbconfig'
 
 module BoxGrinder
   describe VMwarePlugin do
     include RSpecConfigHelper
 
     before(:all) do
-      @arch = RbConfig::CONFIG['host_cpu']
+      @arch = `uname -m`.chomp.strip
     end
 
     before(:each) do
@@ -138,9 +137,9 @@ module BoxGrinder
 
       @plugin.should_receive(:customize).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, nil)
 
-      guestfs_mock.should_receive(:sh).once.ordered.with("one")
-      guestfs_mock.should_receive(:sh).once.ordered.with("two")
-      guestfs_mock.should_receive(:sh).once.ordered.with("three")
+      guestfs_mock.should_receive(:sh).once.ordered.with("setarch #{@arch} one")
+      guestfs_mock.should_receive(:sh).once.ordered.with("setarch #{@arch} two")
+      guestfs_mock.should_receive(:sh).once.ordered.with("setarch #{@arch} three")
 
       File.should_receive(:open)
 

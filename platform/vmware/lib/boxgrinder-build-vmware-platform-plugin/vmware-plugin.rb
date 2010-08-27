@@ -46,7 +46,7 @@ module BoxGrinder
         customize( @deliverables.disk ) do |guestfs, guestfs_helper|
           @appliance_config.post['vmware'].each do |cmd|
             @log.debug "Executing #{cmd}"
-            guestfs.sh( cmd )
+            guestfs.sh( "setarch #{@appliance_config.hardware.arch} #{cmd}" )
           end
           @log.debug "Post commands from appliance definition file executed."
         end

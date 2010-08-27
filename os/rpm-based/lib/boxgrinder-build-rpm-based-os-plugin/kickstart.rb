@@ -47,30 +47,12 @@ module BoxGrinder
       definition = {}
 
       definition['appliance_config']  = @appliance_config
-
-      #definition['partitions']      = @appliance_config.hardware.partitions.values
-      definition['name']            = @appliance_config.name
-      definition['arch']            = @appliance_config.hardware.arch
-      definition['appliance_names'] = @appliance_config.appliances
-      definition['repos']           = []
-
-#      appliance_definition          = @image_config.definition
-#
-#      if SUPPORTED_DESKTOP_TYPES.include?( appliance_definition['desktop'] )
-#        definition['graphical'] = true
-#
-#        # default X package groups
-#        definition['packages'] = [ "@base-x", "@base", "@core", "@fonts", "@input-methods", "@admin-tools", "@dial-up", "@hardware-support", "@printing" ]
-#
-#        #selected desktop environment
-#        definition['packages'] += [ "@#{appliance_definition['desktop']}-desktop" ]
-#      else
-#        definition['graphical'] = false
-#        definition['packages']  = []
-#      end
-
-      definition['graphical'] = false
-      definition['packages']  = []
+      definition['name']              = @appliance_config.name
+      definition['arch']              = @appliance_config.hardware.arch
+      definition['appliance_names']   = @appliance_config.appliances
+      definition['repos']             = []
+      definition['graphical']         = false
+      definition['packages']          = []
 
       definition['packages'] += @appliance_config.packages.includes
 
@@ -96,7 +78,7 @@ module BoxGrinder
           urltype = 'baseurl'
         end
 
-        url = repo[urltype].gsub(/#ARCH#/, @appliance_config.hardware.arch).gsub(/#OS_VERSION#/, @appliance_config.os.version).gsub(/#OS_NAME#/, @appliance_config.os.name)
+        url = repo[urltype].gsub(/#ARCH#/, @appliance_config.hardware.arch).gsub(/#BASE_ARCH#/, @appliance_config.hardware.base_arch).gsub(/#OS_VERSION#/, @appliance_config.os.version).gsub(/#OS_NAME#/, @appliance_config.os.name)
 
         repo_def = "repo --name=#{repo['name']} --cost=#{cost} --#{urltype}=#{url}"
         repo_def += " --excludepkgs=#{repo['excludes'].join(',')}" unless repo['excludes'].nil? or repo['excludes'].empty?
