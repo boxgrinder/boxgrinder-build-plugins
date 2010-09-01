@@ -131,7 +131,7 @@ module BoxGrinder
       guestfs.should_receive(:sh).ordered.with("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.should_receive(:rm_rf).ordered.with("/tmp/rpms")
 
-      guestfs.should_receive(:sh).ordered.with("setarch #{@arch} yum -y install ruby rsync")
+      guestfs.should_receive(:sh).ordered.with("setarch #{@arch} yum -y install ruby rsync curl")
 
       @log.should_receive(:debug).ordered.with("Installing additional packages (#{kernel_rpm}, ec2-ami-tools.noarch.rpm)...")
       @log.should_receive(:debug).ordered.with("Additional packages installed.")

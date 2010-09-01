@@ -316,7 +316,14 @@ module BoxGrinder
       guestfs.sh("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.rm_rf("/tmp/rpms")
 
-      guestfs.sh( "setarch #{@appliance_config.hardware.arch} yum -y install ruby rsync" ) unless (@appliance_config.packages.includes.include?( 'ruby' ) and @appliance_config.packages.includes.include?( 'rsync' ))
+      required_packages = [ 'ruby', 'rsync', 'curl' ]
+      packages_to_install = []
+
+      required_packages.each do |package|
+        packages_to_install << package unless @appliance_config.packages.includes.include?( package )
+      end
+
+      guestfs.sh( "setarch #{@appliance_config.hardware.arch} yum -y install #{packages_to_install.join(' ')}" ) unless packages_to_install.empty?
 
       @log.debug "Additional packages installed."
     end

@@ -39,6 +39,8 @@ module BoxGrinder
     end
 
     def normalize_packages( packages )
+      packages << "curl" unless packages.include?("curl")
+
       case @appliance_config.os.version
         when "5" then
           packages << "system-config-securitylevel-tui" unless packages.include?("system-config-securitylevel-tui")

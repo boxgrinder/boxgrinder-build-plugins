@@ -21,8 +21,9 @@ module BoxGrinder
 
       @plugin.normalize_packages( packages )
 
-      packages.size.should == 1
-      packages.first.should == 'system-config-securitylevel-tui'
+      packages.size.should == 2
+      packages[0].should == 'curl'
+      packages[1].should == 'system-config-securitylevel-tui'
     end
 
     it "should build the appliance" do

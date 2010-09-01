@@ -1,6 +1,7 @@
 
 v0.0.4
 
+* [BGBUILD-49] Not able to log in to CentOS AMIs
 * [BGBUILD-46] Allow building 32 bit images on 64 bit arch
 
 v0.0.3
@@ -14,4 +15,3 @@ v0.0.2
 v0.0.1
 
 * First release
-
