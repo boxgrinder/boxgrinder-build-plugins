@@ -24,10 +24,11 @@ module BoxGrinder
     end
 
     it "should package and deliver the appliance" do
-      @plugin.instance_variable_set(:@plugin_config, @plugin.instance_variable_get(:@plugin_config).merge({
+      @plugin.instance_variable_set(:@plugin_config, {
+              'overwrite'   => false,
               'path'        => 'a/path',
+              'package'     => true
               })
-      )
 
       package_helper = mock(PackageHelper)
       package_helper.should_receive( :package ).with( {:disk=>"a_disk.raw"}, :plugin_info => nil ).and_return("deliverable")
