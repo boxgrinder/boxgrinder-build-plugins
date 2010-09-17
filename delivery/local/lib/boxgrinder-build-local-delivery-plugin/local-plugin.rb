@@ -18,6 +18,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'boxgrinder-build/helpers/package-helper'
 require 'boxgrinder-build/plugins/base-plugin'
 
 module BoxGrinder
@@ -33,7 +34,7 @@ module BoxGrinder
       files = []
 
       if @plugin_config['package']
-        files << PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( @previous_deliverables, :plugin_info => @previous_plugin_info )
+        files << PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package( @previous_deliverables, :plugin_info => @previous_plugin_info )
       else
         @previous_deliverables.each_value do |file|
           files << file
