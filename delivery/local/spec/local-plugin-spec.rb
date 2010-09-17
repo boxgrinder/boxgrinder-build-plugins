@@ -35,47 +35,46 @@ module BoxGrinder
       PackageHelper.should_receive(:new).with( @config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper ).and_return(package_helper)
 
       @exec_helper.should_receive(:execute).with("cp deliverable a/path")
-      @plugin.should_receive(:already_delivered?).and_return(false)
+      @plugin.should_receive(:already_delivered?).with(["deliverable"]).and_return(false)
 
       @plugin.execute
     end
 
     it "should not package, but deliver the appliance" do
-      @plugin.instance_variable_set(:@plugin_config, @plugin.instance_variable_get(:@plugin_config).merge({
+      @plugin.instance_variable_set(:@plugin_config, {
+              'overwrite'   => true,
               'path'        => 'a/path',
               'package'     => false
       })
-      )
 
       PackageHelper.should_not_receive(:new)
 
       @exec_helper.should_receive(:execute).with("cp a_disk.raw a/path")
-      @plugin.should_receive(:already_delivered?).and_return(false)
 
       @plugin.execute
     end
 
     it "should not deliver the package, because it is already delivered" do
-      @plugin.instance_variable_set(:@plugin_config, @plugin.instance_variable_get(:@plugin_config).merge({
+      @plugin.instance_variable_set(:@plugin_config, {
+              'overwrite'   => false,
               'path'        => 'a/path',
               'package'     => false
       })
-      )
 
       PackageHelper.should_not_receive(:new)
 
       @exec_helper.should_not_receive(:execute)
-      @plugin.should_receive(:already_delivered?).and_return(true)
+      @plugin.should_receive(:already_delivered?).with(["a_disk.raw"]).and_return(true)
 
       @plugin.execute
     end
 
     it "should check if files are delivered and return false" do
-      @plugin.instance_variable_set(:@plugin_config, @plugin.instance_variable_get(:@plugin_config).merge({
+      @plugin.instance_variable_set(:@plugin_config, {
+              'overwrite'   => true,
               'path'        => 'a/path',
               'package'     => false
       })
-      )
 
       File.should_receive(:exists?).with("a/path/abc").and_return(true)
       File.should_receive(:exists?).with("a/path/def").and_return(false)
@@ -83,12 +82,12 @@ module BoxGrinder
       @plugin.already_delivered?( ['abc', 'def'] ).should == false
     end
 
-    it "should check if files are delivered and return tru" do
-      @plugin.instance_variable_set(:@plugin_config, @plugin.instance_variable_get(:@plugin_config).merge({
+    it "should check if files are delivered and return true" do
+      @plugin.instance_variable_set(:@plugin_config, {
+              'overwrite'   => true,
               'path'        => 'a/path',
               'package'     => false
       })
-      )
 
       File.should_receive(:exists?).with("a/path/abc").and_return(true)
       File.should_receive(:exists?).with("a/path/def").and_return(true)
