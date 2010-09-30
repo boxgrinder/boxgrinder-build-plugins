@@ -4,3 +4,4 @@ Manifest
 Rakefile
 lib/boxgrinder-build-local-delivery-plugin.rb
 lib/boxgrinder-build-local-delivery-plugin/local-plugin.rb
+spec/local-plugin-spec.rb

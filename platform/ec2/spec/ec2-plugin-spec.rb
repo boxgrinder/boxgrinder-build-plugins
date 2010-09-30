@@ -24,41 +24,36 @@ module BoxGrinder
       @plugin.cache_rpms( 'rpm_name' => 'http://rpm_location' )
     end
 
-    it "should get new free loop device" do
-      @exec_helper.should_receive(:execute).with( "losetup -f 2>&1" ).and_return(" /dev/loop1   ")
-      @plugin.get_loop_device.should == "/dev/loop1"
-    end
-
-    it "should prepare disk for EC2 image" do
-      @exec_helper.should_receive(:execute).with( "dd if=/dev/zero of=build/appliances/#{`uname -m`.chomp.strip}/fedora/11/full/ec2-plugin/tmp/full.ec2 bs=1 count=0 seek=10240M")
-      @plugin.ec2_prepare_disk
-    end
-
-    it "should create filesystem" do
-      @exec_helper.should_receive(:execute).with( "mkfs.ext3 -F build/appliances/#{`uname -m`.chomp.strip}/fedora/11/full/ec2-plugin/tmp/full.ec2")
-      @plugin.ec2_create_filesystem
-    end
-
-    it "should mount image" do
-      FileUtils.should_receive(:mkdir_p).with("mount_dir").once
-
-      @plugin.should_receive(:get_loop_device).and_return("/dev/loop0")
-      @exec_helper.should_receive(:execute).with( "losetup /dev/loop0 disk" )
-      @exec_helper.should_receive(:execute).with( "parted /dev/loop0 'unit B print' | grep -e '^ [0-9]' | awk '{ print $2 }'" ).and_return("1234")
-      @exec_helper.should_receive(:execute).with( "losetup -d /dev/loop0" )
-
-      @plugin.should_receive(:get_loop_device).and_return("/dev/loop1")
-      @exec_helper.should_receive(:execute).with( "losetup -o 1234 /dev/loop1 disk" )
-      @exec_helper.should_receive(:execute).with( "e2label /dev/loop1" ).and_return("/")
-      @exec_helper.should_receive(:execute).with( "mount /dev/loop1 -t ext3 mount_dir" )
-
-      @plugin.mount_image("disk", "mount_dir")
-    end
-
-    it "should sync files" do
-      @exec_helper.should_receive(:execute).with( "rsync -u -r -a  from/* to" )
-      @plugin.sync_files("from", "to")
-    end
+#    it "should get new free loop device" do
+#      @exec_helper.should_receive(:execute).with( "losetup -f 2>&1" ).and_return(" /dev/loop1   ")
+#      @plugin.get_loop_device.should == "/dev/loop1"
+#    end
+#
+#    it "should create filesystem" do
+#      @exec_helper.should_receive(:execute).with( "mkfs.ext3 -F build/appliances/#{`uname -m`.chomp.strip}/fedora/11/full/ec2-plugin/tmp/full.ec2")
+#      @plugin.ec2_create_filesystem
+#    end
+#
+#    it "should mount image" do
+#      FileUtils.should_receive(:mkdir_p).with("mount_dir").once
+#
+#      @plugin.should_receive(:get_loop_device).and_return("/dev/loop0")
+#      @exec_helper.should_receive(:execute).with( "losetup /dev/loop0 disk" )
+#      @exec_helper.should_receive(:execute).with( "parted /dev/loop0 'unit B print' | grep -e '^ [0-9]' | awk '{ print $2 }'" ).and_return("1234")
+#      @exec_helper.should_receive(:execute).with( "losetup -d /dev/loop0" )
+#
+#      @plugin.should_receive(:get_loop_device).and_return("/dev/loop1")
+#      @exec_helper.should_receive(:execute).with( "losetup -o 1234 /dev/loop1 disk" )
+#      @exec_helper.should_receive(:execute).with( "e2label /dev/loop1" ).and_return("/")
+#      @exec_helper.should_receive(:execute).with( "mount /dev/loop1 -t ext3 mount_dir" )
+#
+#      @plugin.mount_image("disk", "mount_dir")
+#    end
+#
+#    it "should sync files" do
+#      @exec_helper.should_receive(:execute).with( "rsync -u -r -a  from/* to" )
+#      @plugin.sync_files("from", "to")
+#    end
 
     it "should create devices" do
       guestfs = mock("guestfs")

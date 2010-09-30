@@ -78,8 +78,9 @@ module BoxGrinder
       @log.info "Converting #{@appliance_config.name} appliance image to EC2 format..."
 
       begin
-        ec2_prepare_disk
-        ec2_create_filesystem
+        # TODO using whole 10GB is fine?
+        @image_helper.create_disk( @deliverables.disk, 10)
+        @image_helper.create_filesystem( @deliverables.disk )
       rescue => e
         @log.error "Error while preparing EC2 disk image. See logs for more info"
         raise e
@@ -89,17 +90,17 @@ module BoxGrinder
       raw_disk_mount_dir = "#{@dir.tmp}/raw-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
 
       begin
-        ec2_mounts = mount_image( @deliverables.disk, ec2_disk_mount_dir )
-        raw_mounts = mount_image( @previous_deliverables.disk, raw_disk_mount_dir )
+        ec2_mounts = @image_helper.mount_image( @deliverables.disk, ec2_disk_mount_dir )
+        raw_mounts = @image_helper.mount_image( @previous_deliverables.disk, raw_disk_mount_dir )
       rescue => e
         @log.debug e
         raise "Error while mounting image. See logs for more info"
       end
 
-      sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
+      @image_helper.sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
 
-      umount_image(@previous_deliverables.disk, raw_disk_mount_dir, raw_mounts)
-      umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts)
+      @image_helper.umount_image(@previous_deliverables.disk, raw_disk_mount_dir, raw_mounts)
+      @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts)
 
       customize(@deliverables.disk) do |guestfs, guestfs_helper|
         # TODO is this really needed?
@@ -135,75 +136,6 @@ module BoxGrinder
       end
 
       @log.info "Image converted to EC2 format."
-    end
-
-    def ec2_prepare_disk
-      # TODO add progress bar?
-      # TODO using whole 10GB is fine?
-      @log.debug "Preparing disk for EC2 image..."
-      @exec_helper.execute "dd if=/dev/zero of=#{@deliverables.disk} bs=1 count=0 seek=#{10 * 1024}M"
-      @log.debug "Disk for EC2 image prepared"
-    end
-
-    def ec2_create_filesystem
-      @log.debug "Creating filesystem..."
-      @exec_helper.execute "mkfs.ext3 -F #{@deliverables.disk}"
-      @log.debug "Filesystem created"
-    end
-
-    def calculate_disk_offsets( disk )
-      @log.debug "Calculating offsets for '#{File.basename(disk)}' disk..."
-      loop_device = get_loop_device
-
-      @exec_helper.execute("losetup #{loop_device} #{disk}")
-      offsets = @exec_helper.execute("parted #{loop_device} 'unit B print' | grep -e '^ [0-9]' | awk '{ print $2 }'").scan(/\d+/)
-      @exec_helper.execute("losetup -d #{loop_device}")
-
-      @log.trace "Offsets:\n#{offsets}"
-
-      offsets
-    end
-
-    def mount_image(disk, mount_dir)
-      offsets = calculate_disk_offsets( disk )
-
-      @log.debug "Mounting image #{File.basename(disk)} in #{mount_dir}..."
-      FileUtils.mkdir_p(mount_dir)
-
-      mounts = {}
-
-      offsets.each do |offset|
-        loop_device = get_loop_device
-        @exec_helper.execute("losetup -o #{offset.to_s} #{loop_device} #{disk}")
-        label = @exec_helper.execute("e2label #{loop_device}").strip.chomp
-        label = '/' if label == ''
-        mounts[label] = loop_device
-      end
-
-      @exec_helper.execute("mount #{mounts['/']} -t ext3 #{mount_dir}")
-
-      mounts.each { |mount_point, loop_device| @exec_helper.execute("mount #{loop_device} -t ext3 #{mount_dir}/#{mount_point}") unless mount_point == '/' }
-
-      @log.trace "Mounts:\n#{mounts}"
-
-      mounts
-    end
-
-    def umount_image(disk, mount_dir, mounts)
-      @log.debug "Unmounting image '#{File.basename(disk)}'..."
-
-      mounts.each { |mount_point, loop_device| @exec_helper.execute("umount -d #{loop_device}") unless mount_point == '/' }
-
-      @exec_helper.execute("umount -d #{mounts['/']}")
-
-      FileUtils.rm_rf(mount_dir)
-    end
-
-
-    def sync_files(from_dir, to_dir)
-      @log.debug "Syncing files between #{from_dir} and #{to_dir}..."
-      @exec_helper.execute "rsync -u -r -a  #{from_dir}/* #{to_dir}"
-      @log.debug "Sync finished."
     end
 
     def cache_rpms(rpms)

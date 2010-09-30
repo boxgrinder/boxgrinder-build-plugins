@@ -1,0 +1,7 @@
+CHANGELOG
+LICENSE
+Manifest
+Rakefile
+lib/boxgrinder-build-ebs-delivery-plugin.rb
+lib/boxgrinder-build-ebs-delivery-plugin/ebs-plugin.rb
+spec/ebs-plugin-spec.rb
