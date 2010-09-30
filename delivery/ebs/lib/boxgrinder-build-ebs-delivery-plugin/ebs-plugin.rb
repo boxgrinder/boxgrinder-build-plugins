@@ -158,6 +158,10 @@ module BoxGrinder
 
       wait_for_snapshot_status( 'completed', snapshot_id )
 
+      @log.debug "Deleting temporary EBS volume..."
+
+      @ec2.delete_volume( :volume_id => volume_id )
+
       @log.info "Registering image..."
 
       # TODO: kernel_id change
