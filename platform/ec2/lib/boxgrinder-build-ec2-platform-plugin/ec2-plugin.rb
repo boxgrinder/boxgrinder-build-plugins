@@ -24,12 +24,6 @@ require 'tempfile'
 
 module BoxGrinder
   class EC2Plugin < BasePlugin
-    SUPPORTED_OSES = {
-            'rhel'    => [ '5' ],
-            'centos'  => [ '5' ],
-            'fedora'  => [ '11', '13' ]
-    }
-
     REGIONS = {'us_east' => 'url'}
 
     KERNELS = {
@@ -55,21 +49,15 @@ module BoxGrinder
 
     def after_init
       register_deliverable( :disk => "#{@appliance_config.name}.ec2" )
-    end
 
-    def supported_os
-      supported = ""
-
-      SUPPORTED_OSES.each_key do |os_name|
-        supported << "#{os_name}, versions: #{SUPPORTED_OSES[os_name].join(", ")}"
-      end
-
-      supported
+      register_supported_os( 'fedora', [ '11', '13' ] )
+      register_supported_os( 'centos', [ '5' ] )
+      register_supported_os( 'rhel', [ '5' ] )
     end
 
     def execute
-      unless !SUPPORTED_OSES[@appliance_config.os.name].nil? and SUPPORTED_OSES[@appliance_config.os.name].include?(@appliance_config.os.version)
-        @log.error "EC2 platform plugin for Linux operating systems supports: #{supported_os}. Your OS is #{@appliance_config.os.name} #{@appliance_config.os.version}."
+      unless is_supported_os?
+        @log.error "EC2 delivery plugin supports following operating systems: #{supported_oses}. Your OS is #{@appliance_config.os.name} #{@appliance_config.os.version}."
         return
       end
 
@@ -102,7 +90,7 @@ module BoxGrinder
       @image_helper.umount_image(@previous_deliverables.disk, raw_disk_mount_dir, raw_mounts)
       @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts)
 
-      customize(@deliverables.disk) do |guestfs, guestfs_helper|
+      @image_helper.customize(@deliverables.disk) do |guestfs, guestfs_helper|
         # TODO is this really needed?
         @log.debug "Uploading '/etc/resolv.conf'..."
         guestfs.upload( "/etc/resolv.conf", "/etc/resolv.conf" )

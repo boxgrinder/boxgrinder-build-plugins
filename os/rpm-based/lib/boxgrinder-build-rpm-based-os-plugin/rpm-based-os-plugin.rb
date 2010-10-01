@@ -45,7 +45,7 @@ module BoxGrinder
       FileUtils.mv( Dir.glob("#{@dir.tmp}/#{@appliance_config.name}/*"), @dir.tmp )
       FileUtils.rm_rf( "#{@dir.tmp}/#{@appliance_config.name}/")
 
-      customize( @deliverables.disk ) do |guestfs, guestfs_helper|
+      @image_helper.customize( @deliverables.disk ) do |guestfs, guestfs_helper|
         # TODO is this really needed?
         @log.debug "Uploading '/etc/resolv.conf'..."
         guestfs.upload( "/etc/resolv.conf", "/etc/resolv.conf" )

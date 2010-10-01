@@ -27,6 +27,7 @@ module BoxGrinder
       @plugin = VMwarePlugin.new.init( @config, @appliance_config, options )
 
       @exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      @image_helper = @plugin.instance_variable_get(:@image_helper)
     end
 
     it "should calculate good CHS value for 1GB disk" do
@@ -135,7 +136,7 @@ module BoxGrinder
 
       guestfs_mock = mock("GuestFS")
 
-      @plugin.should_receive(:customize).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, nil)
+      @image_helper.should_receive(:customize).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, nil)
 
       guestfs_mock.should_receive(:sh).once.ordered.with("setarch #{@arch} one")
       guestfs_mock.should_receive(:sh).once.ordered.with("setarch #{@arch} two")

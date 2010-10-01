@@ -24,24 +24,11 @@ require 'open-uri'
 
 module BoxGrinder
   class EBSPlugin < BasePlugin
-    SUPPORTED_OSES = {
-            'fedora'  => [ '13' ]
-    }
-
-    # TODO move this to base plugin
-    def supported_os
-      supported = ""
-
-      SUPPORTED_OSES.each_key do |os_name|
-        supported << "#{os_name}, versions: #{SUPPORTED_OSES[os_name].join(", ")}"
-      end
-
-      supported
-    end
-
     def after_init
       set_default_config_value('availability_zone', 'us-east-1a')
       set_default_config_value('delete_on_termination', true)
+
+      register_supported_os( 'fedora', [ '13' ] )
     end
 
     def execute( type = :ebs )
@@ -50,8 +37,8 @@ module BoxGrinder
       raise "You try to run this plugin on invalid platform. You can run EBS delivery plugin only on EC2." unless valid_platform?
       raise "You can only convert to EBS type AMI appliances converted to EC2 format. Use '-p ec2' switch. For more info about EC2 plugin see http://community.jboss.org/docs/DOC-15527." unless @previous_plugin_info[:name] == :ec2
 
-      unless !SUPPORTED_OSES[@appliance_config.os.name].nil? and SUPPORTED_OSES[@appliance_config.os.name].include?(@appliance_config.os.version)
-        @log.error "EBS delivery plugin supports following operating systems: #{supported_os}. Your OS is #{@appliance_config.os.name} #{@appliance_config.os.version}."
+      unless is_supported_os?
+        @log.error "EBS delivery plugin supports following operating systems: #{supported_oses}. Your OS is #{@appliance_config.os.name} #{@appliance_config.os.version}."
         return
       end
 

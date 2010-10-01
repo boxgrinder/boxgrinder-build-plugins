@@ -43,7 +43,7 @@ module BoxGrinder
       @log.debug "VMware image copied."
 
       unless @appliance_config.post['vmware'].nil?
-        customize( @deliverables.disk ) do |guestfs, guestfs_helper|
+        @image_helper.customize( @deliverables.disk ) do |guestfs, guestfs_helper|
           @appliance_config.post['vmware'].each do |cmd|
             @log.debug "Executing #{cmd}"
             guestfs.sh( "setarch #{@appliance_config.hardware.arch} #{cmd}" )
