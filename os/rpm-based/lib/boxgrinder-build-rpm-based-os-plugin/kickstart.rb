@@ -78,9 +78,22 @@ module BoxGrinder
           urltype = 'baseurl'
         end
 
-        url = repo[urltype].gsub(/#ARCH#/, @appliance_config.hardware.arch).gsub(/#BASE_ARCH#/, @appliance_config.hardware.base_arch).gsub(/#OS_VERSION#/, @appliance_config.os.version).gsub(/#OS_NAME#/, @appliance_config.os.name)
+        substitutions = {
+                /#ARCH#/        => @appliance_config.hardware.arch,
+                /#BASE_ARCH#/   => @appliance_config.hardware.base_arch,
+                /#OS_VERSION#/  => @appliance_config.os.version,
+                /#OS_NAME#/     => @appliance_config.os.name
+        }
 
-        repo_def = "repo --name=#{repo['name']} --cost=#{cost} --#{urltype}=#{url}"
+        url   = repo[urltype]
+        name  = repo['name']
+
+        substitutions.each do |key, value|
+          url   = url.gsub( key, value )
+          name  = name.gsub( key, value )
+        end
+
+        repo_def = "repo --name=#{name} --cost=#{cost} --#{urltype}=#{url}"
         repo_def += " --excludepkgs=#{repo['excludes'].join(',')}" unless repo['excludes'].nil? or repo['excludes'].empty?
 
         definition['repos'] << repo_def
@@ -91,7 +104,7 @@ module BoxGrinder
       definition
     end
 
-    def valid_repos    
+    def valid_repos
       os_repos = @repos[@appliance_config.os.version]
 
       repos = Array.new
