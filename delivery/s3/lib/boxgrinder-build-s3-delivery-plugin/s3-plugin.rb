@@ -142,10 +142,10 @@ module BoxGrinder
 
       FileUtils.mkdir_p( @ami_build_dir )
 
-      aki = "--kernel #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:aki]}"
-      ari = KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:ari].nil? ? "" : "--ramdisk #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.arch][:ari]}"
+      aki = "--kernel #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]}"
+      ari = KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari].nil? ? "" : "--ramdisk #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]}"
 
-      @exec_helper.execute("ec2-bundle-image -i #{deliverables[:disk]} #{aki} #{ari} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.arch} -d #{@ami_build_dir}")
+      @exec_helper.execute("ec2-bundle-image -i #{deliverables[:disk]} #{aki} #{ari} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.base_arch} -d #{@ami_build_dir}")
 
       @log.info "Bundling AMI finished."
     end
