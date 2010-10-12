@@ -58,9 +58,6 @@ module BoxGrinder
         definition['packages'].push("-#{package}")
       end
 
-      # defautlt filesystem
-      definition['fstype'] = "ext3"
-
       definition['root_password'] = @appliance_config.os.password
 
       def definition.method_missing(sym, * args)
@@ -68,6 +65,28 @@ module BoxGrinder
       end
 
       cost = 40
+
+      definition['partitions'] = {}
+
+      @appliance_config.hardware.partitions.dup.each do |root, partition|
+#        case @appliance_config.os.name
+#          when 'fedora'
+#            case @appliance_config.os.version
+#              when '13'
+#                default_fs_type = 'ext4'
+#              else
+#                default_fs_type = 'ext3'
+#            end
+#          else
+#            default_fs_type = 'ext3'
+#        end
+
+        default_fs_type = 'ext3'
+
+        partition['type'] = default_fs_type if partition['type'].nil?
+        partition['options'] = 'defaults' if partition['options'].nil?
+        definition['partitions'][root] = partition
+      end
 
       for repo in valid_repos + @appliance_config.repos
         if repo.keys.include?('mirrorlist')
