@@ -46,7 +46,9 @@ module BoxGrinder
       definition['packages'].should == ["gcc-c++", "wget"]
 
       definition['root_password'].should == "boxgrinder"
-      definition['fstype'].should == "ext3"
+      definition['partitions'].size.should == 2
+      definition['partitions']['/']['size'].should == 2
+      definition['partitions']['/home']['size'].should == 3
     end
   end
 end
