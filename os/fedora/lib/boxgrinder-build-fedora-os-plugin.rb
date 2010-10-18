@@ -18,4 +18,4 @@
 
 require 'boxgrinder-build-fedora-os-plugin/fedora-plugin'
 
-plugin :class => BoxGrinder::FedoraPlugin, :type => :os, :name => :fedora, :full_name  => "Fedora", :versions   => ["11", "12", "13", "rawhide"]
+plugin :class => BoxGrinder::FedoraPlugin, :type => :os, :name => :fedora, :full_name  => "Fedora", :versions   => ["11", "12", "13", "14", "rawhide"]

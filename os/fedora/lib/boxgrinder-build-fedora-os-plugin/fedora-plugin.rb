@@ -20,43 +20,23 @@ require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 
 module BoxGrinder
   class FedoraPlugin < RPMBasedOSPlugin
-
-    FEDORA_REPOS = {
-            "13" => {
-                    "base" => {
-                            "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-13&arch=#BASE_ARCH#"
-                    },
-                    "updates" => {
-                            "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f13&arch=#BASE_ARCH#"
-                    }
-            },
-            "12" => {
-                    "base" => {
-                            "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-12&arch=#BASE_ARCH#"
-                    },
-                    "updates" => {
-                            "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f12&arch=#BASE_ARCH#"
-                    }
-            },
-            "11" => {
-                    "base" => {
-                            "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-11&arch=#BASE_ARCH#"
-                    },
-                    "updates" => {
-                            "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f11&arch=#BASE_ARCH#"
-                    }
-            },
-            "rawhide" => {
-                    "base" => {
-                            "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=rawhide&arch=#BASE_ARCH#"
-                    }
-            }
-    }
-
-    def execute     
+    def execute
       normalize_packages( @appliance_config.packages.includes )
 
-      build_with_appliance_creator( FEDORA_REPOS )
+      @repos = {}
+
+      @plugin_info[:versions].each do |version|
+        if version.match(/\d+/)
+          @repos[version] = {
+                  "base"    => { "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-#{version}&arch=#BASE_ARCH#" },
+                  "updates" => { "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f#{version}&arch=#BASE_ARCH#" }
+          }
+        else
+          @repos[version] = { "base" => { "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=#{version}&arch=#BASE_ARCH#" } }
+        end
+      end
+
+      build_with_appliance_creator( @repos )
     end
 
     def normalize_packages( packages )
