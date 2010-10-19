@@ -1,9 +1,12 @@
 CHANGELOG
+LICENSE
 Manifest
+README
 Rakefile
 lib/boxgrinder-build-vmware-platform-plugin.rb
 lib/boxgrinder-build-vmware-platform-plugin/src/README
 lib/boxgrinder-build-vmware-platform-plugin/src/base.vmdk
 lib/boxgrinder-build-vmware-platform-plugin/src/base.vmx
 lib/boxgrinder-build-vmware-platform-plugin/vmware-plugin.rb
+rubygem-boxgrinder-build-vmware-platform-plugin.spec
 spec/vmware-plugin-spec.rb

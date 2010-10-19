@@ -7,9 +7,9 @@ plugins = {
         "boxgrinder-build-ebs-delivery-plugin"    => { :dir => "delivery/ebs", :desc => 'Elastic Block Storage Delivery Plugin', :deps => { 'aws-s3' => '~>0.6.2', 'amazon-ec2' => '~>0.9.6' }},
 
         "boxgrinder-build-rpm-based-os-plugin"    => { :dir => "os/rpm-based", :desc => 'RPM Based Operating System Plugin' },
-        "boxgrinder-build-fedora-os-plugin"       => { :dir => "os/fedora", :desc => 'Fedora Operating System Plugin', :deps => { 'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.4' }},
-        "boxgrinder-build-rhel-os-plugin"         => { :dir => "os/rhel", :desc => 'Red Hat Enterprise Linux Operating System Plugin', :deps => { 'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.4' }},
-        "boxgrinder-build-centos-os-plugin"       => { :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :deps => { 'boxgrinder-build-rhel-os-plugin' => '~>0.0.3' }},
+        "boxgrinder-build-fedora-os-plugin"       => { :dir => "os/fedora", :desc => 'Fedora Operating System Plugin', :deps => { 'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.5' }},
+        "boxgrinder-build-rhel-os-plugin"         => { :dir => "os/rhel", :desc => 'Red Hat Enterprise Linux Operating System Plugin', :deps => { 'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.5' }},
+        "boxgrinder-build-centos-os-plugin"       => { :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :deps => { 'boxgrinder-build-rhel-os-plugin' => '~>0.0.4' }},
 
         "boxgrinder-build-vmware-platform-plugin" => { :dir => "platform/vmware", :desc => 'VMware Platform Plugin' },
         "boxgrinder-build-ec2-platform-plugin"    => { :dir => "platform/ec2", :desc => 'Elastic Compute Cloud (EC2) Platform Plugin' }
@@ -33,7 +33,7 @@ Echoe.new('#{name}') do |p|
   p.author      = 'Marek Goldmann'
   p.summary     = '#{info[:desc]}'
   p.description = 'BoxGrinder Build #{info[:desc]}'
-  p.url         = 'http://www.jboss.org/stormgrind/projects/boxgrinder.html'
+  p.url         = 'http://www.jboss.org/boxgrinder'
   p.email       = 'info@boxgrinder.org'
   p.runtime_dependencies = [#DEPENDENCIES#]
 end"

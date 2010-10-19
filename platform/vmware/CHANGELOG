@@ -1,4 +1,8 @@
 
+v0.0.3
+
+* Rebuilding for RPM
+
 v0.0.2
 
 * [BGBUILD-46] Allow building 32 bit images on 64 bit arch

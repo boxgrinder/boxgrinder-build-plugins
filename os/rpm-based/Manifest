@@ -10,5 +10,6 @@ lib/boxgrinder-build-rpm-based-os-plugin/rpm-dependency-validator.rb
 lib/boxgrinder-build-rpm-based-os-plugin/src/appliance.ks.erb
 lib/boxgrinder-build-rpm-based-os-plugin/src/base.repo
 lib/boxgrinder-build-rpm-based-os-plugin/src/motd.init
+rubygem-boxgrinder-build-rpm-based-os-plugin.spec
 spec/kickstart-spec.rb
 spec/rpm-based-os-plugin-spec.rb

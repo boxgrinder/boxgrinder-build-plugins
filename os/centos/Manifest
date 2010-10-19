@@ -5,3 +5,4 @@ README
 Rakefile
 lib/boxgrinder-build-centos-os-plugin.rb
 lib/boxgrinder-build-centos-os-plugin/centos-plugin.rb
+rubygem-boxgrinder-build-centos-os-plugin.spec
