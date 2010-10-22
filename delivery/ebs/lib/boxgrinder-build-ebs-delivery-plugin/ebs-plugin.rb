@@ -212,8 +212,11 @@ module BoxGrinder
     end
 
     def already_registered?(name)
-      images = @ec2.describe_images(:owner_id => @plugin_config['account_number'].to_s.gsub(/-/, ''))['imagesSet']['item']
-      images.each { |image| return image['imageId'] if image['name'] == name }
+      images = @ec2.describe_images(:owner_id => @plugin_config['account_number'].to_s.gsub(/-/, ''))
+
+      return false if images.nil? or images['imagesSet'].nil?
+
+      images['imagesSet']['item'].each { |image| return image['imageId'] if image['name'] == name }
 
       false
     end
