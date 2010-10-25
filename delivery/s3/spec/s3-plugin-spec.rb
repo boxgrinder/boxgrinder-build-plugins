@@ -102,6 +102,8 @@ module BoxGrinder
       bucket.should_receive(:key).with('/a_built_package.zip').and_return( key )
 
       s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
+      s3.should_receive(:close_connection)
+
       File.should_receive(:size).with('a_built_package.zip').and_return(23234566)
 
       @plugin.should_receive(:open).with('a_built_package.zip').and_return("abc")
@@ -126,6 +128,8 @@ module BoxGrinder
       bucket.should_receive(:key).with('/a_built_package.zip').and_return( key )
 
       s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
+      s3.should_receive(:close_connection)
+
       File.should_receive(:size).with('a_built_package.zip').and_return(23234566)
 
       @plugin.upload_to_bucket(:disk => "adisk")

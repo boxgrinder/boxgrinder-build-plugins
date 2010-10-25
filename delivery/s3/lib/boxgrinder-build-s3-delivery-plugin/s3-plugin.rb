@@ -26,7 +26,7 @@ module BoxGrinder
   class S3Plugin < BasePlugin
 
     AMI_OSES = {
-            'fedora'  => [ '11', '13' ],
+            'fedora'  => [ '11', '13', '14' ],
             'centos'  => [ '5' ],
             'rhel'    => [ '5' ]
     }
@@ -34,6 +34,10 @@ module BoxGrinder
     KERNELS = {
             'us_east' => {
                     'fedora' => {
+                            '14' => {
+                                    'i386'     => { :aki => 'aki-407d9529' },
+                                    'x86_64'   => { :aki => 'aki-427d952b' }
+                            },
                             '13' => {
                                     'i386'     => { :aki => 'aki-407d9529' },
                                     'x86_64'   => { :aki => 'aki-427d952b' }
@@ -106,8 +110,6 @@ module BoxGrinder
 
           register_image
       end
-
-      @s3.close_connection
     end
 
     # https://jira.jboss.org/browse/BGBUILD-34
@@ -137,6 +139,8 @@ module BoxGrinder
       else
         @log.info "File '#{@plugin_config['bucket']}#{remote_path}' already uploaded, skipping."
       end
+
+      @s3.close_connection
     end
 
     def bundle_image( deliverables )

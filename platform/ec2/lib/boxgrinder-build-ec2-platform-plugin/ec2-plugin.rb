@@ -48,7 +48,7 @@ module BoxGrinder
     def after_init
       register_deliverable( :disk => "#{@appliance_config.name}.ec2" )
 
-      register_supported_os( 'fedora', [ '11', '13' ] )
+      register_supported_os( 'fedora', [ '11', '13', '14' ] )
       register_supported_os( 'centos', [ '5' ] )
       register_supported_os( 'rhel', [ '5' ] )
     end
