@@ -10,7 +10,7 @@ Release: 1%{?dist}
 Group: Development/Languages
 License: LGPL
 URL: http://www.jboss.org/boxgrinder
-Source0: %{gemname}-%{version}.gem
+Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
 Requires: rubygems >= 1.2

@@ -20,7 +20,7 @@ require 'boxgrinder-build/plugins/base-plugin'
 require 'boxgrinder-build/helpers/package-helper'
 require 'rubygems'
 require 'AWS'
-require 'aws/s3'
+require 'aws'
 
 module BoxGrinder
   class S3Plugin < BasePlugin
@@ -79,13 +79,11 @@ module BoxGrinder
     def execute( type = :ami )
       validate_plugin_config(['bucket', 'access_key', 'secret_access_key'], 'http://community.jboss.org/docs/DOC-15217')
 
-      AWS::S3::Base.establish_connection!(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'] )
-
       case type
         when :s3
           upload_to_bucket(@previous_deliverables)
         when :cloudfront
-          upload_to_bucket(@previous_deliverables, :public_read)
+          upload_to_bucket(@previous_deliverables, 'public-read')
         when :ami
           validate_plugin_config(['cert_file', 'key_file', 'account_number'], 'http://community.jboss.org/docs/DOC-15217')
 
@@ -108,6 +106,8 @@ module BoxGrinder
 
           register_image
       end
+
+      @s3.close_connection
     end
 
     # https://jira.jboss.org/browse/BGBUILD-34
@@ -118,17 +118,21 @@ module BoxGrinder
       File.open( @ami_manifest, "w" ) {|f| f.write( ami_manifest ) }
     end
 
-    def upload_to_bucket(deliverables, permissions = :private)
+    def upload_to_bucket(deliverables, permissions = 'private')
       package = PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( deliverables, :plugin_info => @previous_plugin_info )
 
-      find_or_create_bucket
+      @s3 = Aws::S3.new( @plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log )
+
+      bucket = @s3.bucket( @plugin_config['bucket'], true )
 
       remote_path = "#{s3_path( @plugin_config['path'] )}#{File.basename(package)}"
       size_b      = File.size(package)
 
-      unless AWS::S3::S3Object.exists?(remote_path, @plugin_config['bucket']) or @plugin_config['overwrite']
+      key = bucket.key( remote_path )
+
+      unless key.exists? or @plugin_config['overwrite']
         @log.info "Uploading #{File.basename(package)} (#{size_b/1024/1024}MB) to '#{@plugin_config['bucket']}#{remote_path}' path..."
-        AWS::S3::S3Object.store(remote_path, open(package), @plugin_config['bucket'], :access => permissions)
+        key.put( open(package), permissions )
         @log.info "Appliance #{@appliance_config.name} uploaded to S3."
       else
         @log.info "File '#{@plugin_config['bucket']}#{remote_path}' already uploaded, skipping."
@@ -153,7 +157,8 @@ module BoxGrinder
     def image_already_uploaded?
 
       begin
-        bucket = AWS::S3::Bucket.find(@plugin_config['bucket'])
+        bucket = @s3.bucket( @plugin_config['bucket'] )
+        bucket.keys
       rescue
         return false
       end
@@ -161,9 +166,7 @@ module BoxGrinder
       manifest_location = bucket_manifest_key(@appliance_config.name, @plugin_config['path'])
       manifest_location = manifest_location[manifest_location.index("/") + 1, manifest_location.length]
 
-      for object in bucket.objects do
-        return true if object.key.eql?(manifest_location)
-      end
+      return true if bucket.key( manifest_location ).exists?
 
       false
     end
@@ -183,15 +186,6 @@ module BoxGrinder
       else
         info = @ec2.register_image(:image_location => bucket_manifest_key(@appliance_config.name, @plugin_config['path']))
         @log.info "Image successfully registered under id: #{info.imageId}."
-      end
-    end
-
-    def find_or_create_bucket
-      begin
-        AWS::S3::Bucket.find(@plugin_config['bucket'])
-      rescue AWS::S3::NoSuchBucket
-        AWS::S3::Bucket.create(@plugin_config['bucket'])
-        retry
       end
     end
 

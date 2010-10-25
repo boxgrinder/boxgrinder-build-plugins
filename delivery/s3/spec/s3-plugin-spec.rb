@@ -90,14 +90,43 @@ module BoxGrinder
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
 
-      AWS::S3::Bucket.should_receive(:find).with('bucket').and_return("something")
-      File.should_receive(:size).with('a_built_package.zip').and_return(23234566)
+      s3 = mock(Aws::S3)
 
-       AWS::S3::S3Object.should_receive(:exists?).with('/a_built_package.zip', 'bucket').and_return(false)
+      Aws::S3.should_receive(:new).with( 'access_key', 'secret_access_key' , :connection_mode => :single, :logger => @log ).and_return( s3 )
+
+      key = mock('Key')
+      key.should_receive(:exists?).and_return(false)
+      key.should_receive(:put).with('abc', 'private')
+
+      bucket = mock('Bucket')
+      bucket.should_receive(:key).with('/a_built_package.zip').and_return( key )
+
+      s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
+      File.should_receive(:size).with('a_built_package.zip').and_return(23234566)
 
       @plugin.should_receive(:open).with('a_built_package.zip').and_return("abc")
 
-      AWS::S3::S3Object.should_receive(:store).with('/a_built_package.zip', 'abc', 'bucket', :access => :private)
+      @plugin.upload_to_bucket(:disk => "adisk")
+    end
+
+    it "should NOT upload to a S3 bucket because file exists" do
+      package_helper = mock(PackageHelper)
+      package_helper.should_receive(:package).with( {:disk => "adisk"}, {:plugin_info => nil} ).and_return("a_built_package.zip")
+
+      PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
+
+      s3 = mock(Aws::S3)
+
+      Aws::S3.should_receive(:new).with( 'access_key', 'secret_access_key' , :connection_mode => :single, :logger => @log ).and_return( s3 )
+
+      key = mock('Key')
+      key.should_receive(:exists?).and_return(true)
+
+      bucket = mock('Bucket')
+      bucket.should_receive(:key).with('/a_built_package.zip').and_return( key )
+
+      s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
+      File.should_receive(:size).with('a_built_package.zip').and_return(23234566)
 
       @plugin.upload_to_bucket(:disk => "adisk")
     end

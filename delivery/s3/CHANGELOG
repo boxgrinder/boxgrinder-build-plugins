@@ -1,7 +1,7 @@
 
 v0.0.3
 
-* Rebuilding for RPM
+* [BGBUILD-63] Use 'aws' gem instead 'aws-s3' because it's already packaged in Fedora
 
 v0.0.2
 
