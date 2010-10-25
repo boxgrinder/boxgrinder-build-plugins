@@ -1,6 +1,7 @@
 
 v0.0.3
 
+* [BGBUILD-67] Add Fedora 14 support for S3 delivery plugin: AMI type
 * [BGBUILD-63] Use 'aws' gem instead 'aws-s3' because it's already packaged in Fedora
 
 v0.0.2
