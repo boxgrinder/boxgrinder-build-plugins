@@ -28,7 +28,13 @@ module BoxGrinder
     end
 
     before(:each) do
-      @plugin = EBSPlugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => { :class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name  => "Elastic Block Storage" })
+      @plugin = EBSPlugin.new
+
+      avaibility_zone = mock('AZ')
+      avaibility_zone.should_receive(:string).and_return('avaibility-zone1')
+
+      @plugin.stub!(:open).with('http://169.254.169.254/latest/meta-data/placement/availability-zone').and_return(avaibility_zone)
+      @plugin = @plugin.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => { :class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name  => "Elastic Block Storage" })
 
       @config             = @plugin.instance_variable_get(:@config)
       @appliance_config   = @plugin.instance_variable_get(:@appliance_config)

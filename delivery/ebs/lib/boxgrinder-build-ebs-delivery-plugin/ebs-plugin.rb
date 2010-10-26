@@ -26,6 +26,10 @@ module BoxGrinder
     KERNELS = {
             'us-east-1'        => {
                     'fedora' => {
+                            '14' => {
+                                    'i386'     => {:aki => 'aki-407d9529'},
+                                    'x86_64'   => {:aki => 'aki-427d952b'}
+                            },
                             '13' => {
                                     'i386'     => {:aki => 'aki-407d9529'},
                                     'x86_64'   => {:aki => 'aki-427d952b'}
@@ -34,6 +38,10 @@ module BoxGrinder
             },
             'us-west-1'        => {
                     'fedora' => {
+                            '14' => {
+                                    'i386'     => {:aki => 'aki-99a0f1dc'},
+                                    'x86_64'   => {:aki => 'aki-9ba0f1de'}
+                            },
                             '13' => {
                                     'i386'     => {:aki => 'aki-99a0f1dc'},
                                     'x86_64'   => {:aki => 'aki-9ba0f1de'}
@@ -42,6 +50,10 @@ module BoxGrinder
             },
             'eu-west-1'        => {
                     'fedora' => {
+                            '14' => {
+                                    'i386'     => {:aki => 'aki-4deec439'},
+                                    'x86_64'   => {:aki => 'aki-4feec43b'}
+                            },
                             '13' => {
                                     'i386'     => {:aki => 'aki-4deec439'},
                                     'x86_64'   => {:aki => 'aki-4feec43b'}
@@ -50,6 +62,10 @@ module BoxGrinder
             },
             'ap-southeast-1'   => {
                     'fedora' => {
+                            '14' => {
+                                    'i386'     => {:aki => 'aki-13d5aa41'},
+                                    'x86_64'   => {:aki => 'aki-11d5aa43'}
+                            },
                             '13' => {
                                     'i386'     => {:aki => 'aki-13d5aa41'},
                                     'x86_64'   => {:aki => 'aki-11d5aa43'}
@@ -59,10 +75,12 @@ module BoxGrinder
     }
 
     def after_init
-      set_default_config_value('availability_zone', 'us-east-1a')
+      @current_avaibility_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone').string
+
+      set_default_config_value('availability_zone', @current_avaibility_zone)
       set_default_config_value('delete_on_termination', true)
 
-      register_supported_os('fedora', ['13'])
+      register_supported_os('fedora', ['13', '14'])
     end
 
     def execute(type = :ebs)
@@ -70,10 +88,7 @@ module BoxGrinder
 
       raise "You try to run this plugin on invalid platform. You can run EBS delivery plugin only on EC2." unless valid_platform?
       raise "You can only convert to EBS type AMI appliances converted to EC2 format. Use '-p ec2' switch. For more info about EC2 plugin see http://community.jboss.org/docs/DOC-15527." unless @previous_plugin_info[:name] == :ec2
-
-      avaibility_zone           = open('http://169.254.169.254/latest/meta-data/placement/availability-zone').string
-
-      raise "You selected #{@plugin_config['availability_zone']} avaibility zone, but your instance is running in #{avaibility_zone} zone. Please change avaibility zone in plugin configuration file to #{avaibility_zone} (see http://community.jboss.org/docs/DOC-15921) or use another instance in #{@plugin_config['availability_zone']} zone to create your EBS AMI." if @plugin_config['availability_zone'] != avaibility_zone
+      raise "You selected #{@plugin_config['availability_zone']} avaibility zone, but your instance is running in #{@current_avaibility_zone} zone. Please change avaibility zone in plugin configuration file to #{@current_avaibility_zone} (see http://community.jboss.org/docs/DOC-15921) or use another instance in #{@plugin_config['availability_zone']} zone to create your EBS AMI." if @plugin_config['availability_zone'] != @current_avaibility_zone
 
       unless is_supported_os?
         @log.error "EBS delivery plugin supports following operating systems: #{supported_oses}. Your OS is #{@appliance_config.os.name} #{@appliance_config.os.version}."
@@ -189,7 +204,7 @@ module BoxGrinder
 
       @log.info "Registering image..."
 
-      region                    = avaibility_zone.scan(/((\w+)-(\w+)-(\d+))/).flatten.first
+      region                    = @current_avaibility_zone.scan(/((\w+)-(\w+)-(\d+))/).flatten.first
       image_id                  = @ec2.register_image(
               :block_device_mapping   => [{
                                                   :device_name               => '/dev/sda1',

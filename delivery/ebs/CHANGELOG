@@ -1,7 +1,9 @@
 
 v0.0.2
 
-* Rebuilding for RPM
+* [BGBUILD-61] EBS availability_zone should be defaulted to current running instance availability zone
+* [BGBUILD-67] Add Fedora 14 support for S3 delivery plugin and EBS delivery plugin
+
 
 v0.0.1
 
