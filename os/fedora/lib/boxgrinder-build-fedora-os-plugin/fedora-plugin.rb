@@ -49,6 +49,7 @@ module BoxGrinder
           packages << "dhclient"
         when "13" then
           packages << "system-config-firewall-base"
+          packages << "selinux-policy-targeted"
         when "12" then
           packages << "system-config-firewall-base"
         when "11" then
