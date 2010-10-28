@@ -24,27 +24,23 @@ module BoxGrinder
     def after_init
       set_default_config_value('overwrite', true)
       set_default_config_value('package', true)
-    end
-
-    def execute( type = :local )
-      validate_plugin_config( [ 'path' ], 'http://community.jboss.org/docs/DOC-15216' )
-
-      files = []
 
       if @plugin_config['package']
-        files << PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package( @previous_deliverables, :plugin_info => @previous_plugin_info )
-      else
-        @previous_deliverables.each_value do |file|
-          files << file
-        end
+        register_deliverable(:package => "#{@appliance_config.name}-#{@appliance_config.version}.#{@appliance_config.release}-#{@appliance_config.os.name}-#{@appliance_config.os.version}-#{@appliance_config.hardware.arch}-#{current_platform}.tgz")
       end
+    end
 
-      if @plugin_config['overwrite'] or !already_delivered?(files)
+    def execute(type = :local)
+      validate_plugin_config(['path'], 'http://community.jboss.org/docs/DOC-15216')
+
+      if @plugin_config['overwrite'] or !deliverables_exists?
+        PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package(@previous_deliverables, @deliverables[:package]) if @plugin_config['package']
+
         FileUtils.mkdir_p @plugin_config['path']
 
         @log.debug "Copying files to '#{@plugin_config['path']}'..."
 
-        files.each do |file|
+        (@deliverables.empty? ? @previous_deliverables : @deliverables).values.each do |file|
           @log.debug "Copying #{file}..."
           @exec_helper.execute("cp #{file} #{@plugin_config['path']}")
         end
@@ -54,10 +50,13 @@ module BoxGrinder
       end
     end
 
-    def already_delivered?(files)
-      files.each do |file|
+    def deliverables_exists?
+      return super unless @deliverables.empty?
+
+      @previous_deliverables.values.each do |file|
         return false unless File.exists?("#{@plugin_config['path']}/#{File.basename(file)}")
       end
+
       true
     end
   end

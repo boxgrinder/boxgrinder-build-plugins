@@ -49,12 +49,12 @@ module BoxGrinder
               })
 
       package_helper = mock(PackageHelper)
-      package_helper.should_receive( :package ).with( {:disk=>"a_disk.raw"}, :plugin_info => nil ).and_return("deliverable")
+      package_helper.should_receive( :package ).with( {:disk=>"a_disk.raw"}, "build/appliances/i686/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz" ).and_return("deliverable")
 
       PackageHelper.should_receive(:new).with( @config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper ).and_return(package_helper)
 
-      @exec_helper.should_receive(:execute).with("cp deliverable a/path")
-      @plugin.should_receive(:already_delivered?).with(["deliverable"]).and_return(false)
+      @exec_helper.should_receive(:execute).with("cp build/appliances/i686/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
+      @plugin.should_receive(:deliverables_exists?).and_return(false)
 
       @plugin.execute
     end
@@ -68,7 +68,7 @@ module BoxGrinder
 
       PackageHelper.should_not_receive(:new)
 
-      @exec_helper.should_receive(:execute).with("cp a_disk.raw a/path")
+      @exec_helper.should_receive(:execute).with("cp build/appliances/i686/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
 
       @plugin.execute
     end
@@ -83,37 +83,10 @@ module BoxGrinder
       PackageHelper.should_not_receive(:new)
 
       @exec_helper.should_not_receive(:execute)
-      @plugin.should_receive(:already_delivered?).with(["a_disk.raw"]).and_return(true)
+      @plugin.should_receive(:deliverables_exists?).and_return(true)
 
       @plugin.execute
     end
-
-    it "should check if files are delivered and return false" do
-      @plugin.instance_variable_set(:@plugin_config, {
-              'overwrite'   => true,
-              'path'        => 'a/path',
-              'package'     => false
-      })
-
-      File.should_receive(:exists?).with("a/path/abc").and_return(true)
-      File.should_receive(:exists?).with("a/path/def").and_return(false)
-
-      @plugin.already_delivered?( ['abc', 'def'] ).should == false
-    end
-
-    it "should check if files are delivered and return true" do
-      @plugin.instance_variable_set(:@plugin_config, {
-              'overwrite'   => true,
-              'path'        => 'a/path',
-              'package'     => false
-      })
-
-      File.should_receive(:exists?).with("a/path/abc").and_return(true)
-      File.should_receive(:exists?).with("a/path/def").and_return(true)
-
-      @plugin.already_delivered?( ['abc', 'def'] ).should == true
-    end
-
   end
 end
 
