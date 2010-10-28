@@ -210,6 +210,22 @@ module BoxGrinder
                                                   :device_name               => '/dev/sda1',
                                                   :ebs_snapshot_id           => snapshot_id,
                                                   :ebs_delete_on_termination => @plugin_config['delete_on_termination']
+                                          },
+                                          {
+                                                  :device_name               => '/dev/sdb',
+                                                  :virtual_name              => 'ephemeral0'
+                                          },
+                                          {
+                                                  :device_name               => '/dev/sdc',
+                                                  :virtual_name              => 'ephemeral1'
+                                          },
+                                          {
+                                                  :device_name               => '/dev/sdd',
+                                                  :virtual_name              => 'ephemeral2'
+                                          },
+                                          {
+                                                  :device_name               => '/dev/sde',
+                                                  :virtual_name              => 'ephemeral3'
                                           }],
               :root_device_name       => '/dev/sda1',
               :architecture           => @appliance_config.hardware.base_arch,
