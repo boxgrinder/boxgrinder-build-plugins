@@ -52,6 +52,26 @@ module BoxGrinder
       packages.should == ['abc', 'def', 'passwd', 'lokkit', 'kernel']
     end
 
+    it "should add packages for fedora 13" do
+      packages = ['kernel']
+
+      @appliance_config.hardware.arch = "x86_64"
+      @appliance_config.os.name = "fedora"
+      @appliance_config.os.version = "13"
+      @plugin.normalize_packages( packages )
+      packages.should == ["passwd", "system-config-firewall-base", "selinux-policy-targeted", "dhclient", "kernel"]
+    end
+
+    it "should add packages for fedora 14" do
+      packages = ['kernel']
+
+      @appliance_config.hardware.arch = "x86_64"
+      @appliance_config.os.name = "fedora"
+      @appliance_config.os.version = "14"
+      @plugin.normalize_packages( packages )
+      packages.should == ["passwd", "system-config-firewall-base", "selinux-policy-targeted", "dhclient", "kernel"]
+    end
+
   end
 end
 

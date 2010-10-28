@@ -43,13 +43,10 @@ module BoxGrinder
       packages << 'passwd'
 
       case @appliance_config.os.version
-        when "14" then
+        when "13", "14" then
           packages << "system-config-firewall-base"
           packages << "selinux-policy-targeted"
           packages << "dhclient"
-        when "13" then
-          packages << "system-config-firewall-base"
-          packages << "selinux-policy-targeted"
         when "12" then
           packages << "system-config-firewall-base"
         when "11" then
