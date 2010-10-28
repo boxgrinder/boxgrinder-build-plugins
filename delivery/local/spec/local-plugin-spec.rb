@@ -49,11 +49,11 @@ module BoxGrinder
               })
 
       package_helper = mock(PackageHelper)
-      package_helper.should_receive( :package ).with( {:disk=>"a_disk.raw"}, "build/appliances/i686/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz" ).and_return("deliverable")
+      package_helper.should_receive( :package ).with( {:disk=>"a_disk.raw"}, "build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz" ).and_return("deliverable")
 
       PackageHelper.should_receive(:new).with( @config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper ).and_return(package_helper)
 
-      @exec_helper.should_receive(:execute).with("cp build/appliances/i686/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
+      @exec_helper.should_receive(:execute).with("cp build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
       @plugin.should_receive(:deliverables_exists?).and_return(false)
 
       @plugin.execute
@@ -68,7 +68,7 @@ module BoxGrinder
 
       PackageHelper.should_not_receive(:new)
 
-      @exec_helper.should_receive(:execute).with("cp build/appliances/i686/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
+      @exec_helper.should_receive(:execute).with("cp build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
 
       @plugin.execute
     end
