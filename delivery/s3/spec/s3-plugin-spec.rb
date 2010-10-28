@@ -86,7 +86,7 @@ module BoxGrinder
 
     it "should upload to a S3 bucket" do
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with( {:disk => "adisk"}, "build/appliances/i686/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz" ).and_return("a_built_package.zip")
+      package_helper.should_receive(:package).with( {:disk => "adisk"}, "build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz" ).and_return("a_built_package.zip")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
 
@@ -104,16 +104,16 @@ module BoxGrinder
       s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
       s3.should_receive(:close_connection)
 
-      File.should_receive(:size).with("build/appliances/i686/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return(23234566)
+      File.should_receive(:size).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return(23234566)
 
-      @plugin.should_receive(:open).with("build/appliances/i686/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return("abc")
+      @plugin.should_receive(:open).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return("abc")
 
       @plugin.upload_to_bucket(:disk => "adisk")
     end
 
     it "should NOT upload to a S3 bucket because file exists" do
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with( {:disk => "adisk"}, "build/appliances/i686/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return("a_built_package.zip")
+      package_helper.should_receive(:package).with( {:disk => "adisk"}, "build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return("a_built_package.zip")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
 
@@ -130,7 +130,7 @@ module BoxGrinder
       s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
       s3.should_receive(:close_connection)
 
-      File.should_receive(:size).with("build/appliances/i686/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return(23234566)
+      File.should_receive(:size).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return(23234566)
 
       @plugin.upload_to_bucket(:disk => "adisk")
     end
