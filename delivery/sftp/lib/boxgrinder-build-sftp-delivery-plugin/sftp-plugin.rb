@@ -28,19 +28,21 @@ module BoxGrinder
     def after_init
       set_default_config_value('overwrite', false)
       set_default_config_value('default_permissions', 0644)
+
+      register_deliverable(:package => "#{@appliance_config.name}-#{@appliance_config.version}.#{@appliance_config.release}-#{@appliance_config.os.name}-#{@appliance_config.os.version}-#{@appliance_config.hardware.arch}-#{current_platform}.tgz")
     end
 
     def execute( type = :sftp )
       validate_plugin_config(['path', 'username', 'host'], 'http://community.jboss.org/docs/DOC-15524')
 
-      package = PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( @previous_deliverables, :plugin_info => @previous_plugin_info )
+      PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package( @previous_deliverables, @deliverables[:package] )
 
       @log.info "Uploading #{@appliance_config.name} appliance via SSH..."
 
       begin
         #TODO move to a block
         connect
-        upload_files(@plugin_config['path'], {File.basename(package) => package})
+        upload_files(@plugin_config['path'], File.basename(@deliverables[:package]) => @deliverables[:package])
         disconnect
 
         @log.info "Appliance #{@appliance_config.name} uploaded."
