@@ -70,6 +70,7 @@ module BoxGrinder
       @ami_manifest   = "#{@ami_build_dir}/#{@appliance_config.name}.ec2.manifest.xml"
     end
 
+    # TODO: remove this from here, use base-plugin os info
     def supported_os
       supported = ""
 
@@ -120,21 +121,28 @@ module BoxGrinder
       File.open( @ami_manifest, "w" ) {|f| f.write( ami_manifest ) }
     end
 
-    def upload_to_bucket(deliverables, permissions = 'private')
-      package = PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( deliverables, :plugin_info => @previous_plugin_info )
+    def upload_to_bucket(previous_deliverables, permissions = 'private')
+      register_deliverable(
+          :package => "#{@appliance_config.name}-#{@appliance_config.version}.#{@appliance_config.release}-#{@appliance_config.os.name}-#{@appliance_config.os.version}-#{@appliance_config.hardware.arch}-#{current_platform}.tgz"
+      )
+
+      # quick and dirty workaround to use @deliverables[:package] later in code
+      FileUtils.mv( @target_deliverables[:package], @deliverables[:package] ) if File.exists?( @target_deliverables[:package] )
+
+      PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( previous_deliverables, @deliverables[:package] )
 
       @s3 = Aws::S3.new( @plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log )
 
       bucket = @s3.bucket( @plugin_config['bucket'], true )
 
-      remote_path = "#{s3_path( @plugin_config['path'] )}#{File.basename(package)}"
-      size_b      = File.size(package)
+      remote_path = "#{s3_path( @plugin_config['path'] )}#{File.basename(@deliverables[:package])}"
+      size_b      = File.size(@deliverables[:package])
 
-      key = bucket.key( remote_path )
+      key = bucket.key( remote_path.gsub(/^\//, '').gsub(/\/\//, '') )
 
       unless key.exists? or @plugin_config['overwrite']
-        @log.info "Uploading #{File.basename(package)} (#{size_b/1024/1024}MB) to '#{@plugin_config['bucket']}#{remote_path}' path..."
-        key.put( open(package), permissions )
+        @log.info "Uploading #{File.basename(@deliverables[:package])} (#{size_b/1024/1024}MB) to '#{@plugin_config['bucket']}#{remote_path}' path..."
+        key.put( open(@deliverables[:package]), permissions )
         @log.info "Appliance #{@appliance_config.name} uploaded to S3."
       else
         @log.info "File '#{@plugin_config['bucket']}#{remote_path}' already uploaded, skipping."
