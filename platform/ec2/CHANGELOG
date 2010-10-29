@@ -1,6 +1,7 @@
 
 v0.0.5
 
+* [BGBUILD-57] Additional packages specified in EC2 plugin aren't installed
 * [BGBUILD-67] Add Fedora 14 support for S3 delivery plugin: AMI type
 
 v0.0.4
