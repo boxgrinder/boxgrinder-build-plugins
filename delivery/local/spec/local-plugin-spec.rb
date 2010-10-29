@@ -29,9 +29,9 @@ module BoxGrinder
 
     before(:each) do
       @plugin = LocalPlugin.new.init(generate_config, generate_appliance_config,
-                                     :log => Logger.new('/dev/null'),
-                                     :plugin_info => { :class => BoxGrinder::LocalPlugin, :type => :delivery, :name => :local, :full_name  => "Local file system" },
-                                     :previous_deliverables => { :disk => "a_disk.raw"}
+                                     :log                   => Logger.new('/dev/null'),
+                                     :plugin_info           => {:class => BoxGrinder::LocalPlugin, :type => :delivery, :name => :local, :full_name  => "Local file system"},
+                                     :previous_deliverables => {:disk => "a_disk.raw"}
       )
 
       @config             = @plugin.instance_variable_get(:@config)
@@ -46,12 +46,12 @@ module BoxGrinder
               'overwrite'   => false,
               'path'        => 'a/path',
               'package'     => true
-              })
+      })
 
       package_helper = mock(PackageHelper)
-      package_helper.should_receive( :package ).with( {:disk=>"a_disk.raw"}, "build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz" ).and_return("deliverable")
+      package_helper.should_receive(:package).with({:disk=>"a_disk.raw"}, "build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return("deliverable")
 
-      PackageHelper.should_receive(:new).with( @config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper ).and_return(package_helper)
+      PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
       @exec_helper.should_receive(:execute).with("cp build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
       @plugin.should_receive(:deliverables_exists?).and_return(false)
