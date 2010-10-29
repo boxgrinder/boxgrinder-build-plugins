@@ -36,7 +36,7 @@ module BoxGrinder
     def create
       template = "#{File.dirname(__FILE__)}/src/appliance.ks.erb"
       kickstart = ERB.new(File.read(template)).result(build_definition.send(:binding))
-      File.open( @kickstart_file, 'w') { |f| f.write(kickstart) }
+      File.open(@kickstart_file, 'w') { |f| f.write(kickstart) }
 
       @kickstart_file
     end
@@ -88,7 +88,11 @@ module BoxGrinder
         definition['partitions'][root] = partition
       end
 
-      for repo in valid_repos + @appliance_config.repos
+      repos = []
+      repos += valid_repos if @appliance_config.default_repos
+      repos += @appliance_config.repos
+
+      for repo in repos
         if repo.keys.include?('mirrorlist')
           urltype = 'mirrorlist'
         else
@@ -106,8 +110,8 @@ module BoxGrinder
         name  = repo['name']
 
         substitutions.each do |key, value|
-          url   = url.gsub( key, value )
-          name  = name.gsub( key, value )
+          url   = url.gsub(key, value)
+          name  = name.gsub(key, value)
         end
 
         repo_def = "repo --name=#{name} --cost=#{cost} --#{urltype}=#{url}"
