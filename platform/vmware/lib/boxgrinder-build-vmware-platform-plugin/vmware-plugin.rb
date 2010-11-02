@@ -43,8 +43,7 @@ module BoxGrinder
       unless @appliance_config.post['vmware'].nil?
         @image_helper.customize( @deliverables.disk ) do |guestfs, guestfs_helper|
           @appliance_config.post['vmware'].each do |cmd|
-            @log.debug "Executing #{cmd}"
-            guestfs.sh( "setarch #{@appliance_config.hardware.arch} #{cmd}" )
+            guestfs_helper.sh( cmd, :arch => @appliance_config.hardware.arch )
           end
           @log.debug "Post commands from appliance definition file executed."
         end

@@ -57,8 +57,7 @@ module BoxGrinder
 
         unless @appliance_config.post['base'].nil?
           @appliance_config.post['base'].each do |cmd|
-            @log.debug "Executing #{cmd}"
-            guestfs.sh( "setarch #{@appliance_config.hardware.arch} #{cmd}" )
+            guestfs_helper.sh( cmd, :arch => @appliance_config.hardware.arch )
           end
           @log.debug "Post commands from appliance definition file executed."
         else

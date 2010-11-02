@@ -135,12 +135,13 @@ module BoxGrinder
       @plugin.should_receive(:build_vmware_personal).with(no_args())
 
       guestfs_mock = mock("GuestFS")
+      guestfs_helper_mock = mock("GuestFSHelper")
 
-      @image_helper.should_receive(:customize).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, nil)
+      @image_helper.should_receive(:customize).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, guestfs_helper_mock)
 
-      guestfs_mock.should_receive(:sh).once.ordered.with("setarch #{@arch} one")
-      guestfs_mock.should_receive(:sh).once.ordered.with("setarch #{@arch} two")
-      guestfs_mock.should_receive(:sh).once.ordered.with("setarch #{@arch} three")
+      guestfs_helper_mock.should_receive(:sh).once.ordered.with("one", :arch => @arch)
+      guestfs_helper_mock.should_receive(:sh).once.ordered.with("two", :arch => @arch)
+      guestfs_helper_mock.should_receive(:sh).once.ordered.with("three", :arch => @arch)
 
       File.should_receive(:open)
 

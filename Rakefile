@@ -2,7 +2,7 @@ require 'rake'
 
 plugins = {
         "boxgrinder-build-local-delivery-plugin"  => { :dir => "delivery/local", :desc => 'Local Delivery Plugin' },
-        "boxgrinder-build-s3-delivery-plugin"     => { :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :deps => { 'aws' => '~>2.3.21', 'amazon-ec2' => '~>0.9.6' }},
+        "boxgrinder-build-s3-delivery-plugin"     => { :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :deps => { 'boxgrinder-aws' => '~>2.3.21', 'activesupport' => '~>2.3.5', 'amazon-ec2' => '~>0.9.6' }},
         "boxgrinder-build-sftp-delivery-plugin"   => { :dir => "delivery/sftp", :desc => 'SSH File Transfer Protocol Delivery Plugin', :deps => { 'net-sftp' => '~>2.0.4', 'net-ssh' => '~>2.0.20', 'progressbar' => '~>0.9.0' }},
         "boxgrinder-build-ebs-delivery-plugin"    => { :dir => "delivery/ebs", :desc => 'Elastic Block Storage Delivery Plugin', :deps => { 'amazon-ec2' => '~>0.9.6' }},
 
