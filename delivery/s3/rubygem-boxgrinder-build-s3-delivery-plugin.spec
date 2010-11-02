@@ -15,12 +15,13 @@ Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 Requires: ruby(abi) = %{rubyabi}
 Requires: rubygems >= 1.2
 Requires: ruby >= 0
+Requires: ec2-ami-tools
 Requires: rubygem(boxgrinder-build) => 0.6.0
 Requires: rubygem(boxgrinder-build) < 0.7
 Requires: rubygem(amazon-ec2) => 0.9.6
 Requires: rubygem(amazon-ec2) < 0.10
-Requires: rubygem(aws-s3) => 0.6.2
-Requires: rubygem(aws-s3) < 0.7
+Requires: rubygem(aws) => 2.3.21
+Requires: rubygem(aws) < 2.4
 BuildRequires: rubygems >= 1.2
 BuildRequires: ruby >= 0
 
