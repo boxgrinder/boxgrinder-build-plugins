@@ -50,6 +50,7 @@ module BoxGrinder
         @log.debug "'/etc/resolv.conf' uploaded."
 
         change_configuration( guestfs_helper )
+        apply_root_password( guestfs )
 
         guestfs.sh( "chkconfig firstboot off" ) if guestfs.exists( '/etc/init.d/firstboot' ) != 0
 
@@ -76,6 +77,13 @@ module BoxGrinder
       end
 
       @log.info "Base image for #{@appliance_config.name} appliance was built successfully."
+    end
+
+    def apply_root_password( guestfs )
+      @log.debug "Applying root password..."
+      guestfs.sh( "/usr/bin/passwd -d root" )
+      guestfs.sh( "/usr/sbin/usermod -p '#{@appliance_config.os.password.crypt((0...8).map{65.+(rand(25)).chr}.join)}' root" )
+      @log.debug "Password applied."
     end
 
     def change_configuration( guestfs_helper )

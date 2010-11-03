@@ -1,4 +1,8 @@
 
+v0.0.5
+
+* [BGBUILD-82] Root password not set when selinux packages are added
+
 v0.0.4
 
 * Rebuilding for RPM

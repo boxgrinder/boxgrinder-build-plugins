@@ -28,11 +28,6 @@ module BoxGrinder
       build_with_appliance_creator( repos )  do |guestfs, guestfs_helper|
         # required for VMware
         @linux_helper.recreate_kernel_image( guestfs, ['mptspi'] )
-
-        @log.debug "Applying root password..."
-        guestfs.sh( "/usr/bin/passwd -d root" )
-        guestfs.sh( "/usr/sbin/usermod -p '#{@appliance_config.os.password.crypt((0...8).map{65.+(rand(25)).chr}.join)}' root" )
-        @log.debug "Password applied."
       end
     end
 
