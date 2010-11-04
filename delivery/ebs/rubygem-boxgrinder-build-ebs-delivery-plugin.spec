@@ -5,7 +5,7 @@
 
 Summary: Elastic Block Storage Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.1
+Version: 0.0.2
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPL
@@ -19,8 +19,8 @@ Requires: rubygem(boxgrinder-build) => 0.6.0
 Requires: rubygem(boxgrinder-build) < 0.7
 Requires: rubygem(amazon-ec2) => 0.9.6
 Requires: rubygem(amazon-ec2) < 0.10
-Requires: rubygem(aws-s3) => 0.6.2
-Requires: rubygem(aws-s3) < 0.7
+Requires: rubygem(aws) => 2.3.20
+Requires: rubygem(aws) < 2.4
 BuildRequires: rubygems >= 1.2
 BuildRequires: ruby >= 0
 
@@ -60,5 +60,10 @@ rm -rf %{buildroot}
 %{gemdir}/specifications/%{gemname}-%{version}.gemspec
 
 %changelog
+* Wed Nov 03 2010  <mgoldman@redhat.com> - 0.0.2-1
+- [BGBUILD-70] Enable Ephemeral Storage on EBS Images
+- [BGBUILD-61] EBS availability_zone should be defaulted to current running instance availability zone
+- [BGBUILD-67] Add Fedora 14 support for S3 delivery plugin and EBS delivery plugin
+
 * Mon Oct 18 2010  <mgoldman@redhat.com> - 0.0.1-1
 - Initial package

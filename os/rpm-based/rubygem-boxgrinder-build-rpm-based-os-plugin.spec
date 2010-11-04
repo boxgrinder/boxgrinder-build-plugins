@@ -5,7 +5,7 @@
 
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
+Version: 0.0.6
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPL
@@ -59,5 +59,8 @@ rm -rf %{buildroot}
 %{gemdir}/specifications/%{gemname}-%{version}.gemspec
 
 %changelog
+* Wed Nov 03 2010  <mgoldman@redhat.com> - 0.0.6-1
+- [BGBUILD-82] Root password not set when selinux packages are added
+
 * Mon Oct 18 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Initial package

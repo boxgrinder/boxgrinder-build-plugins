@@ -5,7 +5,7 @@
 
 Summary: Red Hat Enterprise Linux Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.4
+Version: 0.0.5
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPL
@@ -58,5 +58,8 @@ rm -rf %{buildroot}
 %{gemdir}/specifications/%{gemname}-%{version}.gemspec
 
 %changelog
+* Wed Nov 03 2010  <mgoldman@redhat.com> - 0.0.5-1
+- [BGBUILD-82] Root password not set when selinux packages are added
+
 * Mon Oct 18 2010  <mgoldman@redhat.com> - 0.0.4-1
 - Initial package
