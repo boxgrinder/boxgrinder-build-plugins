@@ -6,3 +6,4 @@ Rakefile
 lib/boxgrinder-build-sftp-delivery-plugin.rb
 lib/boxgrinder-build-sftp-delivery-plugin/sftp-plugin.rb
 rubygem-boxgrinder-build-sftp-delivery-plugin.spec
+spec/sftp-plugin-spec.rb
