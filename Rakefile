@@ -18,7 +18,7 @@ plugins = {
 task "rakefiles" do
   plugins.each do |name, info|
 
-    dependencies = [ "'boxgrinder-build ~>0.6.2'" ]
+    dependencies = [ "'boxgrinder-build ~>0.6.3'" ]
 
     unless info[:deps].nil?
       info[:deps].each  do |n, v|
