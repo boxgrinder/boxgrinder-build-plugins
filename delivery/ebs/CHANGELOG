@@ -1,4 +1,9 @@
 
+v0.0.3
+
+* [BGBUILD-86] EBS plugin should inform that it can be run only on EC2
+* [BGBUILD-85] Adjust BoxGrinder spec files for review
+
 v0.0.2
 
 * [BGBUILD-70] Enable Ephemeral Storage on EBS Images

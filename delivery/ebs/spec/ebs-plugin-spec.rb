@@ -27,36 +27,44 @@ module BoxGrinder
       @arch = `uname -m`.chomp.strip
     end
 
-    before(:each) do
+    def prepare_plugin
       @plugin = EBSPlugin.new
 
-      avaibility_zone = mock('AZ')
-      avaibility_zone.should_receive(:string).and_return('avaibility-zone1')
+      yield @plugin if block_given?
 
-      @plugin.stub!(:open).with('http://169.254.169.254/latest/meta-data/placement/availability-zone').and_return(avaibility_zone)
-      @plugin = @plugin.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => { :class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name  => "Elastic Block Storage" })
+      @plugin = @plugin.init(
+              generate_config,
+              generate_appliance_config,
+              :log    => Logger.new('/dev/null'),
+              :plugin_info => {:class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name  => "Elastic Block Storage"},
+              :config_file => "#{File.dirname(__FILE__)}/ebs.yaml"
+      )
+    end
 
-      @config             = @plugin.instance_variable_get(:@config)
-      @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper        = @plugin.instance_variable_get(:@exec_helper)
-      @log                = @plugin.instance_variable_get(:@log)
-      @dir                = @plugin.instance_variable_get(:@dir)
+    describe ".after_init" do
+      it "should set default avaibility zone to current one" do
+        prepare_plugin do |plugin|
+          avaibility_zone = mock('AZ')
+          avaibility_zone.should_receive(:string).and_return('avaibility-zone1')
 
-      @plugin_config = {
-              'access_key'        => 'access_key',
-              'secret_access_key' => 'secret_access_key',
-              'bucket'            => 'bucket',
-              'account_number'    => '0000-0000-0000',
-              'cert_file'         => '/path/to/cert/file',
-              'key_file'          => '/path/to/key/file',
-              'path'              => '/'
-      }
+          plugin.should_receive(:open).with('http://169.254.169.254/latest/meta-data/placement/availability-zone').and_return(avaibility_zone)
+        end
 
-      @plugin.instance_variable_set(:@plugin_config, @plugin_config)
+        @plugin.instance_variable_get(:@plugin_config)['availability_zone'].should == 'avaibility-zone1'
+      end
 
+      it "should not set default avaibility zone because we're not on EC2" do
+        prepare_plugin do |plugin|
+          plugin.should_receive(:open).with('http://169.254.169.254/latest/meta-data/placement/availability-zone').and_raise("Bleh")
+        end
+
+        @plugin.instance_variable_get(:@plugin_config)['availability_zone'].should == nil
+      end
     end
 
     it "should get a new free device" do
+      prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
       File.should_receive(:exists?).with("/dev/sdf").and_return(false)
       File.should_receive(:exists?).with("/dev/xvdf").and_return(false)
 
@@ -64,6 +72,8 @@ module BoxGrinder
     end
 
     it "should get a new free device next in order" do
+      prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
       File.should_receive(:exists?).with("/dev/sdf").and_return(false)
       File.should_receive(:exists?).with("/dev/xvdf").and_return(true)
       File.should_receive(:exists?).with("/dev/sdg").and_return(false)
@@ -73,12 +83,16 @@ module BoxGrinder
     end
 
     it "should should return true if on EC2" do
+      prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
       @plugin.should_receive(:open).with("http://169.254.169.254/1.0/meta-data/local-ipv4")
 
       @plugin.valid_platform?.should == true
     end
 
     it "should should return true if NOT on EC2" do
+      prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
       @plugin.should_receive(:open).with("http://169.254.169.254/1.0/meta-data/local-ipv4").and_raise("Bleh")
 
       @plugin.valid_platform?.should == false

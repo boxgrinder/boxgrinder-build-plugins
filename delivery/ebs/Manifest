@@ -7,3 +7,4 @@ lib/boxgrinder-build-ebs-delivery-plugin.rb
 lib/boxgrinder-build-ebs-delivery-plugin/ebs-plugin.rb
 rubygem-boxgrinder-build-ebs-delivery-plugin.spec
 spec/ebs-plugin-spec.rb
+spec/ebs.yaml

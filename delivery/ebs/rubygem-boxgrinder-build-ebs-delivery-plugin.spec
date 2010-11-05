@@ -5,7 +5,7 @@
 
 Summary: Elastic Block Storage Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.2
+Version: 0.0.3
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPL
@@ -30,6 +30,14 @@ Provides: rubygem(%{gemname}) = %{version}
 %description
 BoxGrinder Build Elastic Block Storage Delivery Plugin
 
+%package doc
+Summary: Documentation for %{name}
+Group: Documentation
+Requires:%{name} = %{version}-%{release}
+
+%description doc
+Documentation for %{name}
+
 %prep
 
 %build
@@ -47,19 +55,26 @@ rm -rf %{buildroot}
 %defattr(-, root, root, -)
 %dir %{geminstdir}
 %{geminstdir}/lib
-%doc %{gemdir}/doc/%{gemname}-%{version}
-%doc %{geminstdir}/%{gemname}.gemspec
-%doc %{geminstdir}/rubygem-%{gemname}.spec
 %doc %{geminstdir}/CHANGELOG
 %doc %{geminstdir}/LICENSE
 %doc %{geminstdir}/README
 %doc %{geminstdir}/Manifest
-%doc %{geminstdir}/Rakefile
-%doc %{geminstdir}/spec
 %{gemdir}/cache/%{gemname}-%{version}.gem
 %{gemdir}/specifications/%{gemname}-%{version}.gemspec
 
+%files doc
+%defattr(-, root, root, -)
+%{geminstdir}/spec
+%{geminstdir}/Rakefile
+%{geminstdir}/rubygem-%{gemname}.spec
+%{geminstdir}/%{gemname}.gemspec
+%{gemdir}/doc/%{gemname}-%{version}
+
 %changelog
+* Fri Nov 05 2010  <mgoldman@redhat.com> - 0.0.3-1
+- [BGBUILD-86] EBS plugin should inform that it can be run only on EC2
+- [BGBUILD-85] Adjust BoxGrinder spec files for review
+
 * Wed Nov 03 2010  <mgoldman@redhat.com> - 0.0.2-1
 - [BGBUILD-70] Enable Ephemeral Storage on EBS Images
 - [BGBUILD-61] EBS availability_zone should be defaulted to current running instance availability zone

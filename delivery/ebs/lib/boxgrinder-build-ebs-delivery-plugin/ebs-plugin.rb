@@ -75,7 +75,10 @@ module BoxGrinder
     }
 
     def after_init
-      @current_avaibility_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone').string
+      begin
+        @current_avaibility_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone').string
+      rescue
+      end
 
       set_default_config_value('availability_zone', @current_avaibility_zone)
       set_default_config_value('delete_on_termination', true)
