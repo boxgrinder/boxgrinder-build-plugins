@@ -16,13 +16,12 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'logger'
 require 'boxgrinder-build-ebs-delivery-plugin/ebs-plugin'
-require 'rspec/rspec-config-helper'
 
 module BoxGrinder
-  describe EBSPlugin do
-    include RSpecConfigHelper
 
+  describe EBSPlugin do
     before(:all) do
       @arch = `uname -m`.chomp.strip
     end
@@ -32,12 +31,17 @@ module BoxGrinder
 
       yield @plugin if block_given?
 
+      @config = mock('Config')
+      @appliance_config = mock('ApplianceConfig')
+
+      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => '/a/build/path'}))
+
       @plugin = @plugin.init(
-              generate_config,
-              generate_appliance_config,
-              :log    => Logger.new('/dev/null'),
-              :plugin_info => {:class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name  => "Elastic Block Storage"},
-              :config_file => "#{File.dirname(__FILE__)}/ebs.yaml"
+          @config,
+          @appliance_config,
+          :log    => Logger.new('/dev/null'),
+          :plugin_info => {:class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name  => "Elastic Block Storage"},
+          :config_file => "#{File.dirname(__FILE__)}/ebs.yaml"
       )
     end
 
@@ -60,6 +64,76 @@ module BoxGrinder
 
         @plugin.instance_variable_get(:@plugin_config)['availability_zone'].should == nil
       end
+    end
+
+    it "should sync files between two dirs" do
+      prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
+      exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      exec_helper.should_receive(:execute).with("rsync -u -r -a  from/* to")
+
+      @plugin.sync_files('from', 'to')
+    end
+
+    describe '.already_registered?' do
+      it "should check if image is already registered and return false if there are no images registered for this account" do
+        prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
+        plugin_config = mock('PluginConfiig')
+        plugin_config.should_receive(:[]).with('account_number').and_return('0000-0000-0000')
+
+        @plugin.instance_variable_set(:@plugin_config, plugin_config)
+
+        ec2 = mock('EC2')
+        ec2.should_receive(:describe_images).with(:owner_id => '000000000000')
+
+        @plugin.instance_variable_set(:@ec2, ec2)
+
+        @plugin.already_registered?('aname').should == false
+      end
+
+      it "should check if image is already registered and return false if there are no images with name aname_new" do
+        prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
+        plugin_config = mock('PluginConfiig')
+        plugin_config.should_receive(:[]).with('account_number').and_return('0000-0000-0000')
+
+        @plugin.instance_variable_set(:@plugin_config, plugin_config)
+
+        ec2 = mock('EC2')
+        ec2.should_receive(:describe_images).with(:owner_id => '000000000000').and_return({'imagesSet' => {'item' => [{'name' => 'abc', 'imageId' => '1'}, {'name' => 'aname', 'imageId' => '2'}]}})
+
+        @plugin.instance_variable_set(:@ec2, ec2)
+
+        @plugin.already_registered?('aname_new').should == false
+      end
+
+      it "should check if image is already registered and return true image is registered" do
+        prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
+        plugin_config = mock('PluginConfiig')
+        plugin_config.should_receive(:[]).with('account_number').and_return('0000-0000-0000')
+
+        @plugin.instance_variable_set(:@plugin_config, plugin_config)
+
+        ec2 = mock('EC2')
+        ec2.should_receive(:describe_images).with(:owner_id => '000000000000').and_return({'imagesSet' => {'item' => [{'name' => 'abc', 'imageId' => '1'}, {'name' => 'aname', 'imageId' => '2'}]}})
+
+        @plugin.instance_variable_set(:@ec2, ec2)
+
+        @plugin.already_registered?('aname').should == '2'
+      end
+    end
+
+    it "should adjust fstab" do
+      prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
+      exec_helper = @plugin.instance_variable_get(:@exec_helper)
+
+      exec_helper.should_receive(:execute).with("cat a/dir/etc/fstab | grep -v '/mnt' | grep -v '/data' | grep -v 'swap' > a/dir/etc/fstab.new")
+      exec_helper.should_receive(:execute).with("mv a/dir/etc/fstab.new a/dir/etc/fstab")
+
+      @plugin.adjust_fstab('a/dir')
     end
 
     it "should get a new free device" do

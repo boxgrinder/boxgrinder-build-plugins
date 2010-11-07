@@ -16,6 +16,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'rubygems'
 require 'boxgrinder-build/plugins/base-plugin'
 require 'AWS'
 require 'open-uri'
@@ -78,6 +79,7 @@ module BoxGrinder
       begin
         @current_avaibility_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone').string
       rescue
+        @current_avaibility_zone = nil
       end
 
       set_default_config_value('availability_zone', @current_avaibility_zone)

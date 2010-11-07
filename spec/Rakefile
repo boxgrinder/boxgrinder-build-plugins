@@ -11,7 +11,7 @@ Spec::Rake::SpecTask.new(:default) do |t|
   end
 
   t.spec_files = FileList['../*/*/spec/**/*-spec.rb']
-  t.spec_opts = [ '--format', 's']
+  t.spec_opts = [ '--colour', '--format', 's']
   t.rcov = true
   t.rcov_opts = ['--exclude', 'spec,teamcity/*,/usr/lib/ruby/,.gem/ruby,/boxgrinder-core/,/boxgrinder-build/']
 end
