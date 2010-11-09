@@ -3,6 +3,7 @@ LICENSE
 Manifest
 README
 Rakefile
+boxgrinder-build-fedora-os-plugin.gemspec
 lib/boxgrinder-build-fedora-os-plugin.rb
 lib/boxgrinder-build-fedora-os-plugin/fedora-plugin.rb
 rubygem-boxgrinder-build-fedora-os-plugin.spec

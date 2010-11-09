@@ -3,6 +3,7 @@ LICENSE
 Manifest
 README
 Rakefile
+boxgrinder-build-s3-delivery-plugin.gemspec
 lib/boxgrinder-build-s3-delivery-plugin.rb
 lib/boxgrinder-build-s3-delivery-plugin/s3-plugin.rb
 rubygem-boxgrinder-build-s3-delivery-plugin.spec

@@ -6,7 +6,7 @@
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Development/Languages
 License: LGPL
 URL: http://www.jboss.org/stormgrind/projects/boxgrinder.html
@@ -29,6 +29,14 @@ Provides: rubygem(%{gemname}) = %{version}
 %description
 BoxGrinder Build RPM Based Operating System Plugin
 
+%package doc
+Summary: Documentation for %{name}
+Group: Documentation
+Requires:%{name} = %{version}-%{release}
+
+%description doc
+Documentation for %{name}
+
 %prep
 
 %build
@@ -39,6 +47,11 @@ mkdir -p %{buildroot}%{gemdir}
 gem install --local --install-dir %{buildroot}%{gemdir} \
             --force --rdoc %{SOURCE0}
 
+%check
+pushd %{buildroot}/%{geminstdir}/spec
+rake spec
+popd
+
 %clean
 rm -rf %{buildroot}
 
@@ -46,19 +59,25 @@ rm -rf %{buildroot}
 %defattr(-, root, root, -)
 %dir %{geminstdir}
 %{geminstdir}/lib
-%doc %{gemdir}/doc/%{gemname}-%{version}
-%doc %{geminstdir}/%{gemname}.gemspec
-%doc %{geminstdir}/rubygem-%{gemname}.spec
 %doc %{geminstdir}/CHANGELOG
 %doc %{geminstdir}/LICENSE
 %doc %{geminstdir}/README
 %doc %{geminstdir}/Manifest
-%doc %{geminstdir}/Rakefile
-%doc %{geminstdir}/spec
 %{gemdir}/cache/%{gemname}-%{version}.gem
 %{gemdir}/specifications/%{gemname}-%{version}.gemspec
 
+%files doc
+%defattr(-, root, root, -)
+%{geminstdir}/spec
+%{geminstdir}/Rakefile
+%{geminstdir}/rubygem-%{gemname}.spec
+%{geminstdir}/%{gemname}.gemspec
+%{gemdir}/doc/%{gemname}-%{version}
+
 %changelog
+* Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.6-2
+- Added 'check' section that executes tests
+
 * Wed Nov 03 2010  <mgoldman@redhat.com> - 0.0.6-1
 - [BGBUILD-82] Root password not set when selinux packages are added
 

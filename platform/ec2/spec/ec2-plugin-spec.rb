@@ -1,16 +1,55 @@
+#
+# Copyright 2010 Red Hat, Inc.
+#
+# This is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 3 of
+# the License, or (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this software; if not, write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+require 'rubygems'
 require 'boxgrinder-build-ec2-platform-plugin/ec2-plugin'
-require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe EC2Plugin do
-    include RSpecConfigHelper
-
-    before(:all) do
-      @arch = `uname -m`.chomp.strip
-    end
-
     before(:each) do
-      @plugin = EC2Plugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name  => "Amazon Elastic Compute Cloud (Amazon EC2)"})
+      @config = mock('Config')
+      @config.stub!(:dir).and_return(OpenHash.new({:src_cache => '/var/cache/boxgrinder/sources-cache'}))
+
+      @appliance_config = mock('ApplianceConfig')
+
+      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:name).and_return('full')
+      @appliance_config.stub!(:version).and_return(1)
+      @appliance_config.stub!(:release).and_return(0)
+      @appliance_config.stub!(:packages).and_return(OpenHash.new({:includes => ["gcc-c++", "wget"]}))
+      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:is64bit?).and_return(false)
+
+      @appliance_config.stub!(:hardware).and_return(
+          OpenHash.new({
+                           :partitions =>
+                               {
+                                   '/' => {'size' => 2},
+                                   '/home' => {'size' => 3},
+                               },
+                           :arch => 'i686',
+                           :base_arch => 'i386',
+                           :cpus => 1,
+                           :memory => 256,
+                       })
+      )
+
+      @plugin = EC2Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name  => "Amazon Elastic Compute Cloud (Amazon EC2)"})
 
       @config             = @plugin.instance_variable_get(:@config)
       @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
@@ -19,41 +58,10 @@ module BoxGrinder
     end
 
     it "should download a rpm to cache directory" do
-      @exec_helper.should_receive(:execute).with( "mkdir -p /var/cache/boxgrinder/sources-cache" )
-      @exec_helper.should_receive(:execute).with( "wget http://rpm_location -O /var/cache/boxgrinder/sources-cache/rpm_name" )
-      @plugin.cache_rpms( 'rpm_name' => 'http://rpm_location' )
+      @exec_helper.should_receive(:execute).with("mkdir -p /var/cache/boxgrinder/sources-cache")
+      @exec_helper.should_receive(:execute).with("wget http://rpm_location -O /var/cache/boxgrinder/sources-cache/rpm_name")
+      @plugin.cache_rpms('rpm_name' => 'http://rpm_location')
     end
-
-#    it "should get new free loop device" do
-#      @exec_helper.should_receive(:execute).with( "losetup -f 2>&1" ).and_return(" /dev/loop1   ")
-#      @plugin.get_loop_device.should == "/dev/loop1"
-#    end
-#
-#    it "should create filesystem" do
-#      @exec_helper.should_receive(:execute).with( "mkfs.ext3 -F build/appliances/#{`uname -m`.chomp.strip}/fedora/11/full/ec2-plugin/tmp/full.ec2")
-#      @plugin.ec2_create_filesystem
-#    end
-#
-#    it "should mount image" do
-#      FileUtils.should_receive(:mkdir_p).with("mount_dir").once
-#
-#      @plugin.should_receive(:get_loop_device).and_return("/dev/loop0")
-#      @exec_helper.should_receive(:execute).with( "losetup /dev/loop0 disk" )
-#      @exec_helper.should_receive(:execute).with( "parted /dev/loop0 'unit B print' | grep -e '^ [0-9]' | awk '{ print $2 }'" ).and_return("1234")
-#      @exec_helper.should_receive(:execute).with( "losetup -d /dev/loop0" )
-#
-#      @plugin.should_receive(:get_loop_device).and_return("/dev/loop1")
-#      @exec_helper.should_receive(:execute).with( "losetup -o 1234 /dev/loop1 disk" )
-#      @exec_helper.should_receive(:execute).with( "e2label /dev/loop1" ).and_return("/")
-#      @exec_helper.should_receive(:execute).with( "mount /dev/loop1 -t ext3 mount_dir" )
-#
-#      @plugin.mount_image("disk", "mount_dir")
-#    end
-#
-#    it "should sync files" do
-#      @exec_helper.should_receive(:execute).with( "rsync -u -r -a  from/* to" )
-#      @plugin.sync_files("from", "to")
-#    end
 
     it "should create devices" do
       guestfs = mock("guestfs")
@@ -65,7 +73,7 @@ module BoxGrinder
       @log.should_receive(:debug).once.with("Creating required devices...")
       @log.should_receive(:debug).once.with("Devices created.")
 
-      @plugin.create_devices( guestfs )
+      @plugin.create_devices(guestfs)
     end
 
     it "should upload fstab" do
@@ -76,7 +84,7 @@ module BoxGrinder
       @log.should_receive(:debug).once.with("Uploading '/etc/fstab' file...")
       @log.should_receive(:debug).once.with("'/etc/fstab' file uploaded.")
 
-      @plugin.upload_fstab( guestfs )
+      @plugin.upload_fstab(guestfs)
     end
 
     it "should enable networking" do
@@ -88,7 +96,7 @@ module BoxGrinder
       @log.should_receive(:debug).once.with("Enabling networking...")
       @log.should_receive(:debug).once.with("Networking enabled.")
 
-      @plugin.enable_networking( guestfs )
+      @plugin.enable_networking(guestfs)
     end
 
     it "should upload rc_local" do
@@ -108,15 +116,15 @@ module BoxGrinder
       @log.should_receive(:debug).once.with("Uploading '/etc/rc.local' file...")
       @log.should_receive(:debug).once.with("'/etc/rc.local' file uploaded.")
 
-      @plugin.upload_rc_local( guestfs )
+      @plugin.upload_rc_local(guestfs)
     end
 
     it "should install additional packages" do
       guestfs = mock("guestfs")
 
-      kernel_rpm = (@arch == "x86_64" ? "kernel-xen-2.6.21.7-2.fc8.x86_64.rpm" : "kernel-xen-2.6.21.7-2.fc8.i686.rpm")
+      kernel_rpm = "kernel-xen-2.6.21.7-2.fc8.i686.rpm"
 
-      rpms = { kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}", "ec2-ami-tools.noarch.rpm" => "http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.noarch.rpm" }
+      rpms = {kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}", "ec2-ami-tools.noarch.rpm" => "http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.noarch.rpm"}
 
       @plugin.should_receive(:cache_rpms).ordered.with(rpms)
 
@@ -126,12 +134,12 @@ module BoxGrinder
       guestfs.should_receive(:sh).ordered.with("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.should_receive(:rm_rf).ordered.with("/tmp/rpms")
 
-      guestfs.should_receive(:sh).ordered.with("setarch #{@arch} yum -y install ruby rsync curl")
+      guestfs.should_receive(:sh).ordered.with("setarch i686 yum -y install ruby rsync curl")
 
       @log.should_receive(:debug).ordered.with("Installing additional packages (#{kernel_rpm}, ec2-ami-tools.noarch.rpm)...")
       @log.should_receive(:debug).ordered.with("Additional packages installed.")
 
-      @plugin.install_additional_packages( guestfs )
+      @plugin.install_additional_packages(guestfs)
     end
 
     it "should change configuration" do
@@ -139,7 +147,7 @@ module BoxGrinder
 
       guestfs_helper.should_receive(:augeas)
 
-      @plugin.change_configuration( guestfs_helper )
+      @plugin.change_configuration(guestfs_helper)
     end
 
     it "should use xvda disks for Fedora 13" do

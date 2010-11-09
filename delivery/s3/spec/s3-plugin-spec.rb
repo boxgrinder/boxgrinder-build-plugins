@@ -17,18 +17,22 @@
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 require 'boxgrinder-build-s3-delivery-plugin/s3-plugin'
-require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe S3Plugin do
-    include RSpecConfigHelper
-
-    before(:all) do
-      @arch = `uname -m`.chomp.strip
-    end
 
     before(:each) do
-      @plugin = S3Plugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::S3Plugin, :type => :delivery, :name => :s3, :full_name  => "Amazon Simple Storage Service (Amazon S3)", :types => [:s3, :cloudfront, :ami]} )
+      @config = mock('Config')
+      @appliance_config = mock('ApplianceConfig')
+
+      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:name).and_return('appliance')
+      @appliance_config.stub!(:version).and_return(1)
+      @appliance_config.stub!(:release).and_return(0)
+      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => :fedora, :version => '11'}))
+      @appliance_config.stub!(:hardware).and_return(OpenHash.new({:arch => 'x86_64'}))
+
+      @plugin = S3Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::S3Plugin, :type => :delivery, :name => :s3, :full_name  => "Amazon Simple Storage Service (Amazon S3)", :types => [:s3, :cloudfront, :ami]})
 
       @config             = @plugin.instance_variable_get(:@config)
       @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
@@ -37,13 +41,13 @@ module BoxGrinder
       @dir                = @plugin.instance_variable_get(:@dir)
 
       @plugin_config = {
-              'access_key'        => 'access_key',
-              'secret_access_key' => 'secret_access_key',
-              'bucket'            => 'bucket',
-              'account_number'    => '0000-0000-0000',
-              'cert_file'         => '/path/to/cert/file',
-              'key_file'          => '/path/to/key/file',
-              'path'              => '/'
+          'access_key'        => 'access_key',
+          'secret_access_key' => 'secret_access_key',
+          'bucket'            => 'bucket',
+          'account_number'    => '0000-0000-0000',
+          'cert_file'         => '/path/to/cert/file',
+          'key_file'          => '/path/to/key/file',
+          'path'              => '/'
       }
 
       @plugin.instance_variable_set(:@plugin_config, @plugin_config)
@@ -51,86 +55,86 @@ module BoxGrinder
     end
 
     it "should generate valid s3 path" do
-      @plugin.s3_path( '/' ).should == "/"
+      @plugin.s3_path('/').should == "/"
     end
 
     it "should generate valid bucket_key" do
-      @plugin.ami_bucket_key( "name", "this/is/a/path" ).should == "bucket/this/is/a/path/name/fedora/11/1.0/#{@arch}"
+      @plugin.ami_bucket_key("name", "this/is/a/path").should == "bucket/this/is/a/path/name/fedora/11/1.0/x86_64"
     end
 
     it "should generate valid bucket_key with mixed slashes" do
-      @plugin.ami_bucket_key( "name", "//this/" ).should == "bucket/this/name/fedora/11/1.0/#{@arch}"
+      @plugin.ami_bucket_key("name", "//this/").should == "bucket/this/name/fedora/11/1.0/x86_64"
     end
 
     it "should generate valid bucket_key with root path" do
-      @plugin.ami_bucket_key( "name", "/" ).should == "bucket/name/fedora/11/1.0/#{@arch}"
+      @plugin.ami_bucket_key("name", "/").should == "bucket/name/fedora/11/1.0/x86_64"
     end
 
     it "should generate valid bucket manifest key" do
-      @plugin.bucket_manifest_key( "name", "/a/asd/f/sdf///" ).should == "bucket/a/asd/f/sdf/name/fedora/11/1.0/#{@arch}/name.ec2.manifest.xml"
+      @plugin.bucket_manifest_key("name", "/a/asd/f/sdf///").should == "bucket/a/asd/f/sdf/name/fedora/11/1.0/x86_64/name.ec2.manifest.xml"
     end
 
     it "should fix sha1 sum" do
       ami_manifest = mock('ami_manifest')
       ami_manifest.should_receive(:read).and_return("!sdfrthty54623r2gertyhe(stdin)= wf34r32tewrgeg")
 
-      File.should_receive(:open).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/ami/full.ec2.manifest.xml").and_return(ami_manifest)
+      File.should_receive(:open).with("build/path/s3-plugin/ami/appliance.ec2.manifest.xml").and_return(ami_manifest)
 
       f = mock('File')
       f.should_receive(:write).with('!sdfrthty54623r2gertyhewf34r32tewrgeg')
 
-      File.should_receive(:open).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/ami/full.ec2.manifest.xml", 'w').and_yield(f)
+      File.should_receive(:open).with("build/path/s3-plugin/ami/appliance.ec2.manifest.xml", 'w').and_yield(f)
 
       @plugin.fix_sha1_sum
     end
 
     it "should upload to a S3 bucket" do
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with( {:disk => "adisk"}, "build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz" ).and_return("a_built_package.zip")
+      package_helper.should_receive(:package).with({:disk => "adisk"}, "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
 
       s3 = mock(Aws::S3)
 
-      Aws::S3.should_receive(:new).with( 'access_key', 'secret_access_key' , :connection_mode => :single, :logger => @log ).and_return( s3 )
+      Aws::S3.should_receive(:new).with('access_key', 'secret_access_key', :connection_mode => :single, :logger => @log).and_return(s3)
 
       key = mock('Key')
       key.should_receive(:exists?).and_return(false)
       key.should_receive(:put).with('abc', 'private')
 
       bucket = mock('Bucket')
-      bucket.should_receive(:key).with("full-1.0-fedora-11-#{@arch}-raw.tgz").and_return( key )
+      bucket.should_receive(:key).with("appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(key)
 
       s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
       s3.should_receive(:close_connection)
 
-      File.should_receive(:size).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return(23234566)
+      File.should_receive(:size).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(23234566)
 
-      @plugin.should_receive(:open).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return("abc")
+      @plugin.should_receive(:open).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("abc")
 
       @plugin.upload_to_bucket(:disk => "adisk")
     end
 
     it "should NOT upload to a S3 bucket because file exists" do
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with( {:disk => "adisk"}, "build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return("a_built_package.zip")
+      package_helper.should_receive(:package).with({:disk => "adisk"}, "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
 
       s3 = mock(Aws::S3)
 
-      Aws::S3.should_receive(:new).with( 'access_key', 'secret_access_key' , :connection_mode => :single, :logger => @log ).and_return( s3 )
+      Aws::S3.should_receive(:new).with('access_key', 'secret_access_key', :connection_mode => :single, :logger => @log).and_return(s3)
 
       key = mock('Key')
       key.should_receive(:exists?).and_return(true)
 
       bucket = mock('Bucket')
-      bucket.should_receive(:key).with("full-1.0-fedora-11-#{@arch}-raw.tgz").and_return( key )
+      bucket.should_receive(:key).with("appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(key)
 
       s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
       s3.should_receive(:close_connection)
 
-      File.should_receive(:size).with("build/appliances/#{@arch}/fedora/11/full/s3-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return(23234566)
+      File.should_receive(:size).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(23234566)
 
       @plugin.upload_to_bucket(:disk => "adisk")
     end

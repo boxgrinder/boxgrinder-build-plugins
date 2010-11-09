@@ -3,6 +3,7 @@ LICENSE
 Manifest
 README
 Rakefile
+boxgrinder-build-rhel-os-plugin.gemspec
 lib/boxgrinder-build-rhel-os-plugin.rb
 lib/boxgrinder-build-rhel-os-plugin/rhel-plugin.rb
 rubygem-boxgrinder-build-rhel-os-plugin.spec

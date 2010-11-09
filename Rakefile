@@ -1,52 +1,125 @@
+require 'rubygems'
 require 'rake'
+require 'spec/rake/spectask'
 
-plugins = {
-        "boxgrinder-build-local-delivery-plugin"  => { :dir => "delivery/local", :desc => 'Local Delivery Plugin' },
-        "boxgrinder-build-s3-delivery-plugin"     => { :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :deps => { 'aws' => '~>2.3.21', 'amazon-ec2' => '~>0.9.6' }},
-        "boxgrinder-build-sftp-delivery-plugin"   => { :dir => "delivery/sftp", :desc => 'SSH File Transfer Protocol Delivery Plugin', :deps => { 'net-sftp' => '~>2.0.4', 'net-ssh' => '~>2.0.20', 'progressbar' => '~>0.9.0' }},
-        "boxgrinder-build-ebs-delivery-plugin"    => { :dir => "delivery/ebs", :desc => 'Elastic Block Storage Delivery Plugin', :deps => { 'amazon-ec2' => '~>0.9.6' }},
+plugins = [
+    {:name => "boxgrinder-build-local-delivery-plugin", :dir => "delivery/local", :desc => 'Local Delivery Plugin'},
+    {:name =>"boxgrinder-build-s3-delivery-plugin", :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :runtime_deps => {'aws' => '~>2.3.21', 'amazon-ec2' => '~>0.9.6'}},
+    {:name => "boxgrinder-build-sftp-delivery-plugin", :dir => "delivery/sftp", :desc => 'SSH File Transfer Protocol Delivery Plugin', :runtime_deps => {'net-sftp' => '~>2.0.4', 'net-ssh' => '~>2.0.20', 'progressbar' => '~>0.9.0'}},
+    {:name => "boxgrinder-build-ebs-delivery-plugin", :dir => "delivery/ebs", :desc => 'Elastic Block Storage Delivery Plugin', :runtime_deps => {'amazon-ec2' => '~>0.9.6'}},
 
-        "boxgrinder-build-rpm-based-os-plugin"    => { :dir => "os/rpm-based", :desc => 'RPM Based Operating System Plugin' },
-        "boxgrinder-build-fedora-os-plugin"       => { :dir => "os/fedora", :desc => 'Fedora Operating System Plugin', :deps => { 'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.6' }},
-        "boxgrinder-build-rhel-os-plugin"         => { :dir => "os/rhel", :desc => 'Red Hat Enterprise Linux Operating System Plugin', :deps => { 'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.6' }},
-        "boxgrinder-build-centos-os-plugin"       => { :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :deps => { 'boxgrinder-build-rhel-os-plugin' => '~>0.0.5' }},
+    {:name => "boxgrinder-build-rpm-based-os-plugin", :dir =>"os/rpm-based", :desc => 'RPM Based Operating System Plugin'},
+    {:name => "boxgrinder-build-fedora-os-plugin", :dir => "os/fedora", :desc => 'Fedora Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.6'}},
+    {:name => "boxgrinder-build-rhel-os-plugin", :dir =>"os/rhel", :desc => 'Red Hat Enterprise Linux Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.6'}},
+    {:name => "boxgrinder-build-centos-os-plugin", :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :runtime_deps => {'boxgrinder-build-rhel-os-plugin' => '~>0.0.5'}},
 
-        "boxgrinder-build-vmware-platform-plugin" => { :dir => "platform/vmware", :desc => 'VMware Platform Plugin' },
-        "boxgrinder-build-ec2-platform-plugin"    => { :dir => "platform/ec2", :desc => 'Elastic Compute Cloud (EC2) Platform Plugin' }
-}
+    {:name => "boxgrinder-build-vmware-platform-plugin", :dir =>"platform/vmware", :desc => 'VMware Platform Plugin'},
+    {:name => "boxgrinder-build-ec2-platform-plugin", :dir => "platform/ec2", :desc => 'Elastic Compute Cloud (EC2) Platform Plugin'}
+]
 
+desc "Recreate Rakefiles for plugins"
 task "rakefiles" do
-  plugins.each do |name, info|
+  plugins.each do |plugin|
 
-    dependencies = [ "'boxgrinder-build ~>0.6.3'" ]
+    runtime_dependencies = ["'boxgrinder-build ~>0.6.3'"]
+    development_dependencies = ["'boxgrinder-build ~>0.6.3'"]
 
-    unless info[:deps].nil?
-      info[:deps].each  do |n, v|
-        dependencies << "'#{n} #{v}'"
+    unless plugin[:runtime_deps].nil?
+      plugin[:runtime_deps].each do |n, v|
+        runtime_dependencies << "'#{n} #{v}'"
       end
     end
 
-    rakefile = "require 'echoe'
+    rakefile = File.read("rake/PluginRakefileTemplate")
 
-Echoe.new('#{name}') do |p|
-  p.project     = 'BoxGrinder Build'
-  p.author      = 'Marek Goldmann'
-  p.summary     = '#{info[:desc]}'
-  p.description = 'BoxGrinder Build #{info[:desc]}'
-  p.url         = 'http://www.jboss.org/boxgrinder'
-  p.email       = 'info@boxgrinder.org'
-  p.runtime_dependencies = [#DEPENDENCIES#]
-end"
-
-    File.open( "#{info[:dir]}/Rakefile", "w" ) {|f| f.write( rakefile.gsub(/#DEPENDENCIES#/, dependencies.join(', ')) ) }
+    File.open("#{plugin[:dir]}/Rakefile", "w") do |f|
+      f.write(
+          rakefile.
+              gsub(/#NAME#/, plugin[:name]).
+              gsub(/#DESCRIPTION#/, plugin[:desc]).
+              gsub(/#RUNTIME_DEPENDENCIES#/, runtime_dependencies.join(', ')).
+              gsub(/#DEVELOPMENT_DEPENDENCIES#/, development_dependencies.join(', ')))
+    end
   end
 end
 
-desc "Cleans and builds gems for all plugins"
-task "package" => [ "rakefiles" ] do
-  plugins.each_value do |info|
-    Dir.chdir(info[:dir]) do
-      puts `rake clean manifest package` if File.exists?( "Rakefile" )
+
+task "clean" do
+  plugins.each do |plugin|
+    Dir.chdir plugin[:dir] do
+      system "rake clean"
     end
   end
+end
+
+desc "Builds all gems"
+task "gem" do
+  plugins.each do |plugin|
+    Dir.chdir plugin[:dir] do
+      system "rake clean manifest gem"
+    end
+  end
+end
+
+desc "Uninstalls all gems"
+task "gem:uninstall" do
+  plugins.each do |plugin|
+    Dir.chdir plugin[:dir] do
+      system "rake uninstall"
+    end
+  end
+end
+
+desc "Installs all gems"
+task "gem:install" do
+  plugins.each do |plugin|
+    Dir.chdir plugin[:dir] do
+      system "rake install"
+    end
+  end
+end
+
+desc "Builds all RPMs"
+task "rpm" do
+  plugins.each do |plugin|
+    Dir.chdir plugin[:dir] do
+      system "rake rpm"
+      exit 1 unless $? == 0
+    end
+  end
+end
+
+desc "Builds all RPMs and installs them"
+task "rpm:install" do
+  plugins.each do |plugin|
+    Dir.chdir plugin[:dir] do
+      system "rake rpm:install"
+      exit 1 unless $? == 0
+    end
+  end
+end
+
+libdir = Dir["../boxgrinder-core/lib"] + Dir["../boxgrinder-build/lib"] + Dir["platform/**/lib"] + Dir["os/**/lib"] + Dir["delivery/**/lib"]
+
+desc "Runs RSpec test with code coverage"
+Spec::Rake::SpecTask.new('spec:coverage') do |t|
+  libdir.each do |d|
+    t.libs.unshift "#{d}"
+  end
+
+  t.spec_files = FileList['**/spec/**/*-spec.rb']
+  t.spec_opts = ['--colour', '--format', 'html:pkg/rspec_report.html', '-b']
+  t.rcov = true
+  t.rcov_opts = ['--exclude', 'spec,teamcity/*,/usr/lib/ruby/,.gem/ruby,/boxgrinder-core/,/boxgrinder-build/,/gems/']
+end
+
+desc "Runs RSpec test"
+Spec::Rake::SpecTask.new('spec') do |t|
+  libdir.each do |d|
+    t.libs.unshift "#{d}"
+  end
+
+  t.spec_files = FileList['**/spec/**/*-spec.rb']
+  t.spec_opts = ['--colour', '--format', 's', '-b']
+  t.rcov = false
 end

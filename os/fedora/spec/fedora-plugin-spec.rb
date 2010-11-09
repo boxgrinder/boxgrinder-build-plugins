@@ -16,19 +16,24 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'rubygems'
 require 'boxgrinder-build-fedora-os-plugin/fedora-plugin'
-require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe FedoraPlugin do
-    include RSpecConfigHelper
-
-    before(:all) do
-      @arch = `uname -m`.chomp.strip
-    end
-
     before(:each) do
-      @plugin = FedoraPlugin.new.init(generate_config, generate_appliance_config, :log => Logger.new('/dev/null'), :plugin_info => { :class => BoxGrinder::FedoraPlugin, :type => :os, :name => :fedora, :full_name  => "Fedora", :versions   => ["11", "12", "13", "14", "rawhide"] })
+      @config = mock('Config')
+      @appliance_config = mock('ApplianceConfig')
+
+      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:name).and_return('full')
+      @appliance_config.stub!(:version).and_return(1)
+      @appliance_config.stub!(:release).and_return(0)
+      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => :fedora, :version => '11'}))
+      @appliance_config.stub!(:hardware).and_return(OpenHash.new({:arch => 'x86_64'}))
+      @appliance_config.stub!(:is64bit?).and_return(true)
+
+      @plugin = FedoraPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::FedoraPlugin, :type => :os, :name => :fedora, :full_name  => "Fedora", :versions   => ["11", "12", "13", "14", "rawhide"]})
 
       @config             = @plugin.instance_variable_get(:@config)
       @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
@@ -36,39 +41,37 @@ module BoxGrinder
       @log                = @plugin.instance_variable_get(:@log)
     end
 
-    it "should normalize packages for i386" do
+    it "should normalize packages for 32bit" do
       packages = ['abc', 'def', 'kernel']
 
-      @appliance_config.hardware.arch = "i386"
-      @plugin.normalize_packages( packages )
+      @appliance_config.should_receive(:is64bit?).and_return(false)
+
+      @plugin.normalize_packages(packages)
       packages.should == ['abc', 'def', 'passwd', 'lokkit', 'kernel-PAE']
     end
 
-    it "should normalize packages for x86_64" do
+    it "should normalize packages for 64bit" do
       packages = ['abc', 'def', 'kernel']
 
-      @appliance_config.hardware.arch = "x86_64"
-      @plugin.normalize_packages( packages )
+      @plugin.normalize_packages(packages)
       packages.should == ['abc', 'def', 'passwd', 'lokkit', 'kernel']
     end
 
     it "should add packages for fedora 13" do
       packages = ['kernel']
 
-      @appliance_config.hardware.arch = "x86_64"
       @appliance_config.os.name = "fedora"
       @appliance_config.os.version = "13"
-      @plugin.normalize_packages( packages )
+      @plugin.normalize_packages(packages)
       packages.should == ["passwd", "system-config-firewall-base", "selinux-policy-targeted", "dhclient", "kernel"]
     end
 
     it "should add packages for fedora 14" do
       packages = ['kernel']
 
-      @appliance_config.hardware.arch = "x86_64"
       @appliance_config.os.name = "fedora"
       @appliance_config.os.version = "14"
-      @plugin.normalize_packages( packages )
+      @plugin.normalize_packages(packages)
       packages.should == ["passwd", "system-config-firewall-base", "selinux-policy-targeted", "dhclient", "kernel"]
     end
 

@@ -3,6 +3,7 @@ LICENSE
 Manifest
 README
 Rakefile
+boxgrinder-build-sftp-delivery-plugin.gemspec
 lib/boxgrinder-build-sftp-delivery-plugin.rb
 lib/boxgrinder-build-sftp-delivery-plugin/sftp-plugin.rb
 rubygem-boxgrinder-build-sftp-delivery-plugin.spec

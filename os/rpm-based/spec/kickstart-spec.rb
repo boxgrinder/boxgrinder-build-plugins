@@ -16,42 +16,66 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'rubygems'
 require 'boxgrinder-build-rpm-based-os-plugin/kickstart'
-require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe Kickstart do
-    include RSpecConfigHelper
-
-    FEDORA_REPOS = {
-            "11" => {
-                    "base"    => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-11&arch=#BASE_ARCH#"},
-                    "updates" => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f11&arch=#BASE_ARCH#"}
-            }
+    KICKSTART_FEDORA_REPOS = {
+        "11" => {
+            "base"    => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-11&arch=#BASE_ARCH#"},
+            "updates" => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f11&arch=#BASE_ARCH#"}
+        }
     }
 
-    before(:all) do
-      @arch = `uname -m`.chomp.strip
-      @base_arch = @arch.eql?("x86_64") ? "x86_64" : "i386"
-    end
-
     def prepare_kickstart(repos = {})
-      @kickstart = Kickstart.new(generate_config, generate_appliance_config, repos, OpenHash.new(:base => 'a/base/dir'))
+      @config = mock('Config')
+      @appliance_config = mock('ApplianceConfig')
+
+      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:name).and_return('full')
+      @appliance_config.stub!(:version).and_return(1)
+      @appliance_config.stub!(:release).and_return(0)
+      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => 'fedora', :version => '11'}))
+
+      @kickstart = Kickstart.new(@config, @appliance_config, repos, OpenHash.new(:base => 'a/base/dir'))
     end
 
     describe ".build_definition" do
       it "should prepare valid definition" do
-        prepare_kickstart(FEDORA_REPOS)
+        prepare_kickstart(KICKSTART_FEDORA_REPOS)
+
+        @appliance_config.stub!(:hardware).and_return(
+            OpenHash.new({
+                             :partitions =>
+                                 {
+                                     '/' => {'size' => 2},
+                                     '/home' => {'size' => 3},
+                                 },
+                             :arch => 'i686',
+                             :base_arch => 'i386'
+                         })
+        )
+
+        @appliance_config.should_receive(:repos).and_return(
+            [
+                {'name' => 'cirras', 'baseurl' => "http://repo.boxgrinder.org/packages/fedora/11/RPMS/i686"},
+                {'name' => 'abc', 'baseurl' => 'http://abc', 'mirrorlist' => "http://abc.org/packages/fedora/11/RPMS/i686"},
+            ]
+        )
+
+        @appliance_config.should_receive(:os).and_return(OpenHash.new({:password => 'boxgrinder'}))
+        @appliance_config.stub!(:packages).and_return(OpenHash.new({:includes => ["gcc-c++", "wget"]}))
+        @appliance_config.should_receive(:default_repos).and_return(true)
 
         definition = @kickstart.build_definition
 
-        definition['repos'].size.should == 5
+        definition['repos'].size.should == 4
 
-        definition['repos'][0].should == "repo --name=fedora-11-base --cost=40 --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-11&arch=#{@base_arch}"
-        definition['repos'][1].should == "repo --name=fedora-11-updates --cost=41 --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f11&arch=#{@base_arch}"
-        definition['repos'][2].should == "repo --name=cirras --cost=42 --baseurl=http://repo.boxgrinder.org/packages/fedora/11/RPMS/#{@arch}"
-        definition['repos'][3].should == "repo --name=abc --cost=43 --mirrorlist=http://repo.boxgrinder.org/packages/fedora/11/RPMS/#{@arch}"
-        definition['repos'][4].should == "repo --name=boxgrinder-f11-testing-#{@arch} --cost=44 --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-testing-f11&arch=#{@arch}"
+        definition['repos'][0].should == "repo --name=fedora-11-base --cost=40 --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-11&arch=i386"
+        definition['repos'][1].should == "repo --name=fedora-11-updates --cost=41 --mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f11&arch=i386"
+        definition['repos'][2].should == "repo --name=cirras --cost=42 --baseurl=http://repo.boxgrinder.org/packages/fedora/11/RPMS/i686"
+        definition['repos'][3].should == "repo --name=abc --cost=43 --mirrorlist=http://abc.org/packages/fedora/11/RPMS/i686"
 
         definition['packages'].size.should == 2
         definition['packages'].should == ["gcc-c++", "wget"]
@@ -63,18 +87,37 @@ module BoxGrinder
       end
 
       it "should prepare valid definition without default repos" do
-        prepare_kickstart(FEDORA_REPOS)
+        prepare_kickstart(KICKSTART_FEDORA_REPOS)
 
-        appliance_config = @kickstart.instance_variable_get(:@appliance_config)
-        appliance_config.default_repos = false
+        @appliance_config.stub!(:hardware).and_return(
+            OpenHash.new({
+                             :partitions =>
+                                 {
+                                     '/' => {'size' => 2},
+                                     '/home' => {'size' => 3},
+                                 },
+                             :arch => 'i686',
+                             :base_arch => 'i386'
+                         })
+        )
+
+        @appliance_config.should_receive(:os).and_return(OpenHash.new({:password => 'boxgrinder'}))
+        @appliance_config.stub!(:packages).and_return(OpenHash.new({:includes => ["gcc-c++", "wget"]}))
+        @appliance_config.should_receive(:default_repos).and_return(false)
+
+        @appliance_config.should_receive(:repos).and_return(
+            [
+                {'name' => 'cirras', 'baseurl' => "http://repo.boxgrinder.org/packages/fedora/11/RPMS/i686"},
+                {'name' => 'abc', 'baseurl' => 'http://abc', 'mirrorlist' => "http://abc.org/packages/fedora/11/RPMS/i686"},
+            ]
+        )
 
         definition = @kickstart.build_definition
 
-        definition['repos'].size.should == 3
+        definition['repos'].size.should == 2
 
-        definition['repos'][0].should == "repo --name=cirras --cost=40 --baseurl=http://repo.boxgrinder.org/packages/fedora/11/RPMS/#{@arch}"
-        definition['repos'][1].should == "repo --name=abc --cost=41 --mirrorlist=http://repo.boxgrinder.org/packages/fedora/11/RPMS/#{@arch}"
-        definition['repos'][2].should == "repo --name=boxgrinder-f11-testing-#{@arch} --cost=42 --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-testing-f11&arch=#{@arch}"
+        definition['repos'][0].should == "repo --name=cirras --cost=40 --baseurl=http://repo.boxgrinder.org/packages/fedora/11/RPMS/i686"
+        definition['repos'][1].should == "repo --name=abc --cost=41 --mirrorlist=http://abc.org/packages/fedora/11/RPMS/i686"
 
         definition['packages'].size.should == 2
         definition['packages'].should == ["gcc-c++", "wget"]
@@ -87,4 +130,3 @@ module BoxGrinder
     end
   end
 end
-

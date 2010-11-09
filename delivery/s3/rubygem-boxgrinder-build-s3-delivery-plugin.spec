@@ -6,7 +6,7 @@
 Summary: Amazon Simple Storage Service (Amazon S3) Delivery Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Development/Languages
 License: LGPL
 URL: http://www.jboss.org/boxgrinder
@@ -50,6 +50,11 @@ mkdir -p %{buildroot}%{gemdir}
 gem install --local --install-dir %{buildroot}%{gemdir} \
             --force --rdoc %{SOURCE0}
 
+%check
+pushd %{buildroot}/%{geminstdir}/spec
+rake spec
+popd
+
 %clean
 rm -rf %{buildroot}
 
@@ -73,6 +78,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.4-2
+- Added 'check' section that executes tests
+
 * Fri Nov 05 2010  <mgoldman@redhat.com> - 0.0.4-1
 - [BGBUILD-85] Adjust BoxGrinder spec files for review
 

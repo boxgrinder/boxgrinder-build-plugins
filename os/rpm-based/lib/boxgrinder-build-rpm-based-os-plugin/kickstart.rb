@@ -45,9 +45,6 @@ module BoxGrinder
       definition = {}
 
       definition['appliance_config']  = @appliance_config
-      definition['name']              = @appliance_config.name
-      definition['arch']              = @appliance_config.hardware.arch
-      definition['appliance_names']   = @appliance_config.appliances
       definition['repos']             = []
       definition['graphical']         = false
       definition['packages']          = []

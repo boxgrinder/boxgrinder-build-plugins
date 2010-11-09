@@ -1,30 +1,67 @@
+#
+# Copyright 2010 Red Hat, Inc.
+#
+# This is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 3 of
+# the License, or (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this software; if not, write to the Free
+# Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+require 'rubygems'
 require 'boxgrinder-build-vmware-platform-plugin/vmware-plugin'
-require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe VMwarePlugin do
-    include RSpecConfigHelper
-
-    before(:all) do
-      @arch = `uname -m`.chomp.strip
-    end
-
     before(:each) do
       prepare_image
     end
 
-    def prepare_image( options = {} )
+    def prepare_image(options = {})
       params = OpenStruct.new
       params.base_vmdk = "../src/base.vmdk"
       params.base_vmx  = "../src/base.vmx"
 
-      @config           = generate_config( params )
-      @appliance_config = generate_appliance_config
+      @config = mock('Config')
+      @config.stub!(:name).and_return('BoxGrinder')
+      @config.stub!(:version_with_release).and_return('0.1.2')
+
+      @appliance_config = mock('ApplianceConfig')
+
+      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:name).and_return('full')
+      @appliance_config.stub!(:summary).and_return('asd')
+      @appliance_config.stub!(:version).and_return(1)
+      @appliance_config.stub!(:release).and_return(0)
+      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:post).and_return(OpenHash.new({:vmware => []}))
+
+      @appliance_config.stub!(:hardware).and_return(
+          OpenHash.new({
+                           :partitions =>
+                               {
+                                   '/' => {'size' => 2},
+                                   '/home' => {'size' => 3},
+                               },
+                           :arch => 'i686',
+                           :base_arch => 'i386',
+                           :cpus => 1,
+                           :memory => 256,
+                       })
+      )
 
       options[:log] = Logger.new('/dev/null')
       options[:plugin_info] = {:class => BoxGrinder::VMwarePlugin, :type => :platform, :name => :vmware, :full_name  => "VMware"}
 
-      @plugin = VMwarePlugin.new.init( @config, @appliance_config, options )
+      @plugin = VMwarePlugin.new.init(@config, @appliance_config, options)
 
       @exec_helper = @plugin.instance_variable_get(:@exec_helper)
       @image_helper = @plugin.instance_variable_get(:@image_helper)
@@ -98,11 +135,11 @@ module BoxGrinder
     it "should change vmx data" do
       vmx_file = @plugin.change_common_vmx_values
 
-      vmx_file.scan(/^guestOS = "(.*)"\s?$/).to_s.should == (@arch == "x86_64" ? "otherlinux-64" : "linux")
+      vmx_file.scan(/^guestOS = "(.*)"\s?$/).to_s.should == "linux"
       vmx_file.scan(/^displayName = "(.*)"\s?$/).to_s.should == "full"
       vmx_file.scan(/^annotation = "(.*)"\s?$/).to_s.scan(/^A full appliance definition | Version: 1\.0 | Built by: BoxGrinder 1\.0\.0/).should_not == nil
       vmx_file.scan(/^guestinfo.vmware.product.long = "(.*)"\s?$/).to_s.should == "full"
-      vmx_file.scan(/^guestinfo.vmware.product.url = "(.*)"\s?$/).to_s.should == "http://www.jboss.org/stormgrind/projects/boxgrinder.html"
+      vmx_file.scan(/^guestinfo.vmware.product.url = "(.*)"\s?$/).to_s.should == "http://www.jboss.org/boxgrinder"
       vmx_file.scan(/^numvcpus = "(.*)"\s?$/).to_s.should == "1"
       vmx_file.scan(/^memsize = "(.*)"\s?$/).to_s.should == "256"
       vmx_file.scan(/^log.fileName = "(.*)"\s?$/).to_s.should == "full.log"
@@ -110,8 +147,8 @@ module BoxGrinder
     end
 
     it "should build personal image" do
-      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full-personal.vmx", "w")
-      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full-personal.vmdk", "w")
+      File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-personal.vmx", "w")
+      File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-personal.vmdk", "w")
 
       @plugin.build_vmware_personal
     end
@@ -119,29 +156,29 @@ module BoxGrinder
     it "should build enterprise image" do
       @plugin.should_receive(:change_common_vmx_values).with(no_args()).and_return("")
 
-      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full-enterprise.vmx", "w")
-      File.should_receive(:open).once.with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full-enterprise.vmdk", "w")
+      File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-enterprise.vmx", "w")
+      File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-enterprise.vmdk", "w")
 
       @plugin.build_vmware_enterprise
     end
 
     it "should convert image to vmware" do
-      prepare_image( :previous_deliverables => { :disk => 'a/base/image/path.raw' } )
+      prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
       @appliance_config.post['vmware'] = ["one", "two", "three"]
 
-      @exec_helper.should_receive(:execute).with( "cp a/base/image/path.raw build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw" )
+      @exec_helper.should_receive(:execute).with("cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw")
       @plugin.should_receive(:build_vmware_enterprise).with(no_args())
       @plugin.should_receive(:build_vmware_personal).with(no_args())
 
       guestfs_mock = mock("GuestFS")
       guestfs_helper_mock = mock("GuestFSHelper")
 
-      @image_helper.should_receive(:customize).with("build/appliances/#{@arch}/fedora/11/full/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, guestfs_helper_mock)
+      @image_helper.should_receive(:customize).with("build/path/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, guestfs_helper_mock)
 
-      guestfs_helper_mock.should_receive(:sh).once.ordered.with("one", :arch => @arch)
-      guestfs_helper_mock.should_receive(:sh).once.ordered.with("two", :arch => @arch)
-      guestfs_helper_mock.should_receive(:sh).once.ordered.with("three", :arch => @arch)
+      guestfs_helper_mock.should_receive(:sh).once.ordered.with("one", :arch => 'i686')
+      guestfs_helper_mock.should_receive(:sh).once.ordered.with("two", :arch => 'i686')
+      guestfs_helper_mock.should_receive(:sh).once.ordered.with("three", :arch => 'i686')
 
       File.should_receive(:open)
 
@@ -154,7 +191,7 @@ module BoxGrinder
       File.should_receive(:open).and_return(file)
       file.should_receive(:read).and_return("one #APPLIANCE_NAME# two #NAME# three #VERSION# four")
 
-      @plugin.create_readme.should == "one full two BoxGrinder three 1.0.0-SNAPSHOT four"
+      @plugin.create_readme.should == "one full two BoxGrinder three 0.1.2 four"
     end
   end
 end

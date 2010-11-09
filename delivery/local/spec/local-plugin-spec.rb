@@ -17,18 +17,22 @@
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 require 'boxgrinder-build-local-delivery-plugin/local-plugin'
-require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe LocalPlugin do
-    include RSpecConfigHelper
-
-    before(:all) do
-      @arch = `uname -m`.chomp.strip
-    end
 
     before(:each) do
-      @plugin = LocalPlugin.new.init(generate_config, generate_appliance_config,
+      @config = mock('Config')
+      @appliance_config = mock('ApplianceConfig')
+
+      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:name).and_return('appliance')
+      @appliance_config.stub!(:version).and_return(1)
+      @appliance_config.stub!(:release).and_return(0)
+      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => :fedora, :version => '13'}))
+      @appliance_config.stub!(:hardware).and_return(OpenHash.new({:arch => 'x86_64'}))
+
+      @plugin = LocalPlugin.new.init(@config, @appliance_config,
                                      :log                   => Logger.new('/dev/null'),
                                      :plugin_info           => {:class => BoxGrinder::LocalPlugin, :type => :delivery, :name => :local, :full_name  => "Local file system"},
                                      :previous_deliverables => {:disk => "a_disk.raw"}
@@ -43,17 +47,18 @@ module BoxGrinder
 
     it "should package and deliver the appliance" do
       @plugin.instance_variable_set(:@plugin_config, {
-              'overwrite'   => false,
-              'path'        => 'a/path',
-              'package'     => true
+          'overwrite'   => false,
+          'path'        => 'a/path',
+          'package'     => true
       })
 
+      FileUtils.should_receive(:mkdir_p).with('a/path')
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with({:disk=>"a_disk.raw"}, "build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz").and_return("deliverable")
+      package_helper.should_receive(:package).with({:disk=>"a_disk.raw"}, "build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz").and_return("deliverable")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
-      @exec_helper.should_receive(:execute).with("cp build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
+      @exec_helper.should_receive(:execute).with("cp build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz a/path")
       @plugin.should_receive(:deliverables_exists?).and_return(false)
 
       @plugin.execute
@@ -61,23 +66,24 @@ module BoxGrinder
 
     it "should not package, but deliver the appliance" do
       @plugin.instance_variable_set(:@plugin_config, {
-              'overwrite'   => true,
-              'path'        => 'a/path',
-              'package'     => false
+          'overwrite'   => true,
+          'path'        => 'a/path',
+          'package'     => false
       })
 
+      FileUtils.should_receive(:mkdir_p).with('a/path')
       PackageHelper.should_not_receive(:new)
 
-      @exec_helper.should_receive(:execute).with("cp build/appliances/#{@arch}/fedora/11/full/local-plugin/tmp/full-1.0-fedora-11-#{@arch}-raw.tgz a/path")
+      @exec_helper.should_receive(:execute).with("cp build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz a/path")
 
       @plugin.execute
     end
 
     it "should not deliver the package, because it is already delivered" do
       @plugin.instance_variable_set(:@plugin_config, {
-              'overwrite'   => false,
-              'path'        => 'a/path',
-              'package'     => false
+          'overwrite'   => false,
+          'path'        => 'a/path',
+          'package'     => false
       })
 
       PackageHelper.should_not_receive(:new)

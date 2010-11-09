@@ -20,9 +20,8 @@ Requires: rubygem(amazon-ec2) < 0.10
 
 BuildRequires: rubygem(boxgrinder-build) => 0.6.3
 BuildRequires: rubygem(boxgrinder-build) < 0.7
-BuildRequires: rubygem(amazon-ec2) => 0.9.6
-BuildRequires: rubygem(amazon-ec2) < 0.10
 BuildRequires: rubygem(rake) < 0.10
+BuildRequires: rubygem(rspec) < 2.0.0
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -49,7 +48,7 @@ gem install --local --install-dir %{buildroot}%{gemdir} \
             --force --rdoc %{SOURCE0}
 
 %check
-pushd %{buildroot}/%{geminstdir}/spec
+pushd %{buildroot}/%{geminstdir}
 rake spec
 popd
 
@@ -77,7 +76,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Sun Nov 07 2010  <mgoldman@redhat.com> - 0.0.3-2
-- Added %check section that executes tests
+- Added 'check' section that executes tests
 
 * Fri Nov 05 2010  <mgoldman@redhat.com> - 0.0.3-1
 - [BGBUILD-86] EBS plugin should inform that it can be run only on EC2

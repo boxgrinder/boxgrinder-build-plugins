@@ -6,7 +6,7 @@
 Summary: Elastic Compute Cloud (EC2) Platform Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Development/Languages
 License: LGPL
 URL: http://www.jboss.org/boxgrinder
@@ -22,14 +22,23 @@ Requires: e2fsprogs
 Requires: rsync
 Requires: wget
 Requires: util-linux-ng
-BuildRequires: rubygems >= 1.2
-BuildRequires: ruby >= 0
+
+BuildRequires: rubygem(boxgrinder-build) => 0.6.0
+BuildRequires: rubygem(boxgrinder-build) < 0.7
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
 
 %description
 BoxGrinder Build Elastic Compute Cloud (EC2) Platform Plugin
+
+%package doc
+Summary: Documentation for %{name}
+Group: Documentation
+Requires:%{name} = %{version}-%{release}
+
+%description doc
+Documentation for %{name}
 
 %prep
 
@@ -41,6 +50,11 @@ mkdir -p %{buildroot}%{gemdir}
 gem install --local --install-dir %{buildroot}%{gemdir} \
             --force --rdoc %{SOURCE0}
 
+%check
+pushd %{buildroot}/%{geminstdir}/spec
+rake spec
+popd
+
 %clean
 rm -rf %{buildroot}
 
@@ -48,18 +62,25 @@ rm -rf %{buildroot}
 %defattr(-, root, root, -)
 %dir %{geminstdir}
 %{geminstdir}/lib
-%doc %{gemdir}/doc/%{gemname}-%{version}
-%doc %{geminstdir}/%{gemname}.gemspec
-%doc %{geminstdir}/rubygem-%{gemname}.spec
 %doc %{geminstdir}/CHANGELOG
 %doc %{geminstdir}/LICENSE
 %doc %{geminstdir}/README
 %doc %{geminstdir}/Manifest
-%doc %{geminstdir}/Rakefile
-%doc %{geminstdir}/spec
 %{gemdir}/cache/%{gemname}-%{version}.gem
 %{gemdir}/specifications/%{gemname}-%{version}.gemspec
 
+%files doc
+%defattr(-, root, root, -)
+%{geminstdir}/spec
+%{geminstdir}/Rakefile
+%{geminstdir}/rubygem-%{gemname}.spec
+%{geminstdir}/%{gemname}.gemspec
+%{gemdir}/doc/%{gemname}-%{version}
+
 %changelog
+* Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.5-2
+- [BGBUILD-85] Adjust BoxGrinder spec files for review
+- Added 'check' section that executes tests
+
 * Mon Oct 18 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Initial package

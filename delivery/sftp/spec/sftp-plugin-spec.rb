@@ -17,11 +17,10 @@
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 require 'boxgrinder-build-sftp-delivery-plugin/sftp-plugin'
-require 'rspec/rspec-config-helper'
 
 module BoxGrinder
   describe SFTPPlugin do
-    include RSpecConfigHelper
+
   end
 end
 

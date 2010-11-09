@@ -3,6 +3,7 @@ LICENSE
 Manifest
 README
 Rakefile
+boxgrinder-build-vmware-platform-plugin.gemspec
 lib/boxgrinder-build-vmware-platform-plugin.rb
 lib/boxgrinder-build-vmware-platform-plugin/src/README
 lib/boxgrinder-build-vmware-platform-plugin/src/base.vmdk

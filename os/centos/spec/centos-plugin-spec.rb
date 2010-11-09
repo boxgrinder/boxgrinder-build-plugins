@@ -16,25 +16,11 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-require 'rubygems'
-require 'boxgrinder-build-rhel-os-plugin/rhel-plugin'
+require 'boxgrinder-build-centos-os-plugin/centos-plugin'
 
 module BoxGrinder
-  class CentOSPlugin < RHELPlugin
+#  describe CentOSPlugin do
 
-    CENTOS_REPOS = {
-            "5" => {
-                    "base" => {
-                            "mirrorlist" => "http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=os"
-                    },
-                    "updates" => {
-                            "mirrorlist" => "http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=updates"
-                    }
-            }
-    }
-
-    def execute
-      build_rhel( CENTOS_REPOS )
-    end
-  end
+#  end
 end
+

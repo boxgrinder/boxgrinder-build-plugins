@@ -3,6 +3,8 @@ LICENSE
 Manifest
 README
 Rakefile
+boxgrinder-build-centos-os-plugin.gemspec
 lib/boxgrinder-build-centos-os-plugin.rb
 lib/boxgrinder-build-centos-os-plugin/centos-plugin.rb
 rubygem-boxgrinder-build-centos-os-plugin.spec
+spec/centos-plugin-spec.rb

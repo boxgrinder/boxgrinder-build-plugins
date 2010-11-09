@@ -3,6 +3,7 @@ LICENSE
 Manifest
 README
 Rakefile
+boxgrinder-build-rpm-based-os-plugin.gemspec
 lib/boxgrinder-build-rpm-based-os-plugin.rb
 lib/boxgrinder-build-rpm-based-os-plugin/kickstart.rb
 lib/boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin.rb

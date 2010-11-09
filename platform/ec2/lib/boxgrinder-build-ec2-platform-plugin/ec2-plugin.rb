@@ -251,15 +251,5 @@ module BoxGrinder
         set("/etc/ssh/sshd_config", "PasswordAuthentication", "no")
       end
     end
-
-    def get_loop_device
-      begin
-        loop_device = @exec_helper.execute("losetup -f 2>&1").strip
-      rescue
-        raise "No free loop devices available, please free at least one. See 'losetup -d' command."
-      end
-
-      loop_device
-    end
   end
 end
