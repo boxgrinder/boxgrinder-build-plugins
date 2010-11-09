@@ -93,7 +93,7 @@ desc "Builds all RPMs and installs them"
 task "rpm:install" do
   plugins.each do |plugin|
     Dir.chdir plugin[:dir] do
-      system "rake rpm:install"
+      system "rake clean manifest rpm:install"
       exit 1 unless $? == 0
     end
   end
@@ -111,6 +111,7 @@ Spec::Rake::SpecTask.new('spec:coverage') do |t|
   t.spec_opts = ['--colour', '--format', 'html:pkg/rspec_report.html', '-b']
   t.rcov = true
   t.rcov_opts = ['--exclude', 'spec,teamcity/*,/usr/lib/ruby/,.gem/ruby,/boxgrinder-core/,/boxgrinder-build/,/gems/']
+  t.verbose = true
 end
 
 desc "Runs RSpec test"
@@ -122,4 +123,5 @@ Spec::Rake::SpecTask.new('spec') do |t|
   t.spec_files = FileList['**/spec/**/*-spec.rb']
   t.spec_opts = ['--colour', '--format', 's', '-b']
   t.rcov = false
+  t.verbose = true
 end
