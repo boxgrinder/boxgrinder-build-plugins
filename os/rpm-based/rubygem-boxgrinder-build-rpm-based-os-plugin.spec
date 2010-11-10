@@ -8,7 +8,7 @@ Name: rubygem-%{gemname}
 Version: 0.0.6
 Release: 2%{?dist}
 Group: Development/Languages
-License: LGPL
+License: LGPLv3+
 URL: http://www.jboss.org/stormgrind/projects/boxgrinder.html
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
