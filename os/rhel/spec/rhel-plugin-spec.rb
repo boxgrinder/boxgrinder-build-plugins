@@ -29,7 +29,7 @@ module BoxGrinder
       @appliance_config.stub!(:name).and_return('full')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => :rhel, :version => '5'}))
+      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => 'rhel', :version => '5'}))
 
       @plugin = RHELPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::RHELPlugin, :type => :os, :name => :rhel, :full_name  => "Red Hat Enterprise Linux", :versions => ['5', '6']})
 

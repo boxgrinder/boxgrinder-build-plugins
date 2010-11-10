@@ -1,4 +1,8 @@
 
+v0.0.5
+
+* [BGBUILD-88] CentOS plugin uses #ARCH# instead of #BASE_ARCH#
+
 v0.0.4
 
 * Rebuilding for RPM creation
