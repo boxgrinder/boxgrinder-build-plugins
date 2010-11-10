@@ -1,0 +1,59 @@
+require 'rubygems'
+require 'echoe'
+
+Echoe.new('boxgrinder-build-rhel-os-plugin') do |p|
+  p.project = 'BoxGrinder Build'
+  p.author = 'Marek Goldmann'
+  p.summary = 'Red Hat Enterprise Linux Operating System Plugin'
+  p.description = 'BoxGrinder Build Red Hat Enterprise Linux Operating System Plugin'
+  p.url = 'http://www.jboss.org/boxgrinder'
+  p.email = 'info@boxgrinder.org'
+  p.runtime_dependencies = ['boxgrinder-build ~>0.6.3', 'boxgrinder-build-rpm-based-os-plugin ~>0.0.6']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.6.3']
+end
+
+topdir = "#{Dir.pwd}/pkg/rpmbuild"
+directory "#{topdir}/SOURCES"
+
+task 'gem:copy' => [:gem, 'rpm:topdir'] do
+  Dir["**/pkg/*.gem"].each { |gem| FileUtils.cp(gem, "#{topdir}/SOURCES", :verbose => true) }
+end
+
+
+task 'rpm:topdir' do
+  FileUtils.mkdir_p(["#{topdir}/SOURCES", "#{topdir}/RPMS", "#{topdir}/BUILD", "#{topdir}/SPECS", "#{topdir}/SRPMS"], :verbose => true)
+end
+
+desc "Create RPM"
+task 'rpm' => ['gem:copy'] do
+  Dir["**/rubygem-*.spec"].each do |spec|
+    `rpmbuild --define '_topdir #{topdir}' -ba #{spec}`
+    exit 1 unless $? == 0
+  end
+end
+
+desc "Run all tests"
+Spec::Rake::SpecTask.new('spec') do |t|
+  t.rcov = false
+  t.spec_files = FileList["spec/**/*-spec.rb"]
+  t.spec_opts = ['--colour', '--format', 'specdoc', '-b']
+end
+
+desc "Run all tests and generate code coverage report"
+Spec::Rake::SpecTask.new('spec:coverage') do |t|
+  t.spec_files = FileList["spec/**/*-spec.rb"]
+  t.spec_opts = ['--colour', '--format', 'html:pkg/rspec_report.html', '-b']
+  t.rcov = true
+  t.rcov_opts = ['--exclude', 'spec,teamcity/*,/usr/lib/ruby/,.gem/ruby,/boxgrinder-core/,/boxgrinder-build/']
+end
+
+desc "Install RPM"
+task 'rpm:install' => ['rpm'] do
+  puts "sudo yum -y remove rubygem-boxgrinder-build-rhel-os-plugin"
+  system "sudo yum -y remove rubygem-boxgrinder-build-rhel-os-plugin"
+  exit 1 unless $? == 0
+
+  puts "sudo yum -y --nogpgcheck localinstall #{topdir}/RPMS/noarch/*.rpm"
+  system "sudo yum -y --nogpgcheck localinstall #{topdir}/RPMS/noarch/*.rpm"
+  exit 1 unless $? == 0
+end

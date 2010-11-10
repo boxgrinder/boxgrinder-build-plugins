@@ -3,5 +3,4 @@ log
 *.gem
 *.gemspec
 pkg
-Rakefile
 coverage
