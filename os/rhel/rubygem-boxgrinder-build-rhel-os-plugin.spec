@@ -15,7 +15,7 @@ Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 Requires: ruby(abi) = %{rubyabi}
 Requires: rubygems >= 1.2
 Requires: ruby >= 0
-Requires: rubygem(boxgrinder-build) => 0.6.0
+Requires: rubygem(boxgrinder-build) => 0.6.3
 Requires: rubygem(boxgrinder-build) < 0.7
 Requires: rubygem(boxgrinder-build-rpm-based-os-plugin) => 0.0.4
 Requires: rubygem(boxgrinder-build-rpm-based-os-plugin) < 0.1
