@@ -79,6 +79,16 @@ task "gem:install" do
   end
 end
 
+desc "Release all gems"
+task "release" do
+  plugins.each do |plugin|
+    Dir.chdir plugin[:dir] do
+      system "rake release"
+      exit 1 unless $? == 0
+    end
+  end
+end
+
 desc "Builds all RPMs"
 task "rpm" do
   plugins.each do |plugin|
