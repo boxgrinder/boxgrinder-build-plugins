@@ -42,7 +42,7 @@ module BoxGrinder
 
     # https://bugzilla.redhat.com/show_bug.cgi?id=466275
     def adjust_partition_table
-      @appliance_config.hardware.partitions['/boot'] = { 'root' => '/boot', 'size' => 0.1 } if @appliance_config.hardware.partitions['/boot'].nil?
+      @appliance_config.hardware.partitions['/boot'] = { 'root' => '/boot', 'type' => 'ext3', 'size' => 0.1 } if @appliance_config.hardware.partitions['/boot'].nil?
     end
 
     def execute

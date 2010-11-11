@@ -5,8 +5,8 @@
 
 Summary: Red Hat Enterprise Linux Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
-Release: 2%{?dist}
+Version: 0.0.6
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -74,6 +74,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Thu Nov 11 2010  <mgoldman@redhat.com> - 0.0.6-1
+- [BGBUILD-87] Set default filesystem to ext4 for Fedora 13+
+
 * Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.5-2
 - Added 'check' section that executes tests
 
