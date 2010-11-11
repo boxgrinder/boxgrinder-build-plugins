@@ -3,6 +3,7 @@ LICENSE
 Manifest
 README
 Rakefile
+boxgrinder-build-ebs-delivery-plugin.gemspec
 lib/boxgrinder-build-ebs-delivery-plugin.rb
 lib/boxgrinder-build-ebs-delivery-plugin/ebs-plugin.rb
 rubygem-boxgrinder-build-ebs-delivery-plugin.spec

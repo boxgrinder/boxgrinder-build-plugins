@@ -63,27 +63,7 @@ module BoxGrinder
 
       cost = 40
 
-      definition['partitions'] = {}
-
-      @appliance_config.hardware.partitions.dup.each do |root, partition|
-#        case @appliance_config.os.name
-#          when 'fedora'
-#            case @appliance_config.os.version
-#              when '13'
-#                default_fs_type = 'ext4'
-#              else
-#                default_fs_type = 'ext3'
-#            end
-#          else
-#            default_fs_type = 'ext3'
-#        end
-
-        default_fs_type = 'ext3'
-
-        partition['type'] = default_fs_type if partition['type'].nil?
-        partition['options'] = 'defaults' if partition['options'].nil?
-        definition['partitions'][root] = partition
-      end
+      definition['partitions'] = @appliance_config.hardware.partitions
 
       repos = []
       repos += valid_repos if @appliance_config.default_repos
@@ -97,10 +77,10 @@ module BoxGrinder
         end
 
         substitutions = {
-                /#ARCH#/        => @appliance_config.hardware.arch,
-                /#BASE_ARCH#/   => @appliance_config.hardware.base_arch,
-                /#OS_VERSION#/  => @appliance_config.os.version,
-                /#OS_NAME#/     => @appliance_config.os.name
+            /#ARCH#/        => @appliance_config.hardware.arch,
+            /#BASE_ARCH#/   => @appliance_config.hardware.base_arch,
+            /#OS_VERSION#/  => @appliance_config.os.version,
+            /#OS_NAME#/     => @appliance_config.os.name
         }
 
         url   = repo[urltype]
