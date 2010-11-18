@@ -18,6 +18,7 @@
 
 require 'rubygems'
 require 'boxgrinder-build-vmware-platform-plugin/vmware-plugin'
+require 'hashery/opencascade'
 
 module BoxGrinder
   describe VMwarePlugin do
@@ -36,16 +37,16 @@ module BoxGrinder
 
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('full')
       @appliance_config.stub!(:summary).and_return('asd')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => 'fedora', :version => '11'}))
-      @appliance_config.stub!(:post).and_return(OpenHash.new({:vmware => []}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:post).and_return(OpenCascade.new({:vmware => []}))
 
       @appliance_config.stub!(:hardware).and_return(
-          OpenHash.new({
+          OpenCascade.new({
                            :partitions =>
                                {
                                    '/' => {'size' => 2},
@@ -133,7 +134,7 @@ module BoxGrinder
     end
 
     it "should change vmx data" do
-      vmx_file = @plugin.change_common_vmx_values
+      vmx_file = @plugin.change_common_vmx_values( 'personal' )
 
       vmx_file.scan(/^guestOS = "(.*)"\s?$/).to_s.should == "linux"
       vmx_file.scan(/^displayName = "(.*)"\s?$/).to_s.should == "full"
@@ -143,7 +144,7 @@ module BoxGrinder
       vmx_file.scan(/^numvcpus = "(.*)"\s?$/).to_s.should == "1"
       vmx_file.scan(/^memsize = "(.*)"\s?$/).to_s.should == "256"
       vmx_file.scan(/^log.fileName = "(.*)"\s?$/).to_s.should == "full.log"
-      vmx_file.scan(/^scsi0:0.fileName = "(.*)"\s?$/).to_s.should == "full.vmdk"
+      vmx_file.scan(/^scsi0:0.fileName = "(.*)"\s?$/).to_s.should == "full-personal.vmdk"
     end
 
     it "should build personal image" do
@@ -154,7 +155,7 @@ module BoxGrinder
     end
 
     it "should build enterprise image" do
-      @plugin.should_receive(:change_common_vmx_values).with(no_args()).and_return("")
+      @plugin.should_receive(:change_common_vmx_values).with( 'enterprise' ).and_return("")
 
       File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-enterprise.vmx", "w")
       File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-enterprise.vmdk", "w")

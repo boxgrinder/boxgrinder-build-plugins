@@ -5,21 +5,18 @@
 
 Summary: VMware Platform Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.3
-Release: 2%{?dist}
+Version: 0.0.4
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygems >= 1.2
-Requires: ruby >= 0
-Requires: rubygem(boxgrinder-build) => 0.6.0
-Requires: rubygem(boxgrinder-build) < 0.7
+Requires: rubygem(boxgrinder-build)
 
-BuildRequires: rubygem(boxgrinder-build) => 0.6.0
-BuildRequires: rubygem(boxgrinder-build) < 0.7
+BuildRequires: rubygem(boxgrinder-build)
+BuildRequires: rubygem(hashery)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -73,6 +70,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Thu Nov 18 2010  <mgoldman@redhat.com> - 0.0.4-1
+- [BGBUILD-96] Don't Require User to Rename VMware .vmdk and .vmx Files
+- Requires/BuildRequires cleanup
+
 * Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.3-2
 - [BGBUILD-85] Adjust BoxGrinder spec files for review
 - Added 'check' section that executes tests

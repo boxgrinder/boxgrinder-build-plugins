@@ -15,11 +15,8 @@ Required files:
 Required steps:
 ---------------
 
-1. Extract required files into one directory.
-2. Rename #APPLIANCE_NAME#-personal.vmx to #APPLIANCE_NAME#.vmx
-3. Rename #APPLIANCE_NAME#-personal.vmdk to #APPLIANCE_NAME#.vmdk
-4. Add #APPLIANCE_NAME#.vmx to inventory.
-3. Run appliance.
+1. Add #APPLIANCE_NAME#.vmx to inventory.
+2. Run appliance.
 
 VMware Enterprise (VMware ESX/ESXi/, VMware vSphere)
 ====================================================
@@ -34,9 +31,6 @@ Required files:
 Required steps:
 ---------------
 
-1. Extract required files into one directory.
-2. Rename #APPLIANCE_NAME#-personal.vmx to #APPLIANCE_NAME#.vmx
-3. Rename #APPLIANCE_NAME#-personal.vmdk to #APPLIANCE_NAME#.vmdk
-4. Upload all files to ESX server using vSpehere/VI client.
-5. Add #APPLIANCE_NAME#.vmx to inventory.
-6. Run appliance.
+1. Upload all files to ESX server using vSpehere/VI client.
+2. Add #APPLIANCE_NAME#.vmx to inventory.
+3. Run appliance.

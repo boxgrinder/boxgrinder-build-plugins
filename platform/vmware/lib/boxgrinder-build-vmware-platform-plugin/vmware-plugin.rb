@@ -112,7 +112,7 @@ module BoxGrinder
       vmdk_data
     end
 
-    def change_common_vmx_values
+    def change_common_vmx_values( type )
       vmx_data = File.open( "#{File.dirname( __FILE__ )}/src/base.vmx" ).read
 
       # replace version with current appliance version
@@ -121,6 +121,8 @@ module BoxGrinder
       vmx_data.gsub!( /#BUILDER#/, "#{@config.name} #{@config.version_with_release}" )
       # change name
       vmx_data.gsub!( /#NAME#/, @appliance_config.name.to_s )
+      # change name
+      vmx_data.gsub!( /#TYPE#/, type.to_s )
       # and summary
       vmx_data.gsub!( /#SUMMARY#/, @appliance_config.summary.to_s )
       # replace guestOS informations to: linux or otherlinux-64, this seems to be the savests values
@@ -139,7 +141,7 @@ module BoxGrinder
       @log.debug "Building VMware personal image."
 
       # create .vmx file
-      File.open( @deliverables.vmx_personal, "w" ) {|f| f.write( change_common_vmx_values ) }
+      File.open( @deliverables.vmx_personal, "w" ) {|f| f.write( change_common_vmx_values( 'personal' ) ) }
 
       # create disk descriptor file
       File.open( @deliverables.vmdk_personal, "w" ) {|f| f.write( change_vmdk_values( "monolithicFlat" ) ) }
@@ -154,7 +156,7 @@ module BoxGrinder
       @appliance_config.hardware.network = "VM Network" if @appliance_config.hardware.network.eql?( "NAT" )
 
       # create .vmx file
-      vmx_data = change_common_vmx_values
+      vmx_data = change_common_vmx_values( 'enterprise' )
       vmx_data += "ethernet0.networkName = \"#{@appliance_config.hardware.network}\""
 
       File.open( @deliverables.vmx_enterprise, "w" ) {|f| f.write( vmx_data ) }

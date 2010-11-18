@@ -1,4 +1,8 @@
 
+v0.0.4
+
+* [BGBUILD-96] Don't Require User to Rename VMware .vmdk and .vmx Files
+
 v0.0.3
 
 * [BGBUILD-81] post command execution w/ setarch breaks commands which are scripts

@@ -9,16 +9,15 @@ Echoe.new('boxgrinder-build-vmware-platform-plugin') do |p|
   p.url = 'http://www.jboss.org/boxgrinder'
   p.email = 'info@boxgrinder.org'
   p.runtime_dependencies = ['boxgrinder-build ~>0.6.3']
-  p.development_dependencies = [ 'boxgrinder-build ~>0.6.3']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.6.3', 'hashery >=1.3.0']
 end
 
 topdir = "#{Dir.pwd}/pkg/rpmbuild"
 directory "#{topdir}/SOURCES"
 
-task 'gem:copy' => [:gem, 'rpm:topdir'] do
+task 'gem:copy' => [:clean, :manifest, :gem, 'rpm:topdir'] do
   Dir["**/pkg/*.gem"].each { |gem| FileUtils.cp(gem, "#{topdir}/SOURCES", :verbose => true) }
 end
-
 
 task 'rpm:topdir' do
   FileUtils.mkdir_p(["#{topdir}/SOURCES", "#{topdir}/RPMS", "#{topdir}/BUILD", "#{topdir}/SPECS", "#{topdir}/SRPMS"], :verbose => true)
@@ -27,7 +26,7 @@ end
 desc "Create RPM"
 task 'rpm' => ['gem:copy'] do
   Dir["**/rubygem-*.spec"].each do |spec|
-    `rpmbuild --define '_topdir #{topdir}' -ba #{spec}`
+    puts `rpmbuild --define '_topdir #{topdir}' -ba #{spec}`
     exit 1 unless $? == 0
   end
 end
