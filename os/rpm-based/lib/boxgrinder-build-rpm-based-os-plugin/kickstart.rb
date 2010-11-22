@@ -46,7 +46,7 @@ module BoxGrinder
 
       definition['appliance_config']  = @appliance_config
       definition['repos']             = []
-      definition['graphical']         = false
+      definition['graphical']         = (@appliance_config.packages.includes.include?( '@base-x' ) or @appliance_config.packages.includes.include?( '@X Window System' )) ? true : false
       definition['packages']          = []
 
       definition['packages'] += @appliance_config.packages.includes

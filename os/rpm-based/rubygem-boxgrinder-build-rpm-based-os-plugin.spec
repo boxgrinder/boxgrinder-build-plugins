@@ -5,7 +5,7 @@
 
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.7
+Version: 0.0.8
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -13,15 +13,13 @@ URL: http://www.jboss.org/stormgrind/projects/boxgrinder.html
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygems >= 1.2
-Requires: ruby >= 0
-Requires: rubygem(boxgrinder-build) => 0.6.3
-Requires: rubygem(boxgrinder-build) < 0.7
+Requires: rubygem(boxgrinder-build)
 Requires: appliance-tools
 Requires: yum-utils
 Requires: ruby-libguestfs
-BuildRequires: rubygems >= 1.2
-BuildRequires: ruby >= 0
+
+BuildRequires: rubygem(hashery)
+BuildRequires: rubygem(boxgrinder-build)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -75,6 +73,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Nov 22 2010  <mgoldman@redhat.com> - 0.0.8-1
+- [BGBUILD-102] Start X on boot when X Window System group or base-x group is specified
+
 * Thu Nov 11 2010  <mgoldman@redhat.com> - 0.0.7-1
 - [BGBUILD-87] Set default filesystem to ext4 for Fedora 13+
 

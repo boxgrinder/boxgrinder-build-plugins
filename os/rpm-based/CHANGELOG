@@ -1,4 +1,8 @@
 
+v0.0.8
+
+* [BGBUILD-102] Start X on boot when X Window System group or base-x group is specified
+
 v0.0.7
 
 * [BGBUILD-87] Set default filesystem to ext4 for Fedora 13+
