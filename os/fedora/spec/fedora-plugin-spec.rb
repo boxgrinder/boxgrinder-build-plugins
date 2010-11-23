@@ -18,6 +18,7 @@
 
 require 'rubygems'
 require 'boxgrinder-build-fedora-os-plugin/fedora-plugin'
+require 'hashery/opencascade'
 
 module BoxGrinder
   describe FedoraPlugin do
@@ -25,12 +26,12 @@ module BoxGrinder
       @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('full')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => :fedora, :version => '11'}))
-      @appliance_config.stub!(:hardware).and_return(OpenHash.new({:arch => 'x86_64'}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64'}))
       @appliance_config.stub!(:is64bit?).and_return(true)
 
       @plugin = FedoraPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::FedoraPlugin, :type => :os, :name => :fedora, :full_name  => "Fedora", :versions   => ["11", "12", "13", "14", "rawhide"]})

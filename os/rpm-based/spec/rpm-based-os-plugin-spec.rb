@@ -25,11 +25,11 @@ module BoxGrinder
       @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('full')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => :fedora, :version => '11'}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
 
       @plugin = RPMBasedOSPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:name => :rpm_based})
 

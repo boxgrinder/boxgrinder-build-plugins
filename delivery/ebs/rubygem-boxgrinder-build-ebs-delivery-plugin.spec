@@ -13,15 +13,15 @@ URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygem(boxgrinder-build) => 0.6.3
-Requires: rubygem(boxgrinder-build) < 0.7
-Requires: rubygem(amazon-ec2) => 0.9.6
-Requires: rubygem(amazon-ec2) < 0.10
+Requires: rubygem(boxgrinder-build)
+Requires: rubygem(amazon-ec2)
+Requires: rubygem(aws)
 
-BuildRequires: rubygem(boxgrinder-build) => 0.6.3
-BuildRequires: rubygem(boxgrinder-build) < 0.7
-BuildRequires: rubygem(rake) < 0.10
-BuildRequires: rubygem(rspec) < 2.0.0
+BuildRequires: rubygem(boxgrinder-build)
+BuildRequires: rubygem(rake)
+BuildRequires: rubygem(rspec)
+BuildRequires: rubygem(aws)
+BuildRequires: rubygem(amazon-ec2)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}

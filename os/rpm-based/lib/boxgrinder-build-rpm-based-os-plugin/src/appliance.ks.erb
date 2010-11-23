@@ -9,7 +9,7 @@ firstboot --disabled
 
 <% if graphical %>
 xconfig --startxonboot
-services --enabled=NetworkManager --disabled=network,sshd
+services --enabled=NetworkManager --disabled=network
 <% else %>
 network --bootproto=dhcp --device=eth0 --onboot=on
 services --enabled=network

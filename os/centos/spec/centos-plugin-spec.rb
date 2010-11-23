@@ -18,6 +18,7 @@
 
 require 'rubygems'
 require 'boxgrinder-build-centos-os-plugin/centos-plugin'
+require 'hashery/opencascade'
 
 module BoxGrinder
   describe CentOSPlugin do
@@ -25,7 +26,7 @@ module BoxGrinder
       @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('full')
 
       @plugin = CentOSPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::CentOSPlugin, :type => :os, :name => :centos, :full_name  => "CentOS", :versions   => ["5"]})

@@ -16,7 +16,9 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'rubygems'
 require 'boxgrinder-build-s3-delivery-plugin/s3-plugin'
+require 'hashery/opencascade'
 
 module BoxGrinder
   describe S3Plugin do
@@ -25,12 +27,12 @@ module BoxGrinder
       @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('appliance')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => :fedora, :version => '11'}))
-      @appliance_config.stub!(:hardware).and_return(OpenHash.new({:arch => 'x86_64'}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64'}))
 
       @plugin = S3Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::S3Plugin, :type => :delivery, :name => :s3, :full_name  => "Amazon Simple Storage Service (Amazon S3)", :types => [:s3, :cloudfront, :ami]})
 

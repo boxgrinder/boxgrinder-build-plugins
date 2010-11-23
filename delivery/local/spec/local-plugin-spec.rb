@@ -16,7 +16,9 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'rubygems'
 require 'boxgrinder-build-local-delivery-plugin/local-plugin'
+require 'hashery/opencascade'
 
 module BoxGrinder
   describe LocalPlugin do
@@ -25,12 +27,12 @@ module BoxGrinder
       @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('appliance')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => :fedora, :version => '13'}))
-      @appliance_config.stub!(:hardware).and_return(OpenHash.new({:arch => 'x86_64'}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => :fedora, :version => '13'}))
+      @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64'}))
 
       @plugin = LocalPlugin.new.init(@config, @appliance_config,
                                      :log                   => Logger.new('/dev/null'),

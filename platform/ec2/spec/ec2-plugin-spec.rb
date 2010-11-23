@@ -18,25 +18,26 @@
 
 require 'rubygems'
 require 'boxgrinder-build-ec2-platform-plugin/ec2-plugin'
+require 'hashery/opencascade'
 
 module BoxGrinder
   describe EC2Plugin do
     before(:each) do
       @config = mock('Config')
-      @config.stub!(:dir).and_return(OpenHash.new({:src_cache => '/var/cache/boxgrinder/sources-cache'}))
+      @config.stub!(:dir).and_return(OpenCascade.new({:src_cache => '/var/cache/boxgrinder/sources-cache'}))
 
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('full')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:packages).and_return(OpenHash.new({:includes => ["gcc-c++", "wget"]}))
-      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:packages).and_return(OpenCascade.new({:includes => ["gcc-c++", "wget"]}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
       @appliance_config.stub!(:is64bit?).and_return(false)
 
       @appliance_config.stub!(:hardware).and_return(
-          OpenHash.new({
+          OpenCascade.new({
                            :partitions =>
                                {
                                    '/' => {'size' => 2},

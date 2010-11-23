@@ -8,28 +8,8 @@ Echoe.new('boxgrinder-build-rpm-based-os-plugin') do |p|
   p.description = 'BoxGrinder Build RPM Based Operating System Plugin'
   p.url = 'http://www.jboss.org/boxgrinder'
   p.email = 'info@boxgrinder.org'
-  p.runtime_dependencies = ['boxgrinder-build ~>0.6.3']
-  p.development_dependencies = [ 'boxgrinder-build ~>0.6.3']
-end
-
-topdir = "#{Dir.pwd}/pkg/rpmbuild"
-directory "#{topdir}/SOURCES"
-
-task 'gem:copy' => [:gem, 'rpm:topdir'] do
-  Dir["**/pkg/*.gem"].each { |gem| FileUtils.cp(gem, "#{topdir}/SOURCES", :verbose => true) }
-end
-
-
-task 'rpm:topdir' do
-  FileUtils.mkdir_p(["#{topdir}/SOURCES", "#{topdir}/RPMS", "#{topdir}/BUILD", "#{topdir}/SPECS", "#{topdir}/SRPMS"], :verbose => true)
-end
-
-desc "Create RPM"
-task 'rpm' => ['gem:copy'] do
-  Dir["**/rubygem-*.spec"].each do |spec|
-    `rpmbuild --define '_topdir #{topdir}' -ba #{spec}`
-    exit 1 unless $? == 0
-  end
+  p.runtime_dependencies = ['boxgrinder-build ~>0.6.4']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.6.4', 'hashery >=1.3.0']
 end
 
 desc "Run all tests"
@@ -47,13 +27,16 @@ Spec::Rake::SpecTask.new('spec:coverage') do |t|
   t.rcov_opts = ['--exclude', 'spec,teamcity/*,/usr/lib/ruby/,.gem/ruby,/boxgrinder-core/,/boxgrinder-build/']
 end
 
-desc "Install RPM"
-task 'rpm:install' => ['rpm'] do
-  puts "sudo yum -y remove rubygem-boxgrinder-build-rpm-based-os-plugin"
-  system "sudo yum -y remove rubygem-boxgrinder-build-rpm-based-os-plugin"
-  exit 1 unless $? == 0
+desc "Create RPM"
+task :rpm, :target, :version, :arch, :needs => ['gem'] do |t, args|
+  target  = args[:target]   || 'fedora'
+  version = args[:version]  || 'rawhide'
+  arch    = args[:arch]     || RbConfig::CONFIG['host_cpu']
 
-  puts "sudo yum -y --nogpgcheck localinstall #{topdir}/RPMS/noarch/*.rpm"
-  system "sudo yum -y --nogpgcheck localinstall #{topdir}/RPMS/noarch/*.rpm"
-  exit 1 unless $? == 0
+  Dir["**/rubygem-*.spec"].each do |spec|
+    `mock -v -r #{target}-#{version}-#{arch} --buildsrpm --sources pkg/*.gem --spec #{spec} --resultdir pkg/`
+    exit 1 unless $? == 0
+    `mock -v -r #{target}-#{version}-#{arch} --rebuild pkg/*.rpm --resultdir pkg/`
+    exit 1 unless $? == 0
+  end
 end

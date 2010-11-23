@@ -21,8 +21,8 @@ desc "Recreate Rakefiles for plugins"
 task "rakefiles" do
   plugins.each do |plugin|
 
-    runtime_dependencies = ["'boxgrinder-build ~>0.6.3'"]
-    development_dependencies = ["'boxgrinder-build ~>0.6.3'"]
+    runtime_dependencies = ["'boxgrinder-build ~>0.6.4'"]
+    development_dependencies = ["'boxgrinder-build ~>0.6.4', 'hashery >=1.3.0'"]
 
     unless plugin[:runtime_deps].nil?
       plugin[:runtime_deps].each do |n, v|
@@ -61,51 +61,17 @@ task "gem" do
   end
 end
 
-desc "Uninstalls all gems"
-task "gem:uninstall" do
-  plugins.each do |plugin|
-    Dir.chdir plugin[:dir] do
-      system "rake uninstall"
-    end
-  end
-end
+desc "Create RPM"
+task :rpm, :target, :version, :arch, :needs => ['gem'] do |t, args|
+  target  = args[:target]   || 'fedora'
+  version = args[:version]  || 'rawhide'
+  arch    = args[:arch]     || RbConfig::CONFIG['host_cpu']
 
-desc "Installs all gems"
-task "gem:install" do
-  plugins.each do |plugin|
-    Dir.chdir plugin[:dir] do
-      system "rake install"
-    end
-  end
-end
-
-desc "Release all gems"
-task "release" do
-  plugins.each do |plugin|
-    Dir.chdir plugin[:dir] do
-      system "rake release"
-      exit 1 unless $? == 0
-    end
-  end
-end
-
-desc "Builds all RPMs"
-task "rpm" do
-  plugins.each do |plugin|
-    Dir.chdir plugin[:dir] do
-      system "rake rpm"
-      exit 1 unless $? == 0
-    end
-  end
-end
-
-desc "Builds all RPMs and installs them"
-task "rpm:install" do
-  plugins.each do |plugin|
-    Dir.chdir plugin[:dir] do
-      system "rake clean manifest rpm:install"
-      exit 1 unless $? == 0
-    end
+  Dir["**/rubygem-*.spec"].each do |spec|
+    `mock -r #{target}-#{version}-#{arch} --buildsrpm --sources #{File.dirname(spec)}/pkg/*.gem --spec #{spec} --resultdir #{File.dirname(spec)}/pkg/`
+    exit 1 unless $? == 0
+    `mock -r #{target}-#{version}-#{arch} --rebuild #{File.dirname(spec)}/pkg/*.rpm --resultdir #{File.dirname(spec)}/pkg/`
+    exit 1 unless $? == 0
   end
 end
 

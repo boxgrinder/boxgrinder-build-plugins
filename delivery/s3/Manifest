@@ -6,5 +6,6 @@ Rakefile
 boxgrinder-build-s3-delivery-plugin.gemspec
 lib/boxgrinder-build-s3-delivery-plugin.rb
 lib/boxgrinder-build-s3-delivery-plugin/s3-plugin.rb
+lib/boxgrinder-build-s3-delivery-plugin/src/cert-ec2.pem
 rubygem-boxgrinder-build-s3-delivery-plugin.spec
 spec/s3-plugin-spec.rb

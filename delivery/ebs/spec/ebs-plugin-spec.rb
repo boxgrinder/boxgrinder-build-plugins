@@ -16,8 +16,10 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'rubygems'
 require 'logger'
 require 'boxgrinder-build-ebs-delivery-plugin/ebs-plugin'
+require 'hashery/opencascade'
 
 module BoxGrinder
 
@@ -34,7 +36,7 @@ module BoxGrinder
       @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => '/a/build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => '/a/build/path'}))
 
       @plugin = @plugin.init(
           @config,

@@ -18,6 +18,7 @@
 
 require 'rubygems'
 require 'boxgrinder-build-rpm-based-os-plugin/kickstart'
+require 'hashery/opencascade'
 
 module BoxGrinder
   describe Kickstart do
@@ -32,13 +33,13 @@ module BoxGrinder
       @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
-      @appliance_config.stub!(:path).and_return(OpenHash.new({:build => 'build/path'}))
+      @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('full')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenHash.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
 
-      @kickstart = Kickstart.new(@config, @appliance_config, repos, OpenHash.new(:base => 'a/base/dir'))
+      @kickstart = Kickstart.new(@config, @appliance_config, repos, OpenCascade.new(:base => 'a/base/dir'))
     end
 
     describe ".build_definition" do
@@ -46,7 +47,7 @@ module BoxGrinder
         prepare_kickstart(KICKSTART_FEDORA_REPOS)
 
         @appliance_config.stub!(:hardware).and_return(
-            OpenHash.new({
+            OpenCascade.new({
                              :partitions =>
                                  {
                                      '/' => {'size' => 2},
@@ -64,8 +65,8 @@ module BoxGrinder
             ]
         )
 
-        @appliance_config.should_receive(:os).and_return(OpenHash.new({:password => 'boxgrinder'}))
-        @appliance_config.stub!(:packages).and_return(OpenHash.new({:includes => ["gcc-c++", "wget"]}))
+        @appliance_config.should_receive(:os).and_return(OpenCascade.new({:password => 'boxgrinder'}))
+        @appliance_config.stub!(:packages).and_return(OpenCascade.new({:includes => ["gcc-c++", "wget"]}))
         @appliance_config.should_receive(:default_repos).and_return(true)
 
         definition = @kickstart.build_definition
@@ -90,7 +91,7 @@ module BoxGrinder
         prepare_kickstart(KICKSTART_FEDORA_REPOS)
 
         @appliance_config.stub!(:hardware).and_return(
-            OpenHash.new({
+            OpenCascade.new({
                              :partitions =>
                                  {
                                      '/' => {'size' => 2},
@@ -101,8 +102,8 @@ module BoxGrinder
                          })
         )
 
-        @appliance_config.should_receive(:os).and_return(OpenHash.new({:password => 'boxgrinder'}))
-        @appliance_config.stub!(:packages).and_return(OpenHash.new({:includes => ["gcc-c++", "wget"]}))
+        @appliance_config.should_receive(:os).and_return(OpenCascade.new({:password => 'boxgrinder'}))
+        @appliance_config.stub!(:packages).and_return(OpenCascade.new({:includes => ["gcc-c++", "wget"]}))
         @appliance_config.should_receive(:default_repos).and_return(false)
 
         @appliance_config.should_receive(:repos).and_return(
