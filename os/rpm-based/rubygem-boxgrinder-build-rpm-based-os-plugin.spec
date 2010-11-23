@@ -16,7 +16,6 @@ Requires: ruby(abi) = %{rubyabi}
 Requires: rubygem(boxgrinder-build)
 Requires: appliance-tools
 Requires: yum-utils
-Requires: ruby-libguestfs
 
 BuildRequires: rubygem(hashery)
 BuildRequires: rubygem(boxgrinder-build)
@@ -74,15 +73,18 @@ rm -rf %{buildroot}
 
 %changelog
 * Mon Nov 22 2010  <mgoldman@redhat.com> - 0.0.8-1
+- Updated to upstream version: 0.0.8
 - [BGBUILD-102] Start X on boot when X Window System group or base-x group is specified
 
 * Thu Nov 11 2010  <mgoldman@redhat.com> - 0.0.7-1
+- Updated to upstream version: 0.0.7
 - [BGBUILD-87] Set default filesystem to ext4 for Fedora 13+
 
 * Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.6-2
 - Added 'check' section that executes tests
 
 * Wed Nov 03 2010  <mgoldman@redhat.com> - 0.0.6-1
+- Updated to upstream version: 0.0.6
 - [BGBUILD-82] Root password not set when selinux packages are added
 
 * Mon Oct 18 2010  <mgoldman@redhat.com> - 0.0.5-1
