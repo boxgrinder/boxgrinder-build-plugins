@@ -8,7 +8,7 @@ Echoe.new('boxgrinder-build-centos-os-plugin') do |p|
   p.description = 'BoxGrinder Build CentOS Operating System Plugin'
   p.url = 'http://www.jboss.org/boxgrinder'
   p.email = 'info@boxgrinder.org'
-  p.runtime_dependencies = ['boxgrinder-build ~>0.6.4', 'boxgrinder-build-rhel-os-plugin ~>0.0.5']
+  p.runtime_dependencies = ['boxgrinder-build ~>0.6.4', 'boxgrinder-build-rhel-os-plugin ~>0.0.6']
   p.development_dependencies = [ 'boxgrinder-build ~>0.6.4', 'hashery >=1.3.0']
 end
 

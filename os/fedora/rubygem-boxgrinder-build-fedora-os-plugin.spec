@@ -5,8 +5,8 @@
 
 Summary: Fedora Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
-Release: 1%{?dist}
+Version: 0.0.4
+Release: 3%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -72,8 +72,8 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
-* Tue Nov 23 2010  <mgoldman@redhat.com> - 0.0.5-1
-- Updated to upstream version: 0.0.5
+* Tue Nov 23 2010  <mgoldman@redhat.com> - 0.0.4-3
+- Cleanup in Requires/BuildRequires
 
 * Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.4-2
 - Added %check section that executes tests
