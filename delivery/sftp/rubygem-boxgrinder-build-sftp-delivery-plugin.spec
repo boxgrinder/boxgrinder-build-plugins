@@ -6,7 +6,7 @@
 Summary: SSH File Transfer Protocol Delivery Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -75,6 +75,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Nov 23 2010  <mgoldman@redhat.com> - 0.0.3-3
+- Cleaned Requires/Build Requires
+
 * Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.3-2
 - Added 'check' section that executes tests
 

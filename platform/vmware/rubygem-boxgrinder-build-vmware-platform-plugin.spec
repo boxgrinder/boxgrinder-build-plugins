@@ -71,6 +71,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Thu Nov 18 2010  <mgoldman@redhat.com> - 0.0.4-1
+- Updated to upstream version: 0.0.4
 - [BGBUILD-96] Don't Require User to Rename VMware .vmdk and .vmx Files
 - Requires/BuildRequires cleanup
 
