@@ -6,7 +6,7 @@
 Summary: Red Hat Enterprise Linux Operating System Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.6
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -19,6 +19,9 @@ Requires: rubygem(boxgrinder-build-rpm-based-os-plugin)
 
 BuildRequires: rubygem(boxgrinder-build)
 BuildRequires: rubygem(hashery)
+BuildRequires: rubygem(echoe)
+BuildRequires: rubygem(rake)
+BuildRequires: rubygem(rspec)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -72,6 +75,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.6-2
+- Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
+
 * Thu Nov 11 2010  <mgoldman@redhat.com> - 0.0.6-1
 - [BGBUILD-87] Set default filesystem to ext4 for Fedora 13+
 

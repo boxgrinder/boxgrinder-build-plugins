@@ -6,7 +6,7 @@
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/stormgrind/projects/boxgrinder.html
@@ -19,6 +19,9 @@ Requires: yum-utils
 
 BuildRequires: rubygem(hashery)
 BuildRequires: rubygem(boxgrinder-build)
+BuildRequires: rubygem(echoe)
+BuildRequires: rubygem(rake)
+BuildRequires: rubygem(rspec)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -72,6 +75,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.8-2
+- Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
+
 * Mon Nov 22 2010  <mgoldman@redhat.com> - 0.0.8-1
 - Updated to upstream version: 0.0.8
 - [BGBUILD-102] Start X on boot when X Window System group or base-x group is specified

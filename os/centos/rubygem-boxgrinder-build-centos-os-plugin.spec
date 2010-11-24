@@ -6,19 +6,22 @@
 Summary: CentOS Operating System Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
+
 Requires: rubygem(boxgrinder-build)
 Requires: rubygem(boxgrinder-build-rhel-os-plugin)
 
-BuildRequires: rubygem(boxgrinder-build)
 BuildRequires: rubygem(hashery)
 BuildRequires: rubygem(boxgrinder-build-rhel-os-plugin)
+BuildRequires: rubygem(echoe)
+BuildRequires: rubygem(rake)
+BuildRequires: rubygem(rspec)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -72,6 +75,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.5-2
+- Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
+
 * Wed Nov 10 2010  <mgoldman@redhat.com> - 0.0.5-1
 - [BGBUILD-88] CentOS plugin uses #ARCH# instead of #BASE_ARCH#
 
