@@ -6,7 +6,7 @@
 Summary: VMware Platform Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -17,6 +17,9 @@ Requires: rubygem(boxgrinder-build)
 
 BuildRequires: rubygem(boxgrinder-build)
 BuildRequires: rubygem(hashery)
+BuildRequires: rubygem(echoe)
+BuildRequires: rubygem(rake)
+BuildRequires: rubygem(rspec)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -70,6 +73,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.4-2
+- Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec), BR: rubygem(boxgrinder-build-rpm-based-os-plugin)
+
 * Thu Nov 18 2010  <mgoldman@redhat.com> - 0.0.4-1
 - Updated to upstream version: 0.0.4
 - [BGBUILD-96] Don't Require User to Rename VMware .vmdk and .vmx Files

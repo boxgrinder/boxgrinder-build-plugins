@@ -22,6 +22,7 @@ BuildRequires: rubygem(rake)
 BuildRequires: rubygem(rspec)
 BuildRequires: rubygem(aws)
 BuildRequires: rubygem(amazon-ec2)
+BuildRequires: rubygem(echoe)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -75,6 +76,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.3-3
+- Added BR: rubygem(echoe)
+
 * Sun Nov 07 2010  <mgoldman@redhat.com> - 0.0.3-2
 - Added 'check' section that executes tests
 

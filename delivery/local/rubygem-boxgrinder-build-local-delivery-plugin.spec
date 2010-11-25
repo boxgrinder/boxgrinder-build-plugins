@@ -17,6 +17,9 @@ Requires: rubygem(boxgrinder-build)
 
 BuildRequires: rubygem(boxgrinder-build)
 BuildRequires: rubygem(hashery)
+BuildRequires: rubygem(echoe)
+BuildRequires: rubygem(rake)
+BuildRequires: rubygem(rspec)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -72,6 +75,7 @@ rm -rf %{buildroot}
 %changelog
 * Tue Nov 23 2010  <mgoldman@redhat.com> - 0.0.4-3
 - Cleaned Requires/Build Requires
+- Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
 
 * Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.4-2
 - Added 'check' section that executes tests

@@ -6,7 +6,7 @@
 Summary: Amazon Simple Storage Service (Amazon S3) Delivery Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.4
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -20,6 +20,9 @@ Requires: rubygem(aws)
 
 BuildRequires: rubygem(boxgrinder-build)
 BuildRequires: rubygem(hashery)
+BuildRequires: rubygem(echoe)
+BuildRequires: rubygem(rake)
+BuildRequires: rubygem(rspec)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
@@ -73,6 +76,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.4-3
+- Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
+
 * Mon Nov 08 2010  <mgoldman@redhat.com> - 0.0.4-2
 - Added 'check' section that executes tests
 
