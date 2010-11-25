@@ -17,6 +17,7 @@ Requires: ruby(abi) = %{rubyabi}
 Requires: rubygem(boxgrinder-build)
 Requires: rubygem(boxgrinder-build-rpm-based-os-plugin)
 
+BuildRequires: rubygem(boxgrinder-build-rpm-based-os-plugin)
 BuildRequires: rubygem(boxgrinder-build)
 BuildRequires: rubygem(hashery)
 BuildRequires: rubygem(echoe)
@@ -76,7 +77,7 @@ rm -rf %{buildroot}
 
 %changelog
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.6-2
-- Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
+- Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec), BR: rubygem(boxgrinder-build-rpm-based-os-plugin)
 
 * Thu Nov 11 2010  <mgoldman@redhat.com> - 0.0.6-1
 - [BGBUILD-87] Set default filesystem to ext4 for Fedora 13+
