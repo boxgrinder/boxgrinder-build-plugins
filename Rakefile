@@ -4,7 +4,7 @@ require 'spec/rake/spectask'
 
 plugins = [
     {:name => "boxgrinder-build-local-delivery-plugin", :dir => "delivery/local", :desc => 'Local Delivery Plugin'},
-    {:name =>"boxgrinder-build-s3-delivery-plugin", :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :runtime_deps => {'aws' => '~>2.3.21', 'amazon-ec2' => '~>0.9.6'}},
+    {:name => "boxgrinder-build-s3-delivery-plugin", :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :runtime_deps => {'aws' => '~>2.3.21', 'amazon-ec2' => '~>0.9.6'}},
     {:name => "boxgrinder-build-sftp-delivery-plugin", :dir => "delivery/sftp", :desc => 'SSH File Transfer Protocol Delivery Plugin', :runtime_deps => {'net-sftp' => '~>2.0.4', 'net-ssh' => '~>2.0.20', 'progressbar' => '~>0.9.0'}},
     {:name => "boxgrinder-build-ebs-delivery-plugin", :dir => "delivery/ebs", :desc => 'Elastic Block Storage Delivery Plugin', :runtime_deps => {'amazon-ec2' => '~>0.9.6'}},
 

@@ -50,9 +50,6 @@ pushd %{buildroot}/%{geminstdir}/spec
 rake spec
 popd
 
-%clean
-rm -rf %{buildroot}
-
 %files
 %defattr(-, root, root, -)
 %dir %{geminstdir}
@@ -75,6 +72,7 @@ rm -rf %{buildroot}
 %changelog
 * Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
+- [BGBUILD-105] No plugin-manager require for local delivery plugin
 
 * Tue Nov 23 2010  <mgoldman@redhat.com> - 0.0.4-3
 - Cleaned Requires/Build Requires
