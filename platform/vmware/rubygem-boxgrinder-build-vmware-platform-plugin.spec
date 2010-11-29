@@ -5,8 +5,8 @@
 
 Summary: VMware Platform Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.4
-Release: 2%{?dist}
+Version: 0.0.5
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -25,7 +25,7 @@ BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
 
 %description
-BoxGrinder Build VMware Platform Plugin
+BoxGrinder Build VMware Platform Plugin to convert appliances to VMware format
 
 %package doc
 Summary: Documentation for %{name}
@@ -50,9 +50,6 @@ pushd %{buildroot}/%{geminstdir}/spec
 rake spec
 popd
 
-%clean
-rm -rf %{buildroot}
-
 %files
 %defattr(-, root, root, -)
 %dir %{geminstdir}
@@ -73,6 +70,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.5-1
+- Upstream release: 0.0.5
+- [BGBUILD-107] No plugin-manager require for vmware platform plugin
+
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.4-2
 - Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec), BR: rubygem(boxgrinder-build-rpm-based-os-plugin)
 

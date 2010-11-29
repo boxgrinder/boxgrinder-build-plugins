@@ -16,6 +16,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'boxgrinder-build/managers/plugin-manager'
 require 'boxgrinder-build-vmware-platform-plugin/vmware-plugin'
 
 plugin :class => BoxGrinder::VMwarePlugin, :type => :platform, :name => :vmware, :full_name  => "VMware"

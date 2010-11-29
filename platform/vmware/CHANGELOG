@@ -1,4 +1,8 @@
 
+v0.0.5
+
+* [BGBUILD-107] No plugin-manager require for vmware platform plugin
+
 v0.0.4
 
 * [BGBUILD-96] Don't Require User to Rename VMware .vmdk and .vmx Files
