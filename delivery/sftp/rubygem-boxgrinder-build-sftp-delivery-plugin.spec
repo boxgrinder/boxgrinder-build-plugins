@@ -5,8 +5,8 @@
 
 Summary: SSH File Transfer Protocol Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.3
-Release: 3%{?dist}
+Version: 0.0.4
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -30,7 +30,8 @@ BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
 
 %description
-BoxGrinder Build SSH File Transfer Protocol Delivery Plugin
+BoxGrinder Build SSH File Transfer Protocol Delivery Plugin to deliver
+appliances to remote servers using SFTP protocol.
 
 %package doc
 Summary: Documentation for %{name}
@@ -55,9 +56,6 @@ pushd %{buildroot}/%{geminstdir}/spec
 rake spec
 popd
 
-%clean
-rm -rf %{buildroot}
-
 %files
 %defattr(-, root, root, -)
 %dir %{geminstdir}
@@ -78,6 +76,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.4-1
+- Upstream release: 0.0.4
+- [BGBUILD-108] No plugin-manager require for sftp delivery plugin
+
 * Tue Nov 23 2010  <mgoldman@redhat.com> - 0.0.3-3
 - Cleaned Requires/Build Requires
 - Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
