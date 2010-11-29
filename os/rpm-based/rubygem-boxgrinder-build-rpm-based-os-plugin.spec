@@ -6,10 +6,10 @@
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.8
-Release: 2%{?dist}
+Release: 3%{?dist}
 Group: Development/Languages
 License: LGPLv3+
-URL: http://www.jboss.org/stormgrind/projects/boxgrinder.html
+URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
@@ -52,9 +52,6 @@ pushd %{buildroot}/%{geminstdir}/spec
 rake spec
 popd
 
-%clean
-rm -rf %{buildroot}
-
 %files
 %defattr(-, root, root, -)
 %dir %{geminstdir}
@@ -65,6 +62,7 @@ rm -rf %{buildroot}
 %doc %{geminstdir}/Manifest
 %{gemdir}/cache/%{gemname}-%{version}.gem
 %{gemdir}/specifications/%{gemname}-%{version}.gemspec
+%attr(0644,root,root) %{geminstdir}/lib/boxgrinder-build-rpm-based-os-plugin/src/motd.init
 
 %files doc
 %defattr(-, root, root, -)
@@ -75,6 +73,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Fri Nov 26 2010  <mgoldman@redhat.com> - 0.0.8-3
+- Removed clean section, updated URL, fixed attr for motd.init file
+
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.8-2
 - Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
 
