@@ -5,8 +5,8 @@
 
 Summary: Local Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.4
-Release: 3%{?dist}
+Version: 0.0.5
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -73,6 +73,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.5-1
+- Upstream release: 0.0.5
+
 * Tue Nov 23 2010  <mgoldman@redhat.com> - 0.0.4-3
 - Cleaned Requires/Build Requires
 - Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
