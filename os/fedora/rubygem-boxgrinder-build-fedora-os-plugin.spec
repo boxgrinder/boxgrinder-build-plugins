@@ -5,8 +5,8 @@
 
 Summary: Fedora Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.4
-Release: 5%{?dist}
+Version: 0.0.5
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -72,6 +72,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.5-1
+- Upstream release: 0.0.5
+- [BGBUILD-106] No plugin-manager require for fedora os plugin
+
 * Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.4-5
 - Extended description, removed clean section
 

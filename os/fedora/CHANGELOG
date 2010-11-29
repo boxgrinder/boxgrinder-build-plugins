@@ -1,4 +1,8 @@
 
+v0.0.5
+
+* [BGBUILD-106] No plugin-manager require for fedora os plugin
+
 v0.0.4
 
 * [BGBUILD-64] Add support for Fedora 14
