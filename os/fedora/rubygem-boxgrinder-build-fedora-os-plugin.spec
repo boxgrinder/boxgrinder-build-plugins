@@ -6,7 +6,7 @@
 Summary: Fedora Operating System Plugin
 Name: rubygem-%{gemname}
 Version: 0.0.4
-Release: 4%{?dist}
+Release: 5%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -27,7 +27,7 @@ BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
 
 %description
-BoxGrinder Build Fedora Operating System Plugin
+BoxGrinder Build Fedora Operating System Plugin to build appliances based on Fedora OS.
 
 %package doc
 Summary: Documentation for %{name}
@@ -52,9 +52,6 @@ pushd %{buildroot}/%{geminstdir}/spec
 rake spec
 popd
 
-%clean
-rm -rf %{buildroot}
-
 %files
 %defattr(-, root, root, -)
 %dir %{geminstdir}
@@ -75,6 +72,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.4-5
+- Extended description, removed clean section
+
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.4-4
 - Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
 
