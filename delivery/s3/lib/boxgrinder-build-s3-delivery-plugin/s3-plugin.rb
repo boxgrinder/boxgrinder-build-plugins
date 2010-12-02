@@ -162,7 +162,8 @@ module BoxGrinder
       aki = "--kernel #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]}"
       ari = KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari].nil? ? "" : "--ramdisk #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]}"
 
-      @exec_helper.execute("euca-bundle-image --ec2cert #{File.dirname(__FILE__)}/src/cert-ec2.pem -i #{deliverables[:disk]} #{aki} #{ari} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.base_arch} -d #{@ami_build_dir}")
+      @exec_helper.execute("ec2-bundle-image -i #{deliverables[:disk]} #{aki} #{ari} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.base_arch} -d #{@ami_build_dir}")
+      #@exec_helper.execute("euca-bundle-image --ec2cert #{File.dirname(__FILE__)}/src/cert-ec2.pem -i #{deliverables[:disk]} #{aki} #{ari} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.base_arch} -d #{@ami_build_dir}")
 
       @log.info "Bundling AMI finished."
     end
@@ -187,7 +188,8 @@ module BoxGrinder
     def upload_image
       @log.info "Uploading #{@appliance_config.name} AMI to bucket '#{@plugin_config['bucket']}'..."
 
-      @exec_helper.execute("euca-upload-bundle -U #{@plugin_config['url']} -b #{ami_bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']}")
+      @exec_helper.execute("ec2-upload-bundle -b #{ami_bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']} --retry")
+      #@exec_helper.execute("euca-upload-bundle -U #{@plugin_config['url']} -b #{ami_bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']}")
     end
 
     def register_image
