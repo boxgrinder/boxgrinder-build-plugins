@@ -21,8 +21,8 @@ desc "Recreate Rakefiles for plugins"
 task "rakefiles" do
   plugins.each do |plugin|
 
-    runtime_dependencies = ["'boxgrinder-build ~>0.6.4'"]
-    development_dependencies = ["'boxgrinder-build ~>0.6.4', 'hashery >=1.3.0'"]
+    runtime_dependencies = ["'boxgrinder-build ~>0.6.5'"]
+    development_dependencies = ["'boxgrinder-build ~>0.6.5', 'hashery >=1.3.0'"]
 
     unless plugin[:runtime_deps].nil?
       plugin[:runtime_deps].each do |n, v|

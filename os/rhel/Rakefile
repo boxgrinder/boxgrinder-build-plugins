@@ -8,8 +8,8 @@ Echoe.new('boxgrinder-build-rhel-os-plugin') do |p|
   p.description = 'BoxGrinder Build Red Hat Enterprise Linux Operating System Plugin'
   p.url = 'http://www.jboss.org/boxgrinder'
   p.email = 'info@boxgrinder.org'
-  p.runtime_dependencies = ['boxgrinder-build ~>0.6.4', 'boxgrinder-build-rpm-based-os-plugin ~>0.0.8']
-  p.development_dependencies = [ 'boxgrinder-build ~>0.6.4', 'hashery >=1.3.0']
+  p.runtime_dependencies = ['boxgrinder-build ~>0.6.5', 'boxgrinder-build-rpm-based-os-plugin ~>0.0.8']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.6.5', 'hashery >=1.3.0']
 end
 
 desc "Run all tests"
