@@ -125,19 +125,16 @@ module BoxGrinder
 
       kernel_rpm = "kernel-xen-2.6.21.7-2.fc8.i686.rpm"
 
-      rpms = {kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}", "ec2-ami-tools.noarch.rpm" => "http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.noarch.rpm"}
+      rpms = {kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}"}
 
       @plugin.should_receive(:cache_rpms).ordered.with(rpms)
 
       guestfs.should_receive(:mkdir_p).ordered.with("/tmp/rpms")
       guestfs.should_receive(:upload).ordered.with("/var/cache/boxgrinder/sources-cache/#{kernel_rpm}", "/tmp/rpms/#{kernel_rpm}")
-      guestfs.should_receive(:upload).ordered.with("/var/cache/boxgrinder/sources-cache/ec2-ami-tools.noarch.rpm", "/tmp/rpms/ec2-ami-tools.noarch.rpm")
       guestfs.should_receive(:sh).ordered.with("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.should_receive(:rm_rf).ordered.with("/tmp/rpms")
 
-      guestfs.should_receive(:sh).ordered.with("setarch i686 yum -y install ruby rsync curl")
-
-      @log.should_receive(:debug).ordered.with("Installing additional packages (#{kernel_rpm}, ec2-ami-tools.noarch.rpm)...")
+      @log.should_receive(:debug).ordered.with("Installing additional packages (#{kernel_rpm})...")
       @log.should_receive(:debug).ordered.with("Additional packages installed.")
 
       @plugin.install_additional_packages(guestfs)

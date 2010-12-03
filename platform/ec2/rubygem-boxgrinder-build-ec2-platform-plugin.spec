@@ -78,6 +78,7 @@ rm -rf %{buildroot}
 %changelog
 * Fri Dec 03 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6
+- [BGBUILD-111] Don't install ec2-ami-tools by default in AMIs
 - [BGBUILD-109] readdir64 bugfix for i386 base AMIs
 
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.5-3

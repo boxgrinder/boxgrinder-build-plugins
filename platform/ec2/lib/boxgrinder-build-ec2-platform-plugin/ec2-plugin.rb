@@ -227,9 +227,7 @@ module BoxGrinder
     end
 
     def install_additional_packages(guestfs)
-      rpms = {
-              "ec2-ami-tools.noarch.rpm" => "http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.noarch.rpm"
-      }
+      rpms = {}
 
       begin
         kernel_rpm = KERNELS[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:rpm]
@@ -249,15 +247,6 @@ module BoxGrinder
 
       guestfs.sh("rpm -ivh --nodeps /tmp/rpms/*.rpm")
       guestfs.rm_rf("/tmp/rpms")
-
-      required_packages = [ 'ruby', 'rsync', 'curl' ]
-      packages_to_install = []
-
-      required_packages.each do |package|
-        packages_to_install << package unless @appliance_config.packages.includes.include?( package )
-      end
-
-      guestfs.sh( "setarch #{@appliance_config.hardware.arch} yum -y install #{packages_to_install.join(' ')}" ) unless packages_to_install.empty?
 
       @log.debug "Additional packages installed."
     end
