@@ -1,4 +1,8 @@
 
+v0.0.6
+
+* [BGBUILD-109] readdir64 bugfix for i386 base AMIs
+
 v0.0.5
 
 * [BGBUILD-81] post command execution w/ setarch breaks commands which are scripts

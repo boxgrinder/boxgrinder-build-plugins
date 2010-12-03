@@ -5,8 +5,8 @@
 
 Summary: Elastic Compute Cloud (EC2) Platform Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
-Release: 3%{?dist}
+Version: 0.0.6
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -76,6 +76,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Fri Dec 03 2010  <mgoldman@redhat.com> - 0.0.6-1
+- Upstream release: 0.0.6
+- [BGBUILD-109] readdir64 bugfix for i386 base AMIs
+
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.5-3
 - Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
 

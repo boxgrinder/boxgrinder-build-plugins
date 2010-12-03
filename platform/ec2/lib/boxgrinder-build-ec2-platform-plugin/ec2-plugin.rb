@@ -101,6 +101,8 @@ module BoxGrinder
 
         enable_networking(guestfs)
         upload_rc_local(guestfs)
+        enable_nosegneg_flag(guestfs)
+        enable_autorelabeling(guestfs)
 
         guestfs_helper.rebuild_rpm_database if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == '11'
 
@@ -187,6 +189,21 @@ module BoxGrinder
 
       menu_lst.close
       @log.debug "'/boot/grub/menu.lst' file uploaded."
+    end
+
+    # This fixes issues with Fedora 14 on EC2: https://bugzilla.redhat.com/show_bug.cgi?id=651861#c39
+    def enable_nosegneg_flag(guestfs)
+      @log.debug "Enabling nosegneg flag..."
+      guestfs.sh("echo \"hwcap 1 nosegneg\" > /etc/ld.so.conf.d/libc6-xen.conf")
+      guestfs.sh("/sbin/ldconfig")
+      @log.debug "Nosegneg enabled."
+    end
+
+    # This corrects SElinux issues
+    def enable_autorelabeling(guestfs)
+      @log.debug "Enabling SElinux autorelabeling..."
+      guestfs.sh("touch /.autorelabel")
+      @log.debug "SElinux autorelabeling enabled."
     end
 
     # enable networking on default runlevels

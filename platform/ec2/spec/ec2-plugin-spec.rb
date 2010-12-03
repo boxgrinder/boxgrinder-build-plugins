@@ -38,24 +38,24 @@ module BoxGrinder
 
       @appliance_config.stub!(:hardware).and_return(
           OpenCascade.new({
-                           :partitions =>
-                               {
-                                   '/' => {'size' => 2},
-                                   '/home' => {'size' => 3},
-                               },
-                           :arch => 'i686',
-                           :base_arch => 'i386',
-                           :cpus => 1,
-                           :memory => 256,
-                       })
+                              :partitions =>
+                                  {
+                                      '/' => {'size' => 2},
+                                      '/home' => {'size' => 3},
+                                  },
+                              :arch => 'i686',
+                              :base_arch => 'i386',
+                              :cpus => 1,
+                              :memory => 256,
+                          })
       )
 
-      @plugin = EC2Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name  => "Amazon Elastic Compute Cloud (Amazon EC2)"})
+      @plugin = EC2Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name => "Amazon Elastic Compute Cloud (Amazon EC2)"})
 
-      @config             = @plugin.instance_variable_get(:@config)
-      @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper        = @plugin.instance_variable_get(:@exec_helper)
-      @log                = @plugin.instance_variable_get(:@log)
+      @config = @plugin.instance_variable_get(:@config)
+      @appliance_config = @plugin.instance_variable_get(:@appliance_config)
+      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      @log = @plugin.instance_variable_get(:@log)
     end
 
     it "should download a rpm to cache directory" do
@@ -101,8 +101,8 @@ module BoxGrinder
     end
 
     it "should upload rc_local" do
-      guestfs   = mock("guestfs")
-      tempfile  = mock("tempfile")
+      guestfs = mock("guestfs")
+      tempfile = mock("tempfile")
 
       Tempfile.should_receive(:new).with("rc_local").and_return(tempfile)
       File.should_receive(:read).with(any_args()).and_return("with other content")
@@ -164,6 +164,23 @@ module BoxGrinder
     it "should use sda disks for Fedora < 12" do
       @appliance_config.os.version = '11'
       @plugin.disk_device_prefix.should == 's'
+    end
+
+    it "should enable nosegneg flag" do
+      guestfs = mock("guestfs")
+
+      guestfs.should_receive(:sh).with("echo \"hwcap 1 nosegneg\" > /etc/ld.so.conf.d/libc6-xen.conf")
+      guestfs.should_receive(:sh).with("/sbin/ldconfig")
+
+      @plugin.enable_nosegneg_flag(guestfs)
+    end
+
+    it "should enable autorelabelling" do
+      guestfs = mock("guestfs")
+
+      guestfs.should_receive(:sh).with("touch /.autorelabel")
+
+      @plugin.enable_autorelabeling(guestfs)
     end
   end
 end
