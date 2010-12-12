@@ -25,51 +25,56 @@ module BoxGrinder
   class RPMBasedOSPlugin < BasePlugin
     def after_init
       register_deliverable(
-              :disk       => "#{@appliance_config.name}-sda.raw",
-              :descriptor => "#{@appliance_config.name}.xml"
+          :disk       => "#{@appliance_config.name}-sda.raw",
+          :descriptor => "#{@appliance_config.name}.xml"
       )
 
-      @linux_helper = LinuxHelper.new( :log => @log )
+      @linux_helper = LinuxHelper.new(:log => @log)
     end
 
-    def build_with_appliance_creator( repos = {} )
-      kickstart_file = Kickstart.new( @config, @appliance_config, repos, @dir, :log => @log ).create
-      RPMDependencyValidator.new( @config, @appliance_config, @dir, kickstart_file, @options ).resolve_packages
+    def build_with_appliance_creator(appliance_definition_file, repos = {})
+      if File.extname(appliance_definition_file).eql?('.ks')
+        kickstart_file = appliance_definition_file
+      else
+        kickstart_file = Kickstart.new(@config, @appliance_config, repos, @dir, :log => @log).create
+      end
+
+      RPMDependencyValidator.new(@config, @appliance_config, @dir, kickstart_file, @options).resolve_packages
 
       @log.info "Building #{@appliance_config.name} appliance..."
 
       @exec_helper.execute "appliance-creator -d -v -t #{@dir.tmp} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.path.main} --config #{kickstart_file} -o #{@dir.tmp} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus}"
 
-      FileUtils.mv( Dir.glob("#{@dir.tmp}/#{@appliance_config.name}/*"), @dir.tmp )
-      FileUtils.rm_rf( "#{@dir.tmp}/#{@appliance_config.name}/")
+      FileUtils.mv(Dir.glob("#{@dir.tmp}/#{@appliance_config.name}/*"), @dir.tmp)
+      FileUtils.rm_rf("#{@dir.tmp}/#{@appliance_config.name}/")
 
-      @image_helper.customize( @deliverables.disk ) do |guestfs, guestfs_helper|
+      @image_helper.customize(@deliverables.disk) do |guestfs, guestfs_helper|
         # TODO is this really needed?
         @log.debug "Uploading '/etc/resolv.conf'..."
-        guestfs.upload( "/etc/resolv.conf", "/etc/resolv.conf" )
+        guestfs.upload("/etc/resolv.conf", "/etc/resolv.conf")
         @log.debug "'/etc/resolv.conf' uploaded."
 
-        change_configuration( guestfs_helper )
-        apply_root_password( guestfs )
+        change_configuration(guestfs_helper)
+        apply_root_password(guestfs)
 
-        guestfs.sh( "chkconfig firstboot off" ) if guestfs.exists( '/etc/init.d/firstboot' ) != 0
+        guestfs.sh("chkconfig firstboot off") if guestfs.exists('/etc/init.d/firstboot') != 0
 
         @log.info "Executing post operations after build..."
 
         unless @appliance_config.post['base'].nil?
           @appliance_config.post['base'].each do |cmd|
-            guestfs_helper.sh( cmd, :arch => @appliance_config.hardware.arch )
+            guestfs_helper.sh(cmd, :arch => @appliance_config.hardware.arch)
           end
           @log.debug "Post commands from appliance definition file executed."
         else
           @log.debug "No commands specified, skipping."
         end
 
-        set_motd( guestfs )
+        set_motd(guestfs)
 
         # TODO remove this (make sure CirrAS build will not break!)
-        install_version_files( guestfs )
-        install_repos( guestfs )
+        install_version_files(guestfs)
+        install_repos(guestfs)
 
         yield guestfs, guestfs_helper if block_given?
 
@@ -79,45 +84,45 @@ module BoxGrinder
       @log.info "Base image for #{@appliance_config.name} appliance was built successfully."
     end
 
-    def apply_root_password( guestfs )
+    def apply_root_password(guestfs)
       @log.debug "Applying root password..."
-      guestfs.sh( "/usr/bin/passwd -d root" )
-      guestfs.sh( "/usr/sbin/usermod -p '#{@appliance_config.os.password.crypt((0...8).map{65.+(rand(25)).chr}.join)}' root" )
+      guestfs.sh("/usr/bin/passwd -d root")
+      guestfs.sh("/usr/sbin/usermod -p '#{@appliance_config.os.password.crypt((0...8).map { 65.+(rand(25)).chr }.join)}' root")
       @log.debug "Password applied."
     end
 
-    def change_configuration( guestfs_helper )
+    def change_configuration(guestfs_helper)
       guestfs_helper.augeas do
-        set( '/etc/ssh/sshd_config', 'UseDNS', 'no')
-        set( '/etc/sysconfig/selinux', 'SELINUX', 'permissive')
+        set('/etc/ssh/sshd_config', 'UseDNS', 'no')
+        set('/etc/sysconfig/selinux', 'SELINUX', 'permissive')
       end
     end
 
-    def install_version_files( guestfs )
+    def install_version_files(guestfs)
       @log.debug "Installing BoxGrinder version files..."
-      guestfs.sh( "echo 'BOXGRINDER_VERSION=#{@config.version_with_release}' > /etc/sysconfig/boxgrinder" )
-      guestfs.sh( "echo 'APPLIANCE_NAME=#{@appliance_config.name}' >> /etc/sysconfig/boxgrinder" )
+      guestfs.sh("echo 'BOXGRINDER_VERSION=#{@config.version_with_release}' > /etc/sysconfig/boxgrinder")
+      guestfs.sh("echo 'APPLIANCE_NAME=#{@appliance_config.name}' >> /etc/sysconfig/boxgrinder")
       @log.debug "Version files installed."
     end
 
-    def set_motd( guestfs )
+    def set_motd(guestfs)
       @log.debug "Setting up '/etc/motd'..."
       # set nice banner for SSH
       motd_file = "/etc/init.d/motd"
-      guestfs.upload( "#{File.dirname( __FILE__ )}/src/motd.init", motd_file )
-      guestfs.sh( "sed -i s/#VERSION#/'#{@appliance_config.version}.#{@appliance_config.release}'/ #{motd_file}" )
-      guestfs.sh( "sed -i s/#APPLIANCE#/'#{@appliance_config.name} appliance'/ #{motd_file}" )
+      guestfs.upload("#{File.dirname(__FILE__)}/src/motd.init", motd_file)
+      guestfs.sh("sed -i s/#VERSION#/'#{@appliance_config.version}.#{@appliance_config.release}'/ #{motd_file}")
+      guestfs.sh("sed -i s/#APPLIANCE#/'#{@appliance_config.name} appliance'/ #{motd_file}")
 
-      guestfs.sh( "/bin/chmod +x #{motd_file}" )
-      guestfs.sh( "/sbin/chkconfig --add motd" )
+      guestfs.sh("/bin/chmod +x #{motd_file}")
+      guestfs.sh("/sbin/chkconfig --add motd")
       @log.debug "'/etc/motd' is nice now."
     end
 
-    def recreate_kernel_image( guestfs, modules = [] )
-      @linux_helper.recreate_kernel_image( guestfs, modules )
+    def recreate_kernel_image(guestfs, modules = [])
+      @linux_helper.recreate_kernel_image(guestfs, modules)
     end
 
-    def install_repos( guestfs )
+    def install_repos(guestfs)
       @log.debug "Installing repositories from appliance definition file..."
       @appliance_config.repos.each do |repo|
         if repo['ephemeral']
@@ -126,13 +131,13 @@ module BoxGrinder
         end
 
         @log.debug "Installing #{repo['name']} repo..."
-        repo_file = File.read( "#{File.dirname( __FILE__ )}/src/base.repo").gsub( /#NAME#/, repo['name'] )
+        repo_file = File.read("#{File.dirname(__FILE__)}/src/base.repo").gsub(/#NAME#/, repo['name'])
 
-        ['baseurl', 'mirrorlist'].each  do |type|
+        ['baseurl', 'mirrorlist'].each do |type|
           repo_file << ("#{type}=#{repo[type]}\n") unless repo[type].nil?
         end
 
-        guestfs.write_file( "/etc/yum.repos.d/#{repo['name']}.repo", repo_file, 0 )
+        guestfs.write_file("/etc/yum.repos.d/#{repo['name']}.repo", repo_file, 0)
       end
       @log.debug "Repositories installed."
     end

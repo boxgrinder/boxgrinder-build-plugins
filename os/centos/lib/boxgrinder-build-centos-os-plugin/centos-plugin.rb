@@ -32,8 +32,8 @@ module BoxGrinder
             }
     }
 
-    def execute
-      build_rhel( CENTOS_REPOS )
+    def execute(appliance_definition_file)
+      build_rhel( appliance_definition_file, CENTOS_REPOS )
     end
   end
 end

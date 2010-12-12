@@ -20,12 +20,12 @@ require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 
 module BoxGrinder
   class RHELPlugin < RPMBasedOSPlugin
-    def build_rhel( repos = {} )
+    def build_rhel( appliance_definition_file, repos = {} )
       adjust_partition_table
 
       normalize_packages( @appliance_config.packages.includes )
 
-      build_with_appliance_creator( repos )  do |guestfs, guestfs_helper|
+      build_with_appliance_creator( appliance_definition_file, repos )  do |guestfs, guestfs_helper|
         # required for VMware
         @linux_helper.recreate_kernel_image( guestfs, ['mptspi'] )
       end
@@ -45,8 +45,8 @@ module BoxGrinder
       @appliance_config.hardware.partitions['/boot'] = { 'root' => '/boot', 'type' => 'ext3', 'size' => 0.1 } if @appliance_config.hardware.partitions['/boot'].nil?
     end
 
-    def execute
-      build_rhel
+    def execute(appliance_definition_file)
+      build_rhel(appliance_definition_file)
     end
   end
 end

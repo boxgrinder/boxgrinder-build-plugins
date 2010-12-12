@@ -20,26 +20,26 @@ require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 
 module BoxGrinder
   class FedoraPlugin < RPMBasedOSPlugin
-    def execute
-      normalize_packages( @appliance_config.packages.includes )
+    def execute(appliance_definition_file)
+      normalize_packages(@appliance_config.packages.includes)
 
       @repos = {}
 
       @plugin_info[:versions].each do |version|
         if version.match(/\d+/)
           @repos[version] = {
-                  "base"    => { "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-#{version}&arch=#BASE_ARCH#" },
-                  "updates" => { "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f#{version}&arch=#BASE_ARCH#" }
+              "base"    => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-#{version}&arch=#BASE_ARCH#"},
+              "updates" => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f#{version}&arch=#BASE_ARCH#"}
           }
         else
-          @repos[version] = { "base" => { "mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=#{version}&arch=#BASE_ARCH#" } }
+          @repos[version] = {"base" => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=#{version}&arch=#BASE_ARCH#"}}
         end
       end
 
-      build_with_appliance_creator( @repos )
+      build_with_appliance_creator(appliance_definition_file, @repos)
     end
 
-    def normalize_packages( packages )
+    def normalize_packages(packages)
       packages << 'passwd'
 
       case @appliance_config.os.version
