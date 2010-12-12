@@ -78,16 +78,19 @@ module BoxGrinder
 
     describe ".read_kickstart" do
       it "should read and parse valid kickstart file with bg comments" do
-        @plugin.read_kickstart("#{File.dirname(__FILE__)}/src/jeos-f13.ks").should be_an_instance_of(ApplianceConfig)
+        appliance_config = @plugin.read_kickstart("#{File.dirname(__FILE__)}/src/jeos-f13.ks")
+        appliance_config.should be_an_instance_of(ApplianceConfig)
+        appliance_config.os.name.should == 'fedora'
+        appliance_config.os.version.should == '13'
       end
 
-      it "should rais while parsing kickstart file *without* bg comments" do
+      it "should raise while parsing kickstart file *without* bg comments" do
         lambda {
           @plugin.read_kickstart("#{File.dirname(__FILE__)}/src/jeos-f13-plain.ks")
         }.should raise_error("No operating system name specified, please add comment to you kickstrt file like this: # bg_os_name: fedora")
       end
 
-      it "should rais while parsing kickstart file *without* bg version comment" do
+      it "should raise while parsing kickstart file *without* bg version comment" do
         lambda {
           @plugin.read_kickstart("#{File.dirname(__FILE__)}/src/jeos-f13-without-version.ks")
         }.should raise_error("No operating system version specified, please add comment to you kickstrt file like this: # bg_os_version: 14")
