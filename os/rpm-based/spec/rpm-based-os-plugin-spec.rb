@@ -22,7 +22,7 @@ require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 module BoxGrinder
   describe RPMBasedOSPlugin do
     before(:each) do
-      @config = mock('Config')
+      @config           = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
@@ -31,12 +31,12 @@ module BoxGrinder
       @appliance_config.stub!(:release).and_return(0)
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
 
-      @plugin = RPMBasedOSPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:name => :rpm_based})
+      @plugin           = RPMBasedOSPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:name => :rpm_based})
 
-      @config             = @plugin.instance_variable_get(:@config)
-      @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper        = @plugin.instance_variable_get(:@exec_helper)
-      @log                = @plugin.instance_variable_get(:@log)
+      @config           = @plugin.instance_variable_get(:@config)
+      @appliance_config = @plugin.instance_variable_get(:@appliance_config)
+      @exec_helper      = @plugin.instance_variable_get(:@exec_helper)
+      @log              = @plugin.instance_variable_get(:@log)
     end
 
     it "should install repos" do
@@ -65,6 +65,35 @@ module BoxGrinder
 
       @plugin.install_repos(guestfs)
     end
+
+    it "should read kickstart definition file" do
+      @plugin.should_receive(:read_kickstart).with('file.ks')
+      @plugin.read_file('file.ks')
+    end
+
+    it "should read other definition file" do
+      @plugin.should_not_receive(:read_kickstart)
+      @plugin.read_file('file.other')
+    end
+
+    describe ".read_kickstart" do
+      it "should read and parse valid kickstart file with bg comments" do
+        @plugin.read_kickstart("#{File.dirname(__FILE__)}/src/jeos-f13.ks").should be_an_instance_of(ApplianceConfig)
+      end
+
+      it "should rais while parsing kickstart file *without* bg comments" do
+        lambda {
+          @plugin.read_kickstart("#{File.dirname(__FILE__)}/src/jeos-f13-plain.ks")
+        }.should raise_error("No operating system name specified, please add comment to you kickstrt file like this: # bg_os_name: fedora")
+      end
+
+      it "should rais while parsing kickstart file *without* bg version comment" do
+        lambda {
+          @plugin.read_kickstart("#{File.dirname(__FILE__)}/src/jeos-f13-without-version.ks")
+        }.should raise_error("No operating system version specified, please add comment to you kickstrt file like this: # bg_os_version: 14")
+      end
+    end
+
   end
 end
 

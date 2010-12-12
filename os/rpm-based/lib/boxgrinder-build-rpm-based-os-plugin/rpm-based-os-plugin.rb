@@ -16,6 +16,7 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+require 'boxgrinder-core/models/appliance-config'
 require 'boxgrinder-build/plugins/base-plugin'
 require 'boxgrinder-build-rpm-based-os-plugin/kickstart'
 require 'boxgrinder-build-rpm-based-os-plugin/rpm-dependency-validator'
@@ -30,6 +31,35 @@ module BoxGrinder
       )
 
       @linux_helper = LinuxHelper.new(:log => @log)
+    end
+
+    def read_file(file)
+      read_kickstart(file) if File.extname(file).eql?('.ks')
+    end
+
+    def read_kickstart(file)
+      appliance_config      = ApplianceConfig.new
+
+      appliance_config.name = File.basename(file, '.ks')
+
+      name                  = nil
+      version               = nil
+
+      File.read(file).each do |line|
+        n = line.scan(/^# bg_os_name: (.*)/).flatten.first
+        v = line.scan(/^# bg_os_version: (.*)/).flatten.first
+
+        name = n unless n.nil?
+        version = v unless v.nil?
+      end
+
+      raise "No operating system name specified, please add comment to you kickstrt file like this: # bg_os_name: fedora" if name.nil?
+      raise "No operating system version specified, please add comment to you kickstrt file like this: # bg_os_version: 14" if version.nil?
+
+      appliance_config.os.name    = name
+      appliance_config.os.version = version
+
+      appliance_config
     end
 
     def build_with_appliance_creator(appliance_definition_file, repos = {})

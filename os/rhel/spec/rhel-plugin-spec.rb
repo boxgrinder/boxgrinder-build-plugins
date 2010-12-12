@@ -57,7 +57,7 @@ module BoxGrinder
       @plugin.should_receive(:normalize_packages).ordered
       @plugin.should_receive(:build_with_appliance_creator).ordered
 
-      @plugin.execute
+      @plugin.execute('file')
     end
   end
 end

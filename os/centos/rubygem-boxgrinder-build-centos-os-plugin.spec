@@ -5,8 +5,8 @@
 
 Summary: CentOS Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
-Release: 2%{?dist}
+Version: 0.0.6
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -75,6 +75,11 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.6-1
+- Updated to upstream version: 0.0.6
+- [BGBUILD-113] Allow to specify supported file formats for operating system plugin
+- [BGBUILD-73] Add support for kickstart files
+
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.5-2
 - Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec)
 

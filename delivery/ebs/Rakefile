@@ -8,8 +8,8 @@ Echoe.new('boxgrinder-build-ebs-delivery-plugin') do |p|
   p.description = 'BoxGrinder Build Elastic Block Storage Delivery Plugin'
   p.url = 'http://www.jboss.org/boxgrinder'
   p.email = 'info@boxgrinder.org'
-  p.runtime_dependencies = ['boxgrinder-build ~>0.6.5', 'amazon-ec2 ~>0.9.6']
-  p.development_dependencies = [ 'boxgrinder-build ~>0.6.5', 'hashery >=1.3.0']
+  p.runtime_dependencies = ['boxgrinder-build ~>0.6.6', 'amazon-ec2 ~>0.9.6']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.6.6', 'hashery >=1.3.0']
 end
 
 desc "Run all tests"

@@ -5,8 +5,8 @@
 
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.8
-Release: 3%{?dist}
+Version: 0.0.9
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
@@ -73,6 +73,11 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.9-1
+- Updated to upstream version: 0.0.9
+- [BGBUILD-113] Allow to specify supported file formats for operating system plugin
+- [BGBUILD-73] Add support for kickstart files
+
 * Fri Nov 26 2010  <mgoldman@redhat.com> - 0.0.8-3
 - Removed clean section, updated URL, fixed attr for motd.init file
 

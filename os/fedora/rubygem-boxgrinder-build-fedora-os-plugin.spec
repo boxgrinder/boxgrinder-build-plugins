@@ -5,7 +5,7 @@
 
 Summary: Fedora Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
+Version: 0.0.6
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -72,6 +72,11 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.6-1
+- Updated to upstream version: 0.0.6
+- [BGBUILD-113] Allow to specify supported file formats for operating system plugin
+- [BGBUILD-73] Add support for kickstart files
+
 * Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
 - [BGBUILD-106] No plugin-manager require for fedora os plugin

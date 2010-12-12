@@ -23,25 +23,25 @@ require 'hashery/opencascade'
 module BoxGrinder
   describe CentOSPlugin do
     before(:each) do
-      @config = mock('Config')
+      @config           = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('full')
 
-      @plugin = CentOSPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::CentOSPlugin, :type => :os, :name => :centos, :full_name  => "CentOS", :versions   => ["5"]})
+      @plugin = CentOSPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::CentOSPlugin, :type => :os, :name => :centos, :full_name => "CentOS", :versions => ["5"]})
     end
 
     it "should use basearch instead of arch in repository URLs" do
-      @plugin.should_receive(:build_rhel).with({
-                                                   "5" => {
-                                                       "updates" => {
-                                                           "mirrorlist"=>"http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=updates"},
-                                                       "base" => {
-                                                           "mirrorlist"=>"http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=os"}}
-                                               })
+      @plugin.should_receive(:build_rhel).with('file', {
+          "5" => {
+              "updates" => {
+                  "mirrorlist"=>"http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=updates"},
+              "base"    => {
+                  "mirrorlist"=>"http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=os"}}
+      })
 
-      @plugin.execute
+      @plugin.execute('file')
     end
   end
 end
