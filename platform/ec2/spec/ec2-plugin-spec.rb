@@ -40,22 +40,22 @@ module BoxGrinder
           OpenCascade.new({
                               :partitions =>
                                   {
-                                      '/' => {'size' => 2},
+                                      '/'     => {'size' => 2},
                                       '/home' => {'size' => 3},
                                   },
-                              :arch => 'i686',
-                              :base_arch => 'i386',
-                              :cpus => 1,
-                              :memory => 256,
+                              :arch       => 'i686',
+                              :base_arch  => 'i386',
+                              :cpus       => 1,
+                              :memory     => 256,
                           })
       )
 
-      @plugin = EC2Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name => "Amazon Elastic Compute Cloud (Amazon EC2)"})
+      @plugin           = EC2Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name => "Amazon Elastic Compute Cloud (Amazon EC2)"})
 
-      @config = @plugin.instance_variable_get(:@config)
+      @config           = @plugin.instance_variable_get(:@config)
       @appliance_config = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
-      @log = @plugin.instance_variable_get(:@log)
+      @exec_helper      = @plugin.instance_variable_get(:@exec_helper)
+      @log              = @plugin.instance_variable_get(:@log)
     end
 
     it "should download a rpm to cache directory" do
@@ -101,7 +101,7 @@ module BoxGrinder
     end
 
     it "should upload rc_local" do
-      guestfs = mock("guestfs")
+      guestfs  = mock("guestfs")
       tempfile = mock("tempfile")
 
       Tempfile.should_receive(:new).with("rc_local").and_return(tempfile)
@@ -121,11 +121,11 @@ module BoxGrinder
     end
 
     it "should install additional packages" do
-      guestfs = mock("guestfs")
+      guestfs    = mock("guestfs")
 
       kernel_rpm = "kernel-xen-2.6.21.7-2.fc8.i686.rpm"
 
-      rpms = {kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}"}
+      rpms       = {kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}"}
 
       @plugin.should_receive(:cache_rpms).ordered.with(rpms)
 
@@ -143,9 +143,35 @@ module BoxGrinder
     it "should change configuration" do
       guestfs_helper = mock("GuestFSHelper")
 
-      guestfs_helper.should_receive(:augeas)
+      guestfs_helper.should_receive(:augeas).and_yield do |block|
+        block.should_receive(:set).with("/etc/ssh/sshd_config", "PasswordAuthentication", "no")
+        block.should_receive(:set).with("/etc/ssh/sshd_config", "PermitRootLogin", "no")
+      end
 
       @plugin.change_configuration(guestfs_helper)
+    end
+
+    it "should install GRUB menu.lst" do
+      guestfs = mock("guestfs")
+
+      guestfs.should_receive(:upload).with('path/menu.lst', "/boot/grub/menu.lst")
+
+      linux_helper = mock("LinuxHelper")
+
+      linux_helper.should_receive(:kernel_version).with(guestfs).and_return('2.6.18')
+      linux_helper.should_receive(:kernel_image_name).with(guestfs).and_return('vmlinuz')
+
+      @plugin.instance_variable_set(:@linux_helper, linux_helper)
+
+      tempfile = mock(Tempfile)
+      tempfile.should_receive(:<<).with("default=0\ntimeout=0\ntitle full\n        root (hd0)\n        kernel /boot/vmlinuz-2.6.18 ro root=/dev/sda1 rd_NO_PLYMOUTH\n        initrd /boot/vmlinuz-2.6.18.img")
+      tempfile.should_receive(:flush)
+      tempfile.should_receive(:path).and_return('path/menu.lst')
+      tempfile.should_receive(:close)
+
+      Tempfile.should_receive(:new).with('menu_lst').and_return(tempfile)
+
+      @plugin.install_menu_lst(guestfs)
     end
 
     it "should use xvda disks for Fedora 13" do
@@ -178,6 +204,15 @@ module BoxGrinder
       guestfs.should_receive(:sh).with("touch /.autorelabel")
 
       @plugin.enable_autorelabeling(guestfs)
+    end
+
+    it "should add ec2-user account" do
+      guestfs = mock("guestfs")
+
+      guestfs.should_receive(:sh).with("useradd ec2-user")
+      guestfs.should_receive(:sh).with("echo -e 'ec2-user\tALL=(ALL)\tNOPASSWD: ALL' >> /etc/sudoers")
+
+      @plugin.add_ec2_user(guestfs)
     end
   end
 end

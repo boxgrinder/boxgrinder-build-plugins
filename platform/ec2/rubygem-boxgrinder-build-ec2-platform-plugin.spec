@@ -5,7 +5,7 @@
 
 Summary: Elastic Compute Cloud (EC2) Platform Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.6
+Version: 0.0.7
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -76,6 +76,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Dec 13 2010  <mgoldman@redhat.com> - 0.0.7-1
+- Upstream release: 0.0.7
+- [BGBUILD-110] For EC2 images don't use root account, use ec2-user instead
+
 * Fri Dec 03 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6
 - [BGBUILD-111] Don't install ec2-ami-tools by default in AMIs

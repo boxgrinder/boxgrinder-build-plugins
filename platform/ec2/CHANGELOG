@@ -1,4 +1,8 @@
 
+v0.0.7
+
+* [BGBUILD-110] For EC2 images don't use root account, use ec2-user instead
+
 v0.0.6
 
 * [BGBUILD-111] Don't install ec2-ami-tools by default in AMIs
