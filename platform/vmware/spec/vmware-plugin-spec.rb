@@ -111,7 +111,7 @@ module BoxGrinder
       vmdk_image.scan(/^ddb.geometry.heads = "(.*)"\s?$/).to_s.should == "255"
       vmdk_image.scan(/^ddb.geometry.sectors = "(.*)"\s?$/).to_s.should == "63"
 
-      vmdk_image.scan(/^ddb.virtualHWVersion = "(.*)"\s?$/).to_s.should == "4"
+      vmdk_image.scan(/^ddb.virtualHWVersion = "(.*)"\s?$/).to_s.should == "7"
     end
 
     it "should change vmdk data (flat)" do
@@ -130,7 +130,7 @@ module BoxGrinder
       vmdk_image.scan(/^ddb.geometry.heads = "(.*)"\s?$/).to_s.should == "255"
       vmdk_image.scan(/^ddb.geometry.sectors = "(.*)"\s?$/).to_s.should == "63"
 
-      vmdk_image.scan(/^ddb.virtualHWVersion = "(.*)"\s?$/).to_s.should == "3"
+      vmdk_image.scan(/^ddb.virtualHWVersion = "(.*)"\s?$/).to_s.should == "7"
     end
 
     it "should change vmx data" do

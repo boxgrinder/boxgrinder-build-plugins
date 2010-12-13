@@ -5,7 +5,7 @@
 
 Summary: VMware Platform Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
+Version: 0.0.6
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -70,6 +70,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Dec 13 2010  <mgoldman@redhat.com> - 0.0.6-1
+- Upstream release: 0.0.6
+- [BGBUILD-114] Update VMware disk geometry calculation
+
 * Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
 - [BGBUILD-107] No plugin-manager require for vmware platform plugin

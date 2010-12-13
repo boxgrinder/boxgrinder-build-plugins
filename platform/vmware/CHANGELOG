@@ -1,4 +1,8 @@
 
+v0.0.6
+
+* [BGBUILD-114] Update VMware disk geometry calculation
+
 v0.0.5
 
 * [BGBUILD-107] No plugin-manager require for vmware platform plugin

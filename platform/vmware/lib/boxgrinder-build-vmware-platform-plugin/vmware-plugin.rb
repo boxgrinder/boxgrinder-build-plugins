@@ -23,12 +23,12 @@ module BoxGrinder
   class VMwarePlugin < BasePlugin
     def after_init
       register_deliverable(
-              :disk             => "#{@appliance_config.name}.raw",
-              :vmx_enterprise   => "#{@appliance_config.name}-enterprise.vmx",
-              :vmdk_enterprise  => "#{@appliance_config.name}-enterprise.vmdk",
-              :vmx_personal     => "#{@appliance_config.name}-personal.vmx",
-              :vmdk_personal    => "#{@appliance_config.name}-personal.vmdk",
-              :readme           => "README"
+          :disk            => "#{@appliance_config.name}.raw",
+          :vmx_enterprise  => "#{@appliance_config.name}-enterprise.vmx",
+          :vmdk_enterprise => "#{@appliance_config.name}-enterprise.vmdk",
+          :vmx_personal    => "#{@appliance_config.name}-personal.vmx",
+          :vmdk_personal   => "#{@appliance_config.name}-personal.vmdk",
+          :readme          => "README"
       )
     end
 
@@ -41,9 +41,9 @@ module BoxGrinder
       @log.debug "VMware image copied."
 
       unless @appliance_config.post['vmware'].nil?
-        @image_helper.customize( @deliverables.disk ) do |guestfs, guestfs_helper|
+        @image_helper.customize(@deliverables.disk) do |guestfs, guestfs_helper|
           @appliance_config.post['vmware'].each do |cmd|
-            guestfs_helper.sh( cmd, :arch => @appliance_config.hardware.arch )
+            guestfs_helper.sh(cmd, :arch => @appliance_config.hardware.arch)
           end
           @log.debug "Post commands from appliance definition file executed."
         end
@@ -54,83 +54,87 @@ module BoxGrinder
       build_vmware_enterprise
       build_vmware_personal
 
-      File.open( @deliverables.readme, "w") {|f| f.write( create_readme ) }
+      File.open(@deliverables.readme, "w") { |f| f.write(create_readme) }
 
       @log.info "Image converted to VMware format."
     end
 
     def create_readme
-      readme = File.open( "#{File.dirname(__FILE__)}/src/README" ).read
-      readme.gsub!( /#APPLIANCE_NAME#/, @appliance_config.name )
-      readme.gsub!( /#NAME#/, @config.name )
-      readme.gsub!( /#VERSION#/, @config.version_with_release )
+      readme = File.open("#{File.dirname(__FILE__)}/src/README").read
+      readme.gsub!(/#APPLIANCE_NAME#/, @appliance_config.name)
+      readme.gsub!(/#NAME#/, @config.name)
+      readme.gsub!(/#VERSION#/, @config.version_with_release)
 
       readme
     end
 
     # returns value of cylinders, heads and sector for selected disk size (in GB)
-
+    # http://kb.vmware.com/kb/1026254
     def generate_scsi_chs(disk_size)
-      disk_size = (disk_size * 1024).to_i
+      disk_size = disk_size.to_i
 
-      gb_sectors = 2097152
-
-      if disk_size <= 1024
+      if disk_size < 1
         h = 128
         s = 32
       else
-        h = 255
-        s = 63
+        if disk_size < 2
+          h = 128
+          s = 32
+        else
+          h = 255
+          s = 63
+        end
       end
 
-      c = disk_size / 1024 * gb_sectors / (h*s)
-      total_sectors = gb_sectors * disk_size / 1024
+      #               GB          MB     KB     B
+      c             = disk_size * 1024 * 1024 * 1024 / (h*s*512)
+      total_sectors = disk_size * 1024 * 1024 * 1024 / 512
 
-      return [ c, h, s, total_sectors ]
+      [c, h, s, total_sectors]
     end
 
-    def change_vmdk_values( type )
-      vmdk_data = File.open( "#{File.dirname( __FILE__ )}/src/base.vmdk" ).read
+    def change_vmdk_values(type)
+      vmdk_data = File.open("#{File.dirname(__FILE__)}/src/base.vmdk").read
 
       disk_size = 0.0
       @appliance_config.hardware.partitions.values.each { |part| disk_size += part['size'].to_f }
 
-      c, h, s, total_sectors = generate_scsi_chs( disk_size )
+      c, h, s, total_sectors = generate_scsi_chs(disk_size)
 
       is_enterprise = type.eql?("vmfs")
 
-      vmdk_data.gsub!( /#NAME#/, @appliance_config.name )
-      vmdk_data.gsub!( /#TYPE#/, type )
-      vmdk_data.gsub!( /#EXTENT_TYPE#/, is_enterprise ? "VMFS" : "FLAT" )
-      vmdk_data.gsub!( /#NUMBER#/, is_enterprise ? "" : "0" )
-      vmdk_data.gsub!( /#HW_VERSION#/, is_enterprise ? "4" : "3" )
-      vmdk_data.gsub!( /#CYLINDERS#/, c.to_s )
-      vmdk_data.gsub!( /#HEADS#/, h.to_s )
-      vmdk_data.gsub!( /#SECTORS#/, s.to_s )
-      vmdk_data.gsub!( /#TOTAL_SECTORS#/, total_sectors.to_s )
+      vmdk_data.gsub!(/#NAME#/, @appliance_config.name)
+      vmdk_data.gsub!(/#TYPE#/, type)
+      vmdk_data.gsub!(/#EXTENT_TYPE#/, is_enterprise ? "VMFS" : "FLAT")
+      vmdk_data.gsub!(/#NUMBER#/, is_enterprise ? "" : "0")
+      vmdk_data.gsub!(/#HW_VERSION#/, "7")
+      vmdk_data.gsub!(/#CYLINDERS#/, c.to_s)
+      vmdk_data.gsub!(/#HEADS#/, h.to_s)
+      vmdk_data.gsub!(/#SECTORS#/, s.to_s)
+      vmdk_data.gsub!(/#TOTAL_SECTORS#/, total_sectors.to_s)
 
       vmdk_data
     end
 
-    def change_common_vmx_values( type )
-      vmx_data = File.open( "#{File.dirname( __FILE__ )}/src/base.vmx" ).read
+    def change_common_vmx_values(type)
+      vmx_data = File.open("#{File.dirname(__FILE__)}/src/base.vmx").read
 
       # replace version with current appliance version
-      vmx_data.gsub!( /#VERSION#/, "#{@appliance_config.version}.#{@appliance_config.release}" )
+      vmx_data.gsub!(/#VERSION#/, "#{@appliance_config.version}.#{@appliance_config.release}")
       # replace builder with current builder name and version
-      vmx_data.gsub!( /#BUILDER#/, "#{@config.name} #{@config.version_with_release}" )
+      vmx_data.gsub!(/#BUILDER#/, "#{@config.name} #{@config.version_with_release}")
       # change name
-      vmx_data.gsub!( /#NAME#/, @appliance_config.name.to_s )
+      vmx_data.gsub!(/#NAME#/, @appliance_config.name.to_s)
       # change name
-      vmx_data.gsub!( /#TYPE#/, type.to_s )
+      vmx_data.gsub!(/#TYPE#/, type.to_s)
       # and summary
-      vmx_data.gsub!( /#SUMMARY#/, @appliance_config.summary.to_s )
+      vmx_data.gsub!(/#SUMMARY#/, @appliance_config.summary.to_s)
       # replace guestOS informations to: linux or otherlinux-64, this seems to be the savests values
-      vmx_data.gsub!( /#GUESTOS#/, "#{@appliance_config.hardware.arch == "x86_64" ? "otherlinux-64" : "linux"}" )
+      vmx_data.gsub!(/#GUESTOS#/, "#{@appliance_config.hardware.arch == "x86_64" ? "otherlinux-64" : "linux"}")
       # memory size
-      vmx_data.gsub!( /#MEM_SIZE#/, @appliance_config.hardware.memory.to_s )
+      vmx_data.gsub!(/#MEM_SIZE#/, @appliance_config.hardware.memory.to_s)
       # memory size
-      vmx_data.gsub!( /#VCPU#/, @appliance_config.hardware.cpus.to_s )
+      vmx_data.gsub!(/#VCPU#/, @appliance_config.hardware.cpus.to_s)
       # network name
       # vmx_data.gsub!( /#NETWORK_NAME#/, @image_config.network_name )
 
@@ -141,10 +145,10 @@ module BoxGrinder
       @log.debug "Building VMware personal image."
 
       # create .vmx file
-      File.open( @deliverables.vmx_personal, "w" ) {|f| f.write( change_common_vmx_values( 'personal' ) ) }
+      File.open(@deliverables.vmx_personal, "w") { |f| f.write(change_common_vmx_values('personal')) }
 
       # create disk descriptor file
-      File.open( @deliverables.vmdk_personal, "w" ) {|f| f.write( change_vmdk_values( "monolithicFlat" ) ) }
+      File.open(@deliverables.vmdk_personal, "w") { |f| f.write(change_vmdk_values("monolithicFlat")) }
 
       @log.debug "VMware personal image was built."
     end
@@ -153,16 +157,16 @@ module BoxGrinder
       @log.debug "Building VMware enterprise image."
 
       # defaults for ESXi (maybe for others too)
-      @appliance_config.hardware.network = "VM Network" if @appliance_config.hardware.network.eql?( "NAT" )
+      @appliance_config.hardware.network = "VM Network" if @appliance_config.hardware.network.eql?("NAT")
 
       # create .vmx file
-      vmx_data = change_common_vmx_values( 'enterprise' )
+      vmx_data = change_common_vmx_values('enterprise')
       vmx_data += "ethernet0.networkName = \"#{@appliance_config.hardware.network}\""
 
-      File.open( @deliverables.vmx_enterprise, "w" ) {|f| f.write( vmx_data ) }
+      File.open(@deliverables.vmx_enterprise, "w") { |f| f.write(vmx_data) }
 
       # create disk descriptor file
-      File.open( @deliverables.vmdk_enterprise, "w" ) {|f| f.write( change_vmdk_values( "vmfs" ) ) }
+      File.open(@deliverables.vmdk_enterprise, "w") { |f| f.write(change_vmdk_values("vmfs")) }
 
       @log.debug "VMware enterprise image was built."
     end
