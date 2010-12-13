@@ -1,6 +1,7 @@
 
 v0.0.6
 
+* [BGBUILD-71] Add support for growing (not pre-allocated) disks for VMware
 * [BGBUILD-114] Update VMware disk geometry calculation
 
 v0.0.5

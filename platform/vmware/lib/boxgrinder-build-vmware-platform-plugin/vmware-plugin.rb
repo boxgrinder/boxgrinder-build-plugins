@@ -23,36 +23,28 @@ module BoxGrinder
   class VMwarePlugin < BasePlugin
     def after_init
       register_deliverable(
-          :disk            => "#{@appliance_config.name}.raw",
-          :vmx_enterprise  => "#{@appliance_config.name}-enterprise.vmx",
-          :vmdk_enterprise => "#{@appliance_config.name}-enterprise.vmdk",
-          :vmx_personal    => "#{@appliance_config.name}-personal.vmx",
-          :vmdk_personal   => "#{@appliance_config.name}-personal.vmdk",
-          :readme          => "README"
+          :vmx    => "#{@appliance_config.name}.vmx",
+          :readme => "README"
       )
+
+      set_default_config_value('thin_disk', false)
     end
 
     def execute
-      @log.info "Converting image to VMware format..."
-      @log.debug "Copying VMware image file, this may take several minutes..."
+      validate_plugin_config(['type'], 'http://community.jboss.org/docs/DOC-15528')
 
-      @exec_helper.execute "cp #{@previous_deliverables.disk} #{@deliverables.disk}"
+      @log.info "Converting image to VMware #{@plugin_config['type']} format..."
 
-      @log.debug "VMware image copied."
-
-      unless @appliance_config.post['vmware'].nil?
-        @image_helper.customize(@deliverables.disk) do |guestfs, guestfs_helper|
-          @appliance_config.post['vmware'].each do |cmd|
-            guestfs_helper.sh(cmd, :arch => @appliance_config.hardware.arch)
-          end
-          @log.debug "Post commands from appliance definition file executed."
-        end
-      else
-        @log.debug "No commands specified, skipping."
+      case @plugin_config['type']
+        when 'personal'
+          build_vmware_personal
+        when 'enterprise'
+          build_vmware_enterprise
+        else
+          raise "Not known VMware format specified. Available are: personal and enterprise. See http://community.jboss.org/docs/DOC-15528 for more info."
       end
 
-      build_vmware_enterprise
-      build_vmware_personal
+      customize_image
 
       File.open(@deliverables.readme, "w") { |f| f.write(create_readme) }
 
@@ -60,7 +52,7 @@ module BoxGrinder
     end
 
     def create_readme
-      readme = File.open("#{File.dirname(__FILE__)}/src/README").read
+      readme = File.open("#{File.dirname(__FILE__)}/src/README-#{@plugin_config['type']}").read
       readme.gsub!(/#APPLIANCE_NAME#/, @appliance_config.name)
       readme.gsub!(/#NAME#/, @config.name)
       readme.gsub!(/#VERSION#/, @config.version_with_release)
@@ -71,10 +63,8 @@ module BoxGrinder
     # returns value of cylinders, heads and sector for selected disk size (in GB)
     # http://kb.vmware.com/kb/1026254
     def generate_scsi_chs(disk_size)
-      disk_size = disk_size.to_i
-
       if disk_size < 1
-        h = 128
+        h = 64
         s = 32
       else
         if disk_size < 2
@@ -90,7 +80,7 @@ module BoxGrinder
       c             = disk_size * 1024 * 1024 * 1024 / (h*s*512)
       total_sectors = disk_size * 1024 * 1024 * 1024 / 512
 
-      [c, h, s, total_sectors]
+      [c.to_i, h.to_i, s.to_i, total_sectors.to_i]
     end
 
     def change_vmdk_values(type)
@@ -112,11 +102,12 @@ module BoxGrinder
       vmdk_data.gsub!(/#HEADS#/, h.to_s)
       vmdk_data.gsub!(/#SECTORS#/, s.to_s)
       vmdk_data.gsub!(/#TOTAL_SECTORS#/, total_sectors.to_s)
+      vmdk_data.gsub!(/#THIN_PROVISIONED#/, @plugin_config['thin_disk'] ? "1" : "0")
 
       vmdk_data
     end
 
-    def change_common_vmx_values(type)
+    def change_common_vmx_values
       vmx_data = File.open("#{File.dirname(__FILE__)}/src/base.vmx").read
 
       # replace version with current appliance version
@@ -125,8 +116,6 @@ module BoxGrinder
       vmx_data.gsub!(/#BUILDER#/, "#{@config.name} #{@config.version_with_release}")
       # change name
       vmx_data.gsub!(/#NAME#/, @appliance_config.name.to_s)
-      # change name
-      vmx_data.gsub!(/#TYPE#/, type.to_s)
       # and summary
       vmx_data.gsub!(/#SUMMARY#/, @appliance_config.summary.to_s)
       # replace guestOS informations to: linux or otherlinux-64, this seems to be the savests values
@@ -141,32 +130,75 @@ module BoxGrinder
       vmx_data
     end
 
+    def customize_image
+      unless @appliance_config.post['vmware'].nil?
+        @image_helper.customize(@deliverables.disk) do |guestfs, guestfs_helper|
+          @appliance_config.post['vmware'].each do |cmd|
+            guestfs_helper.sh(cmd, :arch => @appliance_config.hardware.arch)
+          end
+          @log.debug "Post commands from appliance definition file executed."
+        end
+      else
+        @log.debug "No commands specified, skipping."
+      end
+    end
+
+    def copy_raw_image
+      @log.debug "Copying VMware image file, this may take several minutes..."
+      @exec_helper.execute "cp #{@previous_deliverables.disk} #{@deliverables.disk}"
+      @log.debug "VMware image copied."
+    end
+
     def build_vmware_personal
       @log.debug "Building VMware personal image."
 
-      # create .vmx file
-      File.open(@deliverables.vmx_personal, "w") { |f| f.write(change_common_vmx_values('personal')) }
+      if @plugin_config['thin_disk']
+        register_deliverable(
+            :disk => "#{@appliance_config.name}.vmdk"
+        )
 
-      # create disk descriptor file
-      File.open(@deliverables.vmdk_personal, "w") { |f| f.write(change_vmdk_values("monolithicFlat")) }
+        @log.debug "Using qemu-img to convert the image..."
+        @exec_helper.execute "qemu-img convert -f raw -O vmdk -o compat6 #{@previous_deliverables.disk} #{@deliverables.disk}"
+        @log.debug "Conversion done."
+      else
+        register_deliverable(
+            :disk => "#{@appliance_config.name}.raw",
+            :vmdk => "#{@appliance_config.name}.vmdk"
+        )
+
+        copy_raw_image
+
+        # create disk descriptor file
+        File.open(@deliverables.vmdk, "w") { |f| f.write(change_vmdk_values("monolithicFlat")) }
+      end
+
+      # create .vmx file
+      File.open(@deliverables.vmx, "w") { |f| f.write(change_common_vmx_values) }
 
       @log.debug "VMware personal image was built."
     end
 
     def build_vmware_enterprise
+      register_deliverable(
+          :disk => "#{@appliance_config.name}.raw",
+          :vmdk => "#{@appliance_config.name}.vmdk"
+      )
+
       @log.debug "Building VMware enterprise image."
+
+      copy_raw_image
 
       # defaults for ESXi (maybe for others too)
       @appliance_config.hardware.network = "VM Network" if @appliance_config.hardware.network.eql?("NAT")
 
       # create .vmx file
-      vmx_data = change_common_vmx_values('enterprise')
+      vmx_data = change_common_vmx_values
       vmx_data += "ethernet0.networkName = \"#{@appliance_config.hardware.network}\""
 
-      File.open(@deliverables.vmx_enterprise, "w") { |f| f.write(vmx_data) }
+      File.open(@deliverables.vmx, "w") { |f| f.write(vmx_data) }
 
       # create disk descriptor file
-      File.open(@deliverables.vmdk_enterprise, "w") { |f| f.write(change_vmdk_values("vmfs")) }
+      File.open(@deliverables.vmdk, "w") { |f| f.write(change_vmdk_values("vmfs")) }
 
       @log.debug "VMware enterprise image was built."
     end

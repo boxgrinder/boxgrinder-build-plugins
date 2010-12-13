@@ -27,10 +27,6 @@ module BoxGrinder
     end
 
     def prepare_image(options = {})
-      params = OpenStruct.new
-      params.base_vmdk = "../src/base.vmdk"
-      params.base_vmx  = "../src/base.vmx"
-
       @config = mock('Config')
       @config.stub!(:name).and_return('BoxGrinder')
       @config.stub!(:version_with_release).and_return('0.1.2')
@@ -45,27 +41,42 @@ module BoxGrinder
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
       @appliance_config.stub!(:post).and_return(OpenCascade.new({:vmware => []}))
 
+      @plugin_config = {
+          'thin_disk' => false,
+          'type'      => 'enterprise'
+      }
+
       @appliance_config.stub!(:hardware).and_return(
           OpenCascade.new({
-                           :partitions =>
-                               {
-                                   '/' => {'size' => 2},
-                                   '/home' => {'size' => 3},
-                               },
-                           :arch => 'i686',
-                           :base_arch => 'i386',
-                           :cpus => 1,
-                           :memory => 256,
-                       })
+                              :partitions =>
+                                  {
+                                      '/'     => {'size' => 2},
+                                      '/home' => {'size' => 3},
+                                  },
+                              :arch       => 'i686',
+                              :base_arch  => 'i386',
+                              :cpus       => 1,
+                              :memory     => 256,
+                          })
       )
 
-      options[:log] = Logger.new('/dev/null')
-      options[:plugin_info] = {:class => BoxGrinder::VMwarePlugin, :type => :platform, :name => :vmware, :full_name  => "VMware"}
+      options[:log]         = Logger.new('/dev/null')
+      options[:plugin_info] = {:class => BoxGrinder::VMwarePlugin, :type => :platform, :name => :vmware, :full_name => "VMware"}
 
-      @plugin = VMwarePlugin.new.init(@config, @appliance_config, options)
+      @plugin               = VMwarePlugin.new.init(@config, @appliance_config, options)
 
-      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      @plugin.instance_variable_set(:@plugin_config, @plugin_config)
+      @exec_helper  = @plugin.instance_variable_get(:@exec_helper)
       @image_helper = @plugin.instance_variable_get(:@image_helper)
+    end
+
+    it "should calculate good CHS value for 0.5GB disk" do
+      c, h, s, total_sectors = @plugin.generate_scsi_chs(0.5)
+
+      c.should == 512
+      h.should == 64
+      s.should == 32
+      total_sectors.should == 1048576
     end
 
     it "should calculate good CHS value for 1GB disk" do
@@ -95,46 +106,58 @@ module BoxGrinder
       total_sectors.should == 335544320
     end
 
-    it "should change vmdk data (vmfs)" do
-      vmdk_image = @plugin.change_vmdk_values("vmfs")
+    describe ".change_vmdk_values" do
+      it "should change vmdk data (vmfs)" do
+        vmdk_image = @plugin.change_vmdk_values("vmfs")
 
-      vmdk_image.scan(/^createType="(.*)"\s?$/).to_s.should == "vmfs"
+        vmdk_image.scan(/^createType="(.*)"\s?$/).to_s.should == "vmfs"
 
-      disk_attributes = vmdk_image.scan(/^RW (.*) (.*) "(.*).raw" (.*)\s?$/)[0]
+        disk_attributes = vmdk_image.scan(/^RW (.*) (.*) "(.*).raw" (.*)\s?$/)[0]
 
-      disk_attributes[0].should == "10485760" # 5GB
-      disk_attributes[1].should == "VMFS"
-      disk_attributes[2].should == "full"
-      disk_attributes[3].should == ""
+        disk_attributes[0].should == "10485760" # 5GB
+        disk_attributes[1].should == "VMFS"
+        disk_attributes[2].should == "full"
+        disk_attributes[3].should == ""
 
-      vmdk_image.scan(/^ddb.geometry.cylinders = "(.*)"\s?$/).to_s.should == "652"
-      vmdk_image.scan(/^ddb.geometry.heads = "(.*)"\s?$/).to_s.should == "255"
-      vmdk_image.scan(/^ddb.geometry.sectors = "(.*)"\s?$/).to_s.should == "63"
+        vmdk_image.scan(/^ddb.geometry.cylinders = "(.*)"\s?$/).to_s.should == "652"
+        vmdk_image.scan(/^ddb.geometry.heads = "(.*)"\s?$/).to_s.should == "255"
+        vmdk_image.scan(/^ddb.geometry.sectors = "(.*)"\s?$/).to_s.should == "63"
 
-      vmdk_image.scan(/^ddb.virtualHWVersion = "(.*)"\s?$/).to_s.should == "7"
-    end
+        vmdk_image.scan(/^ddb.virtualHWVersion = "(.*)"\s?$/).to_s.should == "7"
+      end
 
-    it "should change vmdk data (flat)" do
-      vmdk_image = @plugin.change_vmdk_values("monolithicFlat")
+      it "should change vmdk data (flat)" do
+        vmdk_image = @plugin.change_vmdk_values("monolithicFlat")
 
-      vmdk_image.scan(/^createType="(.*)"\s?$/).to_s.should == "monolithicFlat"
+        vmdk_image.scan(/^createType="(.*)"\s?$/).to_s.should == "monolithicFlat"
 
-      disk_attributes = vmdk_image.scan(/^RW (.*) (.*) "(.*).raw" (.*)\s?$/)[0]
+        disk_attributes = vmdk_image.scan(/^RW (.*) (.*) "(.*).raw" (.*)\s?$/)[0]
 
-      disk_attributes[0].should == "10485760" # 5GB
-      disk_attributes[1].should == "FLAT"
-      disk_attributes[2].should == "full"
-      disk_attributes[3].should == "0"
+        disk_attributes[0].should == "10485760" # 5GB
+        disk_attributes[1].should == "FLAT"
+        disk_attributes[2].should == "full"
+        disk_attributes[3].should == "0"
 
-      vmdk_image.scan(/^ddb.geometry.cylinders = "(.*)"\s?$/).to_s.should == "652"
-      vmdk_image.scan(/^ddb.geometry.heads = "(.*)"\s?$/).to_s.should == "255"
-      vmdk_image.scan(/^ddb.geometry.sectors = "(.*)"\s?$/).to_s.should == "63"
+        vmdk_image.scan(/^ddb.geometry.cylinders = "(.*)"\s?$/).to_s.should == "652"
+        vmdk_image.scan(/^ddb.geometry.heads = "(.*)"\s?$/).to_s.should == "255"
+        vmdk_image.scan(/^ddb.geometry.sectors = "(.*)"\s?$/).to_s.should == "63"
 
-      vmdk_image.scan(/^ddb.virtualHWVersion = "(.*)"\s?$/).to_s.should == "7"
+        vmdk_image.scan(/^ddb.virtualHWVersion = "(.*)"\s?$/).to_s.should == "7"
+        vmdk_image.scan(/^ddb.thinProvisioned = "(.*)"\s?$/).to_s.should == "0"
+      end
+
+      it "should change vmdk data (flat) enabling thin disk" do
+        @plugin_config['thin_disk'] = true
+
+        vmdk_image                  = @plugin.change_vmdk_values("monolithicFlat")
+
+        vmdk_image.scan(/^ddb.thinProvisioned = "(.*)"\s?$/).to_s.should == "1"
+      end
+
     end
 
     it "should change vmx data" do
-      vmx_file = @plugin.change_common_vmx_values( 'personal' )
+      vmx_file = @plugin.change_common_vmx_values
 
       vmx_file.scan(/^guestOS = "(.*)"\s?$/).to_s.should == "linux"
       vmx_file.scan(/^displayName = "(.*)"\s?$/).to_s.should == "full"
@@ -144,46 +167,103 @@ module BoxGrinder
       vmx_file.scan(/^numvcpus = "(.*)"\s?$/).to_s.should == "1"
       vmx_file.scan(/^memsize = "(.*)"\s?$/).to_s.should == "256"
       vmx_file.scan(/^log.fileName = "(.*)"\s?$/).to_s.should == "full.log"
-      vmx_file.scan(/^scsi0:0.fileName = "(.*)"\s?$/).to_s.should == "full-personal.vmdk"
+      vmx_file.scan(/^scsi0:0.fileName = "(.*)"\s?$/).to_s.should == "full.vmdk"
     end
 
-    it "should build personal image" do
-      File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-personal.vmx", "w")
-      File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-personal.vmdk", "w")
+    describe ".build_vmware_personal" do
+      it "should build personal thick image" do
+        prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
-      @plugin.build_vmware_personal
+        @plugin_config['type']      = 'personal'
+        @plugin_config['thin_disk'] = false
+
+        @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
+        File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
+        File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmdk", "w")
+
+        @plugin.build_vmware_personal
+      end
+
+      it "should build personal thin image" do
+        prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
+
+        @plugin_config['type']      = 'personal'
+        @plugin_config['thin_disk'] = true
+
+        @exec_helper.should_receive(:execute).with('qemu-img convert -f raw -O vmdk -o compat6 a/base/image/path.raw build/path/vmware-plugin/tmp/full.vmdk')
+        File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
+
+        @plugin.build_vmware_personal
+      end
     end
 
-    it "should build enterprise image" do
-      @plugin.should_receive(:change_common_vmx_values).with( 'enterprise' ).and_return("")
+    describe ".build_vmware_enterprise" do
+      it "should build enterprise thick image" do
+        prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
-      File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-enterprise.vmx", "w")
-      File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full-enterprise.vmdk", "w")
+        @plugin_config['type']      = 'enterprise'
+        @plugin_config['thin_disk'] = false
 
-      @plugin.build_vmware_enterprise
+        @plugin.should_receive(:change_common_vmx_values).and_return("")
+        @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
+        File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
+        File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmdk", "w")
+
+        @plugin.build_vmware_enterprise
+      end
+
+      it "should build enterprise thin image" do
+        prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
+
+        @plugin_config['type']      = 'enterprise'
+        @plugin_config['thin_disk'] = true
+
+        @plugin.should_receive(:change_common_vmx_values).and_return("")
+        @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
+        File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
+        File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmdk", "w")
+
+        @plugin.build_vmware_enterprise
+      end
     end
 
-    it "should convert image to vmware" do
-      prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
+    it "should convert image to vmware personal" do
+      @plugin_config['type'] = 'personal'
+
+      @plugin.should_receive(:build_vmware_personal).with(no_args())
+      @plugin.should_receive(:customize_image).with(no_args())
+
+      File.should_receive(:open)
+
+      @plugin.execute
+    end
+
+    it "should convert image to vmware enterprise" do
+      @plugin_config['type'] = 'enterprise'
+
+      @plugin.should_receive(:build_vmware_enterprise).with(no_args())
+      @plugin.should_receive(:customize_image).with(no_args())
+
+      File.should_receive(:open)
+
+      @plugin.execute
+    end
+
+    it "should customize the image" do
+      @plugin.register_deliverable(:disk => 'a/disk.raw')
 
       @appliance_config.post['vmware'] = ["one", "two", "three"]
 
-      @exec_helper.should_receive(:execute).with("cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw")
-      @plugin.should_receive(:build_vmware_enterprise).with(no_args())
-      @plugin.should_receive(:build_vmware_personal).with(no_args())
+      guestfs_mock                     = mock("GuestFS")
+      guestfs_helper_mock              = mock("GuestFSHelper")
 
-      guestfs_mock = mock("GuestFS")
-      guestfs_helper_mock = mock("GuestFSHelper")
-
-      @image_helper.should_receive(:customize).with("build/path/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, guestfs_helper_mock)
+      @image_helper.should_receive(:customize).with("build/path/vmware-plugin/tmp/a/disk.raw").and_yield(guestfs_mock, guestfs_helper_mock)
 
       guestfs_helper_mock.should_receive(:sh).once.ordered.with("one", :arch => 'i686')
       guestfs_helper_mock.should_receive(:sh).once.ordered.with("two", :arch => 'i686')
       guestfs_helper_mock.should_receive(:sh).once.ordered.with("three", :arch => 'i686')
 
-      File.should_receive(:open)
-
-      @plugin.execute
+      @plugin.customize_image
     end
 
     it "should create a valid README file" do

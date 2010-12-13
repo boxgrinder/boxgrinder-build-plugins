@@ -73,6 +73,7 @@ popd
 * Mon Dec 13 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6
 - [BGBUILD-114] Update VMware disk geometry calculation
+- [BGBUILD-71] Add support for growing (not pre-allocated) disks for VMware
 
 * Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
