@@ -1,3 +1,8 @@
+
+v0.0.6
+
+* [BGBUILD-115] PackageHelper should take directory instead of file list to package
+
 v0.0.5
 
 * [BGBUILD-105] No plugin-manager require for local delivery plugin

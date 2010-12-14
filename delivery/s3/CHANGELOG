@@ -1,4 +1,8 @@
 
+v0.0.5
+
+* [BGBUILD-115] PackageHelper should take directory instead of file list to package
+
 v0.0.4
 
 * [BGBUILD-85] Adjust BoxGrinder spec files for review

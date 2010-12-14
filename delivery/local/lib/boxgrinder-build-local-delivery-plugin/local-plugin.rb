@@ -23,7 +23,7 @@ require 'boxgrinder-build/plugins/base-plugin'
 module BoxGrinder
   class LocalPlugin < BasePlugin
     def after_init
-      set_default_config_value('overwrite', true)
+      set_default_config_value('overwrite', false)
       set_default_config_value('package', true)
 
       if @plugin_config['package']
@@ -35,7 +35,7 @@ module BoxGrinder
       validate_plugin_config(['path'], 'http://community.jboss.org/docs/DOC-15216')
 
       if @plugin_config['overwrite'] or !deliverables_exists?
-        PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package(@previous_deliverables, @deliverables[:package]) if @plugin_config['package']
+        PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package(File.dirname(@previous_deliverables[:disk]), @deliverables[:package]) if @plugin_config['package']
 
         FileUtils.mkdir_p @plugin_config['path']
 
@@ -52,11 +52,11 @@ module BoxGrinder
     end
 
     def deliverables_exists?
-      return super unless @deliverables.empty?
-
-      @previous_deliverables.values.each do |file|
+      @deliverables.values.each do |file|
         return false unless File.exists?("#{@plugin_config['path']}/#{File.basename(file)}")
       end
+
+      @move_deliverables = false
 
       true
     end

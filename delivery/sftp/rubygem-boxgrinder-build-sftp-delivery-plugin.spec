@@ -5,7 +5,7 @@
 
 Summary: SSH File Transfer Protocol Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.4
+Version: 0.0.5
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -76,6 +76,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Dec 14 2010  <mgoldman@redhat.com> - 0.0.5-1
+- Upstream release: 0.0.5
+- [BGBUILD-115] PackageHelper should take directory instead of file list to package
+
 * Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.4-1
 - Upstream release: 0.0.4
 - [BGBUILD-108] No plugin-manager require for sftp delivery plugin

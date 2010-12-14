@@ -130,7 +130,7 @@ module BoxGrinder
       # quick and dirty workaround to use @deliverables[:package] later in code
       FileUtils.mv( @target_deliverables[:package], @deliverables[:package] ) if File.exists?( @target_deliverables[:package] )
 
-      PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( previous_deliverables, @deliverables[:package] )
+      PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( File.dirname(previous_deliverables[:disk]), @deliverables[:package] )
 
       @s3 = Aws::S3.new( @plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log )
 

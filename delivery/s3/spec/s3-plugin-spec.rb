@@ -92,7 +92,7 @@ module BoxGrinder
 
     it "should upload to a S3 bucket" do
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with({:disk => "adisk"}, "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
+      package_helper.should_receive(:package).with(".", "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
 
@@ -119,7 +119,7 @@ module BoxGrinder
 
     it "should NOT upload to a S3 bucket because file exists" do
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with({:disk => "adisk"}, "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
+      package_helper.should_receive(:package).with(".", "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
 

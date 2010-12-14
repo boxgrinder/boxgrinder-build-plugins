@@ -35,7 +35,7 @@ module BoxGrinder
     def execute( type = :sftp )
       validate_plugin_config(['path', 'username', 'host'], 'http://community.jboss.org/docs/DOC-15524')
 
-      PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package( @previous_deliverables, @deliverables[:package] )
+      PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package( File.dirname(@previous_deliverables[:disk]), @deliverables[:package] )
 
       @log.info "Uploading #{@appliance_config.name} appliance via SSH..."
 

@@ -56,7 +56,7 @@ module BoxGrinder
 
       FileUtils.should_receive(:mkdir_p).with('a/path')
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with({:disk=>"a_disk.raw"}, "build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz").and_return("deliverable")
+      package_helper.should_receive(:package).with('.', "build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz").and_return("deliverable")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
