@@ -47,7 +47,7 @@ end
 task "clean" do
   plugins.each do |plugin|
     Dir.chdir plugin[:dir] do
-      system "rake clean"
+      system "rake clean manifest"
     end
   end
 end
