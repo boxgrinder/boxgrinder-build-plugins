@@ -101,9 +101,6 @@ module BoxGrinder
         end
 
         set_motd(guestfs)
-
-        # TODO remove this (make sure CirrAS build will not break!)
-        install_version_files(guestfs)
         install_repos(guestfs)
 
         yield guestfs, guestfs_helper if block_given?
@@ -126,13 +123,6 @@ module BoxGrinder
         set('/etc/ssh/sshd_config', 'UseDNS', 'no')
         set('/etc/sysconfig/selinux', 'SELINUX', 'permissive')
       end
-    end
-
-    def install_version_files(guestfs)
-      @log.debug "Installing BoxGrinder version files..."
-      guestfs.sh("echo 'BOXGRINDER_VERSION=#{@config.version_with_release}' > /etc/sysconfig/boxgrinder")
-      guestfs.sh("echo 'APPLIANCE_NAME=#{@appliance_config.name}' >> /etc/sysconfig/boxgrinder")
-      @log.debug "Version files installed."
     end
 
     def set_motd(guestfs)

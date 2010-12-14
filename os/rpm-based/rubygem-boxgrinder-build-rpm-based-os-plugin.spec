@@ -75,6 +75,7 @@ popd
 %changelog
 * Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.9-1
 - Updated to upstream version: 0.0.9
+- [BGBUILD-59] Remove all image modifications user is not expecting
 - [BGBUILD-113] Allow to specify supported file formats for operating system plugin
 - [BGBUILD-73] Add support for kickstart files
 
