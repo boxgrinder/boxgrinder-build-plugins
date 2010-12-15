@@ -23,11 +23,7 @@ part <%= root %> --size <%= (partition['size'].to_f * 1024).to_i %> --fstype <%=
 <% for repo in repos %>
 <%= repo %><% end %>
 
-<% if graphical %>
-%packages --excludedocs
-<% else %>
-%packages --excludedocs --nobase
-<% end %>
+%packages
 
 <% for package in packages %>
   <%= package %><% end %>

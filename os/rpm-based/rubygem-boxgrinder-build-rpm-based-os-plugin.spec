@@ -78,6 +78,7 @@ popd
 - [BGBUILD-59] Remove all image modifications user is not expecting
 - [BGBUILD-113] Allow to specify supported file formats for operating system plugin
 - [BGBUILD-73] Add support for kickstart files
+- [BGBUILD-42] No man pages installed in appliances
 
 * Fri Nov 26 2010  <mgoldman@redhat.com> - 0.0.8-3
 - Removed clean section, updated URL, fixed attr for motd.init file
