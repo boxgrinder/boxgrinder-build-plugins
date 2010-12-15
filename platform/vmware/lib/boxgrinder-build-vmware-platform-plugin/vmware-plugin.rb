@@ -22,17 +22,21 @@ require 'boxgrinder-build/helpers/appliance-customize-helper'
 module BoxGrinder
   class VMwarePlugin < BasePlugin
     def after_init
-      register_deliverable(
-          :vmx    => "#{@appliance_config.name}.vmx",
-          :readme => "README"
-      )
-
       set_default_config_value('thin_disk', false)
+      validate_plugin_config(['type'], 'http://community.jboss.org/docs/DOC-15528')
+
+      register_deliverable(:vmx    => "#{@appliance_config.name}.vmx",
+                           :readme => "README")
+
+      if @plugin_config['type'].eql?('personal') and @plugin_config['thin_disk']
+        register_deliverable(:disk => "#{@appliance_config.name}.vmdk")
+      else
+        register_deliverable(:disk => "#{@appliance_config.name}.raw",
+                             :vmdk => "#{@appliance_config.name}.vmdk")
+      end
     end
 
     def execute
-      validate_plugin_config(['type'], 'http://community.jboss.org/docs/DOC-15528')
-
       @log.info "Converting image to VMware #{@plugin_config['type']} format..."
 
       case @plugin_config['type']
@@ -153,19 +157,10 @@ module BoxGrinder
       @log.debug "Building VMware personal image."
 
       if @plugin_config['thin_disk']
-        register_deliverable(
-            :disk => "#{@appliance_config.name}.vmdk"
-        )
-
         @log.debug "Using qemu-img to convert the image..."
         @exec_helper.execute "qemu-img convert -f raw -O vmdk -o compat6 #{@previous_deliverables.disk} #{@deliverables.disk}"
         @log.debug "Conversion done."
       else
-        register_deliverable(
-            :disk => "#{@appliance_config.name}.raw",
-            :vmdk => "#{@appliance_config.name}.vmdk"
-        )
-
         copy_raw_image
 
         # create disk descriptor file
@@ -179,11 +174,6 @@ module BoxGrinder
     end
 
     def build_vmware_enterprise
-      register_deliverable(
-          :disk => "#{@appliance_config.name}.raw",
-          :vmdk => "#{@appliance_config.name}.vmdk"
-      )
-
       @log.debug "Building VMware enterprise image."
 
       copy_raw_image

@@ -22,11 +22,7 @@ require 'hashery/opencascade'
 
 module BoxGrinder
   describe VMwarePlugin do
-    before(:each) do
-      prepare_image
-    end
-
-    def prepare_image(options = {})
+    def prepare_image(plugin_config, options = {})
       @config = mock('Config')
       @config.stub!(:name).and_return('BoxGrinder')
       @config.stub!(:version_with_release).and_return('0.1.2')
@@ -40,11 +36,6 @@ module BoxGrinder
       @appliance_config.stub!(:release).and_return(0)
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
       @appliance_config.stub!(:post).and_return(OpenCascade.new({:vmware => []}))
-
-      @plugin_config = {
-          'thin_disk' => false,
-          'type'      => 'enterprise'
-      }
 
       @appliance_config.stub!(:hardware).and_return(
           OpenCascade.new({
@@ -62,15 +53,20 @@ module BoxGrinder
 
       options[:log]         = Logger.new('/dev/null')
       options[:plugin_info] = {:class => BoxGrinder::VMwarePlugin, :type => :platform, :name => :vmware, :full_name => "VMware"}
+      @plugin               = VMwarePlugin.new
 
-      @plugin               = VMwarePlugin.new.init(@config, @appliance_config, options)
+      @plugin.instance_variable_set(:@plugin_config, plugin_config)
+      @plugin.should_receive(:read_plugin_config)
+      @plugin.should_receive(:validate_plugin_config)
+      @plugin.init(@config, @appliance_config, options)
 
-      @plugin.instance_variable_set(:@plugin_config, @plugin_config)
       @exec_helper  = @plugin.instance_variable_get(:@exec_helper)
       @image_helper = @plugin.instance_variable_get(:@image_helper)
     end
 
     it "should calculate good CHS value for 0.5GB disk" do
+      prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+
       c, h, s, total_sectors = @plugin.generate_scsi_chs(0.5)
 
       c.should == 512
@@ -80,6 +76,8 @@ module BoxGrinder
     end
 
     it "should calculate good CHS value for 1GB disk" do
+      prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+
       c, h, s, total_sectors = @plugin.generate_scsi_chs(1)
 
       c.should == 512
@@ -89,6 +87,8 @@ module BoxGrinder
     end
 
     it "should calculate good CHS value for 40GB disk" do
+      prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+      
       c, h, s, total_sectors = @plugin.generate_scsi_chs(40)
 
       c.should == 5221
@@ -98,6 +98,8 @@ module BoxGrinder
     end
 
     it "should calculate good CHS value for 160GB disk" do
+      prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+
       c, h, s, total_sectors = @plugin.generate_scsi_chs(160)
 
       c.should == 20886
@@ -108,6 +110,8 @@ module BoxGrinder
 
     describe ".change_vmdk_values" do
       it "should change vmdk data (vmfs)" do
+        prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+
         vmdk_image = @plugin.change_vmdk_values("vmfs")
 
         vmdk_image.scan(/^createType="(.*)"\s?$/).to_s.should == "vmfs"
@@ -127,6 +131,8 @@ module BoxGrinder
       end
 
       it "should change vmdk data (flat)" do
+        prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+
         vmdk_image = @plugin.change_vmdk_values("monolithicFlat")
 
         vmdk_image.scan(/^createType="(.*)"\s?$/).to_s.should == "monolithicFlat"
@@ -147,7 +153,7 @@ module BoxGrinder
       end
 
       it "should change vmdk data (flat) enabling thin disk" do
-        @plugin_config['thin_disk'] = true
+        prepare_image({'thin_disk' => true, 'type' => 'enterprise'})
 
         vmdk_image                  = @plugin.change_vmdk_values("monolithicFlat")
 
@@ -157,6 +163,8 @@ module BoxGrinder
     end
 
     it "should change vmx data" do
+      prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+
       vmx_file = @plugin.change_common_vmx_values
 
       vmx_file.scan(/^guestOS = "(.*)"\s?$/).to_s.should == "linux"
@@ -172,10 +180,7 @@ module BoxGrinder
 
     describe ".build_vmware_personal" do
       it "should build personal thick image" do
-        prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
-
-        @plugin_config['type']      = 'personal'
-        @plugin_config['thin_disk'] = false
+        prepare_image({'type' => 'personal', 'thin_disk' => false}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
         @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
@@ -185,10 +190,7 @@ module BoxGrinder
       end
 
       it "should build personal thin image" do
-        prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
-
-        @plugin_config['type']      = 'personal'
-        @plugin_config['thin_disk'] = true
+        prepare_image({'type' => 'personal', 'thin_disk' => true}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
         @exec_helper.should_receive(:execute).with('qemu-img convert -f raw -O vmdk -o compat6 a/base/image/path.raw build/path/vmware-plugin/tmp/full.vmdk')
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
@@ -199,10 +201,7 @@ module BoxGrinder
 
     describe ".build_vmware_enterprise" do
       it "should build enterprise thick image" do
-        prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
-
-        @plugin_config['type']      = 'enterprise'
-        @plugin_config['thin_disk'] = false
+        prepare_image({'type' => 'enterprise', 'thin_disk' => false}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
         @plugin.should_receive(:change_common_vmx_values).and_return("")
         @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
@@ -213,10 +212,7 @@ module BoxGrinder
       end
 
       it "should build enterprise thin image" do
-        prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
-
-        @plugin_config['type']      = 'enterprise'
-        @plugin_config['thin_disk'] = true
+        prepare_image({'type' => 'enterprise', 'thin_disk' => true}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
         @plugin.should_receive(:change_common_vmx_values).and_return("")
         @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
@@ -228,7 +224,7 @@ module BoxGrinder
     end
 
     it "should convert image to vmware personal" do
-      @plugin_config['type'] = 'personal'
+      prepare_image({'type' => 'personal'})
 
       @plugin.should_receive(:build_vmware_personal).with(no_args())
       @plugin.should_receive(:customize_image).with(no_args())
@@ -239,7 +235,7 @@ module BoxGrinder
     end
 
     it "should convert image to vmware enterprise" do
-      @plugin_config['type'] = 'enterprise'
+      prepare_image({'type' => 'enterprise'})
 
       @plugin.should_receive(:build_vmware_enterprise).with(no_args())
       @plugin.should_receive(:customize_image).with(no_args())
@@ -250,14 +246,14 @@ module BoxGrinder
     end
 
     it "should customize the image" do
-      @plugin.register_deliverable(:disk => 'a/disk.raw')
+      prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
 
       @appliance_config.post['vmware'] = ["one", "two", "three"]
 
       guestfs_mock                     = mock("GuestFS")
       guestfs_helper_mock              = mock("GuestFSHelper")
 
-      @image_helper.should_receive(:customize).with("build/path/vmware-plugin/tmp/a/disk.raw").and_yield(guestfs_mock, guestfs_helper_mock)
+      @image_helper.should_receive(:customize).with("build/path/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, guestfs_helper_mock)
 
       guestfs_helper_mock.should_receive(:sh).once.ordered.with("one", :arch => 'i686')
       guestfs_helper_mock.should_receive(:sh).once.ordered.with("two", :arch => 'i686')
@@ -267,6 +263,8 @@ module BoxGrinder
     end
 
     it "should create a valid README file" do
+      prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+      
       file = mock(File)
 
       File.should_receive(:open).and_return(file)
