@@ -27,19 +27,19 @@ module BoxGrinder
     KERNELS = {
         'fedora' => {
             '11' => {
-                'i386'   => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
+                'i386' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
                 'x86_64' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.x86_64.rpm'}
             }
         },
         'centos' => {
             '5' => {
-                'i386'   => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
+                'i386' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
                 'x86_64' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.x86_64.rpm'}
             }
         },
-        'rhel'   => {
+        'rhel' => {
             '5' => {
-                'i386'   => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
+                'i386' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
                 'x86_64' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.x86_64.rpm'}
             }
         }
@@ -102,8 +102,11 @@ module BoxGrinder
         enable_networking(guestfs)
         upload_rc_local(guestfs)
         enable_nosegneg_flag(guestfs)
-        enable_autorelabeling(guestfs)
         add_ec2_user(guestfs)
+        
+        # Commented for now because it restarts the system after relabeling is completed wchich may break some
+        # startup scripts
+        # enable_autorelabeling(guestfs)
 
         guestfs_helper.rebuild_rpm_database if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == '11'
 
@@ -239,7 +242,7 @@ module BoxGrinder
       rpms = {}
 
       begin
-        kernel_rpm                      = KERNELS[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:rpm]
+        kernel_rpm = KERNELS[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:rpm]
         rpms[File.basename(kernel_rpm)] = kernel_rpm
       rescue
       end
