@@ -43,6 +43,13 @@ task "rakefiles" do
   end
 end
 
+task "release" do
+  plugins.each do |plugin|
+    Dir.chdir plugin[:dir] do
+      system "rake clean manifest release"
+    end
+  end
+end
 
 task "clean" do
   plugins.each do |plugin|
