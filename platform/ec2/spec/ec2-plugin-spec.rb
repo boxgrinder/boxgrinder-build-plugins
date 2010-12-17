@@ -198,14 +198,6 @@ module BoxGrinder
       @plugin.enable_nosegneg_flag(guestfs)
     end
 
-    it "should enable autorelabelling" do
-      guestfs = mock("guestfs")
-
-      guestfs.should_receive(:sh).with("touch /.autorelabel")
-
-      @plugin.enable_autorelabeling(guestfs)
-    end
-
     it "should add ec2-user account" do
       guestfs = mock("guestfs")
 

@@ -103,10 +103,6 @@ module BoxGrinder
         upload_rc_local(guestfs)
         enable_nosegneg_flag(guestfs)
         add_ec2_user(guestfs)
-        
-        # Commented for now because it restarts the system after relabeling is completed wchich may break some
-        # startup scripts
-        # enable_autorelabeling(guestfs)
 
         guestfs_helper.rebuild_rpm_database if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == '11'
 
@@ -209,13 +205,6 @@ module BoxGrinder
       guestfs.sh("useradd ec2-user")
       guestfs.sh("echo -e 'ec2-user\tALL=(ALL)\tNOPASSWD: ALL' >> /etc/sudoers")
       @log.debug "User ec2-user added."
-    end
-
-    # This corrects SElinux issues
-    def enable_autorelabeling(guestfs)
-      @log.debug "Enabling SElinux autorelabeling..."
-      guestfs.sh("touch /.autorelabel")
-      @log.debug "SElinux autorelabeling enabled."
     end
 
     # enable networking on default runlevels

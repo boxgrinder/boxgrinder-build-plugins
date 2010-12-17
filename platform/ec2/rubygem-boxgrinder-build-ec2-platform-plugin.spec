@@ -28,7 +28,7 @@ BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
 
 %description
-BoxGrinder Build Elastic Compute Cloud (EC2) Platform Plugin
+BoxGrinder Build Elastic Compute Cloud (EC2) Platform Plugin to convert appliances to EC2 format
 
 %package doc
 Summary: Documentation for %{name}
