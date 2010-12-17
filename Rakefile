@@ -9,9 +9,9 @@ plugins = [
     {:name => "boxgrinder-build-ebs-delivery-plugin", :dir => "delivery/ebs", :desc => 'Elastic Block Storage Delivery Plugin', :runtime_deps => {'amazon-ec2' => '~>0.9.6'}},
 
     {:name => "boxgrinder-build-rpm-based-os-plugin", :dir =>"os/rpm-based", :desc => 'RPM Based Operating System Plugin'},
-    {:name => "boxgrinder-build-fedora-os-plugin", :dir => "os/fedora", :desc => 'Fedora Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.8'}},
-    {:name => "boxgrinder-build-rhel-os-plugin", :dir =>"os/rhel", :desc => 'Red Hat Enterprise Linux Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.8'}},
-    {:name => "boxgrinder-build-centos-os-plugin", :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :runtime_deps => {'boxgrinder-build-rhel-os-plugin' => '~>0.0.6'}},
+    {:name => "boxgrinder-build-fedora-os-plugin", :dir => "os/fedora", :desc => 'Fedora Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.9'}},
+    {:name => "boxgrinder-build-rhel-os-plugin", :dir =>"os/rhel", :desc => 'Red Hat Enterprise Linux Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.9'}},
+    {:name => "boxgrinder-build-centos-os-plugin", :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :runtime_deps => {'boxgrinder-build-rhel-os-plugin' => '~>0.0.7'}},
 
     {:name => "boxgrinder-build-vmware-platform-plugin", :dir =>"platform/vmware", :desc => 'VMware Platform Plugin'},
     {:name => "boxgrinder-build-ec2-platform-plugin", :dir => "platform/ec2", :desc => 'Elastic Compute Cloud (EC2) Platform Plugin'}
@@ -21,8 +21,8 @@ desc "Recreate Rakefiles for plugins"
 task "rakefiles" do
   plugins.each do |plugin|
 
-    runtime_dependencies = ["'boxgrinder-build ~>0.6.6'"]
-    development_dependencies = ["'boxgrinder-build ~>0.6.6', 'hashery >=1.3.0'"]
+    runtime_dependencies = ["'boxgrinder-build ~>0.7.0'"]
+    development_dependencies = ["'boxgrinder-build ~>0.7.0', 'hashery >=1.3.0'"]
 
     unless plugin[:runtime_deps].nil?
       plugin[:runtime_deps].each do |n, v|
