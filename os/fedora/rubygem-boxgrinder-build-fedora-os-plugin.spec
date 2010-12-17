@@ -76,6 +76,7 @@ popd
 - Updated to upstream version: 0.0.6
 - [BGBUILD-113] Allow to specify supported file formats for operating system plugin
 - [BGBUILD-73] Add support for kickstart files
+- [BGBUILD-117] Remove Fedora 11 and 12 support
 
 * Mon Nov 29 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5

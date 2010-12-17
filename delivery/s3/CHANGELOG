@@ -1,6 +1,7 @@
 
 v0.0.5
 
+* [BGBUILD-117] Remove Fedora 11 and 12 support
 * [BGBUILD-55] Use euca2ools instead of ec2-ami-tools
 * [BGBUILD-115] PackageHelper should take directory instead of file list to package
 

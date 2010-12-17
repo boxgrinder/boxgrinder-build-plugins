@@ -1,6 +1,7 @@
 
 v0.0.7
 
+* [BGBUILD-117] Remove Fedora 11 and 12 support
 * [BGBUILD-110] For EC2 images don't use root account, use ec2-user instead
 
 v0.0.6

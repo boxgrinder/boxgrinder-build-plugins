@@ -26,7 +26,7 @@ module BoxGrinder
   class S3Plugin < BasePlugin
 
     AMI_OSES = {
-            'fedora'  => [ '11', '13', '14' ],
+            'fedora'  => [ '13', '14' ],
             'centos'  => [ '5' ],
             'rhel'    => [ '5' ]
     }
@@ -41,10 +41,6 @@ module BoxGrinder
                             '13' => {
                                     'i386'     => { :aki => 'aki-407d9529' },
                                     'x86_64'   => { :aki => 'aki-427d952b' }
-                            },
-                            '11' => {
-                                    'i386'     => { :aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc' },
-                                    'x86_64'   => { :aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da' }
                             }
                     },
                     'centos' => {

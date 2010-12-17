@@ -79,6 +79,7 @@ rm -rf %{buildroot}
 * Mon Dec 13 2010  <mgoldman@redhat.com> - 0.0.7-1
 - Upstream release: 0.0.7
 - [BGBUILD-110] For EC2 images don't use root account, use ec2-user instead
+- [BGBUILD-117] Remove Fedora 11 and 12 support
 
 * Fri Dec 03 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6

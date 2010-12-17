@@ -1,6 +1,7 @@
 
 v0.0.6
 
+* [BGBUILD-117] Remove Fedora 11 and 12 support
 * [BGBUILD-113] Allow to specify supported file formats for operating system plugin
 * [BGBUILD-73] Add support for kickstart files
 

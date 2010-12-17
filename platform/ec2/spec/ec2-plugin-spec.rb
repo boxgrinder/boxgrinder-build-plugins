@@ -121,6 +121,8 @@ module BoxGrinder
     end
 
     it "should install additional packages" do
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'centos', :version => '5'}))
+
       guestfs    = mock("guestfs")
 
       kernel_rpm = "kernel-xen-2.6.21.7-2.fc8.i686.rpm"

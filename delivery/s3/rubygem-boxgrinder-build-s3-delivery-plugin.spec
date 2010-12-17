@@ -81,6 +81,8 @@ rm -rf %{buildroot}
 * Tue Dec 14 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
 - [BGBUILD-115] PackageHelper should take directory instead of file list to package
+- [BGBUILD-55] Use euca2ools instead of ec2-ami-tools
+- [BGBUILD-117] Remove Fedora 11 and 12 support
 
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.4-3
 - Added BR: rubygem(rake), BR: rubygem(echoe), BR: rubygem(rspec), BR: rubygem(amazon-ec2), BR: rubygem(aws)

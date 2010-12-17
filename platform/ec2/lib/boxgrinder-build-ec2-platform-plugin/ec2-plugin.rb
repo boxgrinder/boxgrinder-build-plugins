@@ -25,12 +25,6 @@ module BoxGrinder
     REGIONS = {'us_east' => 'url'}
 
     KERNELS = {
-        'fedora' => {
-            '11' => {
-                'i386' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
-                'x86_64' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.x86_64.rpm'}
-            }
-        },
         'centos' => {
             '5' => {
                 'i386' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
@@ -48,7 +42,7 @@ module BoxGrinder
     def after_init
       register_deliverable(:disk => "#{@appliance_config.name}.ec2")
 
-      register_supported_os('fedora', ['11', '13', '14'])
+      register_supported_os('fedora', ['13', '14'])
       register_supported_os('centos', ['5'])
       register_supported_os('rhel', ['5'])
     end
@@ -235,6 +229,8 @@ module BoxGrinder
         rpms[File.basename(kernel_rpm)] = kernel_rpm
       rescue
       end
+
+      return if rpms.empty?
 
       cache_rpms(rpms)
 
