@@ -14,11 +14,9 @@ Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
 
-Requires: rubygem(boxgrinder-build)
-Requires: rubygem(boxgrinder-build-rpm-based-os-plugin)
+Requires: rubygem(boxgrinder-build-rpm-based-os-plugin) >= 0.0.9
 
-BuildRequires: rubygem(boxgrinder-build-rpm-based-os-plugin)
-BuildRequires: rubygem(boxgrinder-build)
+BuildRequires: rubygem(boxgrinder-build-rpm-based-os-plugin) >= 0.0.9
 BuildRequires: rubygem(hashery)
 BuildRequires: rubygem(echoe)
 BuildRequires: rubygem(rake)

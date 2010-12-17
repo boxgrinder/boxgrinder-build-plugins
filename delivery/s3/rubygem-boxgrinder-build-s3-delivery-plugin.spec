@@ -14,11 +14,11 @@ Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
 Requires: euca2ools >= 1.3.1-4
-Requires: rubygem(boxgrinder-build)
+Requires: rubygem(boxgrinder-build) >= 0.7.0
 Requires: rubygem(amazon-ec2)
 Requires: rubygem(aws)
 
-BuildRequires: rubygem(boxgrinder-build)
+BuildRequires: rubygem(boxgrinder-build) >= 0.7.0
 BuildRequires: rubygem(hashery)
 BuildRequires: rubygem(echoe)
 BuildRequires: rubygem(rake)

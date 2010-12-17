@@ -5,19 +5,19 @@
 
 Summary: Elastic Block Storage Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.3
-Release: 2%{?dist}
+Version: 0.0.4
+Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygem(boxgrinder-build)
+Requires: rubygem(boxgrinder-build) >= 0.7.0
 Requires: rubygem(amazon-ec2)
 Requires: rubygem(aws)
 
-BuildRequires: rubygem(boxgrinder-build)
+BuildRequires: rubygem(boxgrinder-build) >= 0.7.0
 BuildRequires: rubygem(rake)
 BuildRequires: rubygem(rspec)
 BuildRequires: rubygem(aws)
@@ -76,6 +76,9 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Fri Dec 17 2010  <mgoldman@redhat.com> - 0.0.4-1
+- Upstream release: 0.0.4
+
 * Wed Nov 24 2010  <mgoldman@redhat.com> - 0.0.3-3
 - Added BR: rubygem(echoe)
 

@@ -1,4 +1,8 @@
 
+v0.0.4
+
+* Version bump to tag repository
+
 v0.0.3
 
 * [BGBUILD-86] EBS plugin should inform that it can be run only on EC2

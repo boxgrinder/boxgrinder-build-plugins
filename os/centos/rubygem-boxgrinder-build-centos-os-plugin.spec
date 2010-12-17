@@ -15,10 +15,10 @@ Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 Requires: ruby(abi) = %{rubyabi}
 
 Requires: rubygem(boxgrinder-build)
-Requires: rubygem(boxgrinder-build-rhel-os-plugin)
+Requires: rubygem(boxgrinder-build-rhel-os-plugin) >= 0.0.7
 
 BuildRequires: rubygem(hashery)
-BuildRequires: rubygem(boxgrinder-build-rhel-os-plugin)
+BuildRequires: rubygem(boxgrinder-build-rhel-os-plugin) >= 0.0.7
 BuildRequires: rubygem(echoe)
 BuildRequires: rubygem(rake)
 BuildRequires: rubygem(rspec)

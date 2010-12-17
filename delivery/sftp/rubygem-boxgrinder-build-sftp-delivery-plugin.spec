@@ -13,12 +13,12 @@ URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygem(boxgrinder-build)
+Requires: rubygem(boxgrinder-build) >= 0.7.0
 Requires: rubygem(net-sftp)
 Requires: rubygem(net-ssh)
 Requires: rubygem(progressbar)
 
-BuildRequires: rubygem(boxgrinder-build)
+BuildRequires: rubygem(boxgrinder-build) >= 0.7.0
 BuildRequires: rubygem(net-sftp)
 BuildRequires: rubygem(net-ssh)
 BuildRequires: rubygem(progressbar)
