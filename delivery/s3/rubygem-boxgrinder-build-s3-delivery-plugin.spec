@@ -13,7 +13,7 @@ URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: euca2ools
+Requires: euca2ools >= 1.3.1-4
 Requires: rubygem(boxgrinder-build)
 Requires: rubygem(amazon-ec2)
 Requires: rubygem(aws)
