@@ -16,6 +16,8 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+
+require 'boxgrinder-build/managers/plugin-manager'
 require 'boxgrinder-build-ebs-delivery-plugin/ebs-plugin'
 
 plugin :class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name  => "Elastic Block Storage"
