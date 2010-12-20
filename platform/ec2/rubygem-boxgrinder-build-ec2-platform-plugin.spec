@@ -5,7 +5,7 @@
 
 Summary: Elastic Compute Cloud (EC2) Platform Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.7
+Version: 0.0.8
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -76,6 +76,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Dec 20 2010  <mgoldman@redhat.com> - 0.0.8-1
+- Upstream release: 0.0.8
+- [BGBUILD-123] Remove RPM database recreation code
+
 * Mon Dec 13 2010  <mgoldman@redhat.com> - 0.0.7-1
 - Upstream release: 0.0.7
 - [BGBUILD-110] For EC2 images don't use root account, use ec2-user instead

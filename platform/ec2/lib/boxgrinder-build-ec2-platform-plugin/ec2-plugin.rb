@@ -97,9 +97,6 @@ module BoxGrinder
         upload_rc_local(guestfs)
         enable_nosegneg_flag(guestfs)
         add_ec2_user(guestfs)
-
-        guestfs_helper.rebuild_rpm_database if @appliance_config.os.name == 'fedora' and @appliance_config.os.version == '11'
-
         install_additional_packages(guestfs)
         change_configuration(guestfs_helper)
         install_menu_lst(guestfs)
