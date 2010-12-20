@@ -79,6 +79,7 @@ rm -rf %{buildroot}
 * Mon Dec 20 2010  <mgoldman@redhat.com> - 0.0.8-1
 - Upstream release: 0.0.8
 - [BGBUILD-123] Remove RPM database recreation code
+- [BGBUILD-122] Remove kernel recreation for Fedora EC2 images
 
 * Mon Dec 13 2010  <mgoldman@redhat.com> - 0.0.7-1
 - Upstream release: 0.0.7

@@ -1,5 +1,6 @@
 v0.0.8
 
+* [BGBUILD-122] Remove kernel recreation for Fedora EC2 images
 * [BGBUILD-123] Remove RPM database recreation code
 
 v0.0.7
