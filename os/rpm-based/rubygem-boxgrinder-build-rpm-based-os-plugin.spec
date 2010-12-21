@@ -5,7 +5,7 @@
 
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.9
+Version: 0.0.10
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -73,6 +73,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Dec 21 2010  <mgoldman@redhat.com> - 0.0.10-1
+- Updated to upstream version: 0.0.10
+- [BGBUILD-100] Enable boxgrinder_build to create a Fedora image with encrypted partition(s)
+
 * Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.9-1
 - Updated to upstream version: 0.0.9
 - [BGBUILD-59] Remove all image modifications user is not expecting
