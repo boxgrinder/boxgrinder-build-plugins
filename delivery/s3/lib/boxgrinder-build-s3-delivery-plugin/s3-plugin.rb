@@ -24,13 +24,6 @@ require 'aws'
 
 module BoxGrinder
   class S3Plugin < BasePlugin
-
-    AMI_OSES = {
-            'fedora'  => [ '13', '14' ],
-            'centos'  => [ '5' ],
-            'rhel'    => [ '5' ]
-    }
-
     KERNELS = {
             'us_east' => {
                     'fedora' => {
@@ -63,15 +56,18 @@ module BoxGrinder
       set_default_config_value('path', '/')
       set_default_config_value('url', 'http://s3.amazonaws.com')
 
+      register_supported_os("fedora", [ '13', '14' ])
+      register_supported_os("centos", [ '5' ])
+      register_supported_os("rhel", [ '5' ])
+
       @ami_build_dir  = "#{@dir.base}/ami"
       @ami_manifest   = "#{@ami_build_dir}/#{@appliance_config.name}.ec2.manifest.xml"
     end
 
-    # TODO: remove this from here, use base-plugin os info
     def supported_os
       supported = ""
 
-      AMI_OSES.each_key do |os_name|
+      @supported_oses.each_key do |os_name|
         supported << "#{os_name}, versions: #{AMI_OSES[os_name].join(", ")}"
       end
 
@@ -93,7 +89,7 @@ module BoxGrinder
 
           @ec2 = AWS::EC2::Base.new(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'])
 
-          unless AMI_OSES[@appliance_config.os.name].include?(@appliance_config.os.version)
+          unless @supported_oses[@appliance_config.os.name].include?(@appliance_config.os.version)
             @log.error "You cannot convert selected image to AMI because of unsupported operating system: #{@appliance_config.os.name} #{@appliance_config.os.version}. Supported systems: #{supported_os}."
             return
           end

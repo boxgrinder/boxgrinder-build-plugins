@@ -34,26 +34,36 @@ module BoxGrinder
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
       @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64'}))
 
-      @plugin = S3Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::S3Plugin, :type => :delivery, :name => :s3, :full_name  => "Amazon Simple Storage Service (Amazon S3)", :types => [:s3, :cloudfront, :ami]})
+      @plugin = S3Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::S3Plugin, :type => :delivery, :name => :s3, :full_name => "Amazon Simple Storage Service (Amazon S3)", :types => [:s3, :cloudfront, :ami]})
 
-      @config             = @plugin.instance_variable_get(:@config)
-      @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper        = @plugin.instance_variable_get(:@exec_helper)
-      @log                = @plugin.instance_variable_get(:@log)
-      @dir                = @plugin.instance_variable_get(:@dir)
+      @config = @plugin.instance_variable_get(:@config)
+      @appliance_config = @plugin.instance_variable_get(:@appliance_config)
+      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      @log = @plugin.instance_variable_get(:@log)
+      @dir = @plugin.instance_variable_get(:@dir)
 
       @plugin_config = {
-          'access_key'        => 'access_key',
+          'access_key' => 'access_key',
           'secret_access_key' => 'secret_access_key',
-          'bucket'            => 'bucket',
-          'account_number'    => '0000-0000-0000',
-          'cert_file'         => '/path/to/cert/file',
-          'key_file'          => '/path/to/key/file',
-          'path'              => '/'
+          'bucket' => 'bucket',
+          'account_number' => '0000-0000-0000',
+          'cert_file' => '/path/to/cert/file',
+          'key_file' => '/path/to/key/file',
+          'path' => '/'
       }
 
       @plugin.instance_variable_set(:@plugin_config, @plugin_config)
 
+    end
+
+    it "should register all operating systems with specific versions" do
+      supportes_oses = @plugin.instance_variable_get(:@supported_oses)
+
+      supportes_oses.size.should == 3
+      supportes_oses.keys.sort.should == ['centos', 'fedora', 'rhel']
+      supportes_oses['centos'].should == ['5']
+      supportes_oses['rhel'].should == ['5']
+      supportes_oses['fedora'].should == ['13', '14']
     end
 
     it "should generate valid s3 path" do
