@@ -25,30 +25,22 @@ require 'aws'
 module BoxGrinder
   class S3Plugin < BasePlugin
     KERNELS = {
-            'us_east' => {
-                    'fedora' => {
-                            '14' => {
-                                    'i386'     => { :aki => 'aki-407d9529' },
-                                    'x86_64'   => { :aki => 'aki-427d952b' }
-                            },
-                            '13' => {
-                                    'i386'     => { :aki => 'aki-407d9529' },
-                                    'x86_64'   => { :aki => 'aki-427d952b' }
-                            }
-                    },
-                    'centos' => {
-                            '5' => {
-                                    'i386'     => { :aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc' },
-                                    'x86_64'   => { :aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da' }
-                            }
-                    },
-                    'rhel' => {
-                            '5' => {
-                                    'i386'     => { :aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc' },
-                                    'x86_64'   => { :aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da' }
-                            }
-                    }
+        'us-east-1' => {
+            'i386' => {:aki => 'aki-407d9529'},
+            'x86_64' => {:aki => 'aki-427d952b'},
+            'centos' => {
+                '5' => {
+                    'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
+                    'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
+                }
+            },
+            'rhel' => {
+                '5' => {
+                    'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
+                    'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
+                }
             }
+        }
     }
 
     def after_init
@@ -56,15 +48,15 @@ module BoxGrinder
       set_default_config_value('path', '/')
       set_default_config_value('url', 'http://s3.amazonaws.com')
 
-      register_supported_os("fedora", [ '13', '14' ])
-      register_supported_os("centos", [ '5' ])
-      register_supported_os("rhel", [ '5' ])
+      register_supported_os("fedora", ['13', '14'])
+      register_supported_os("centos", ['5'])
+      register_supported_os("rhel", ['5'])
 
-      @ami_build_dir  = "#{@dir.base}/ami"
-      @ami_manifest   = "#{@ami_build_dir}/#{@appliance_config.name}.ec2.manifest.xml"
+      @ami_build_dir = "#{@dir.base}/ami"
+      @ami_manifest = "#{@ami_build_dir}/#{@appliance_config.name}.ec2.manifest.xml"
     end
 
-    def execute( type = :ami )
+    def execute(type = :ami)
       validate_plugin_config(['bucket', 'access_key', 'secret_access_key'], 'http://community.jboss.org/docs/DOC-15217')
 
       case type
@@ -85,7 +77,7 @@ module BoxGrinder
           end
 
           unless image_already_uploaded?
-            bundle_image( @previous_deliverables )
+            bundle_image(@previous_deliverables)
             fix_sha1_sum
             upload_image
           else
@@ -98,10 +90,10 @@ module BoxGrinder
 
     # https://jira.jboss.org/browse/BGBUILD-34
     def fix_sha1_sum
-      ami_manifest = File.open( @ami_manifest ).read
-      ami_manifest.gsub!( '(stdin)= ', '' )
+      ami_manifest = File.open(@ami_manifest).read
+      ami_manifest.gsub!('(stdin)= ', '')
 
-      File.open( @ami_manifest, "w" ) {|f| f.write( ami_manifest ) }
+      File.open(@ami_manifest, "w") { |f| f.write(ami_manifest) }
     end
 
     def upload_to_bucket(previous_deliverables, permissions = 'private')
@@ -110,22 +102,22 @@ module BoxGrinder
       )
 
       # quick and dirty workaround to use @deliverables[:package] later in code
-      FileUtils.mv( @target_deliverables[:package], @deliverables[:package] ) if File.exists?( @target_deliverables[:package] )
+      FileUtils.mv(@target_deliverables[:package], @deliverables[:package]) if File.exists?(@target_deliverables[:package])
 
-      PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package( File.dirname(previous_deliverables[:disk]), @deliverables[:package] )
+      PackageHelper.new(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).package(File.dirname(previous_deliverables[:disk]), @deliverables[:package])
 
-      @s3 = Aws::S3.new( @plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log )
+      @s3 = Aws::S3.new(@plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log)
 
-      bucket = @s3.bucket( @plugin_config['bucket'], true )
+      bucket = @s3.bucket(@plugin_config['bucket'], true)
 
-      remote_path = "#{s3_path( @plugin_config['path'] )}#{File.basename(@deliverables[:package])}"
-      size_b      = File.size(@deliverables[:package])
+      remote_path = "#{s3_path(@plugin_config['path'])}#{File.basename(@deliverables[:package])}"
+      size_b = File.size(@deliverables[:package])
 
-      key = bucket.key( remote_path.gsub(/^\//, '').gsub(/\/\//, '') )
+      key = bucket.key(remote_path.gsub(/^\//, '').gsub(/\/\//, ''))
 
       unless key.exists? or @plugin_config['overwrite']
         @log.info "Uploading #{File.basename(@deliverables[:package])} (#{size_b/1024/1024}MB) to '#{@plugin_config['bucket']}#{remote_path}' path..."
-        key.put( open(@deliverables[:package]), permissions )
+        key.put(open(@deliverables[:package]), permissions)
         @log.info "Appliance #{@appliance_config.name} uploaded to S3."
       else
         @log.info "File '#{@plugin_config['bucket']}#{remote_path}' already uploaded, skipping."
@@ -134,17 +126,38 @@ module BoxGrinder
       @s3.close_connection
     end
 
-    def bundle_image( deliverables )
-      return if File.exists?( @ami_build_dir )
+    def bundle_image(deliverables)
+      return if File.exists?(@ami_build_dir)
 
       @log.info "Bundling AMI..."
 
-      FileUtils.mkdir_p( @ami_build_dir )
+      FileUtils.mkdir_p(@ami_build_dir)
 
-      aki = "--kernel #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]}"
-      ari = KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari].nil? ? "" : "--ramdisk #{KERNELS['us_east'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]}"
+      begin
+        aki = KERNELS['us-east-1'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]
+      rescue
+      end
 
-      @exec_helper.execute("euca-bundle-image --ec2cert #{File.dirname(__FILE__)}/src/cert-ec2.pem -i #{deliverables[:disk]} #{aki} #{ari} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.base_arch} -d #{@ami_build_dir}")
+      # use default pvgrub kernel image for selected region if there is no specific one for OS name/version
+      if aki.nil?
+        kernel = "--kernel #{KERNELS['us-east-1'][@appliance_config.hardware.base_arch][:aki]}"
+      else
+        kernel = "--kernel #{aki}"
+      end
+
+      begin
+        ari = KERNELS['us-east-1'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]
+      rescue
+      end
+
+      # use default pvgrub kernel image for selected region if there is no specific one for OS name/version
+      if aki.nil?
+        ramdisk = ""
+      else
+        ramdisk = "--ramdisk #{ari}"
+      end
+
+      @exec_helper.execute("euca-bundle-image --ec2cert #{File.dirname(__FILE__)}/src/cert-ec2.pem -i #{deliverables[:disk]} #{kernel} #{ramdisk} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.base_arch} -d #{@ami_build_dir}")
 
       @log.info "Bundling AMI finished."
     end
@@ -152,7 +165,7 @@ module BoxGrinder
     def image_already_uploaded?
 
       begin
-        bucket = @s3.bucket( @plugin_config['bucket'] )
+        bucket = @s3.bucket(@plugin_config['bucket'])
         bucket.keys
       rescue
         return false
@@ -161,7 +174,7 @@ module BoxGrinder
       manifest_location = bucket_manifest_key(@appliance_config.name, @plugin_config['path'])
       manifest_location = manifest_location[manifest_location.index("/") + 1, manifest_location.length]
 
-      return true if bucket.key( manifest_location ).exists?
+      return true if bucket.key(manifest_location).exists?
 
       false
     end
@@ -173,7 +186,7 @@ module BoxGrinder
     end
 
     def register_image
-      info  = ami_info(@appliance_config.name, @plugin_config['path'])
+      info = ami_info(@appliance_config.name, @plugin_config['path'])
 
       if info
         @log.info "Image is registered under id: #{info.imageId}"
@@ -183,32 +196,32 @@ module BoxGrinder
       end
     end
 
-    def ami_info( appliance_name, path )
+    def ami_info(appliance_name, path)
       ami_info = nil
 
-      images = @ec2.describe_images( :owner_id => @plugin_config['account_number'] ).imagesSet
+      images = @ec2.describe_images(:owner_id => @plugin_config['account_number']).imagesSet
 
       return nil if images.nil?
 
       for image in images.item do
-        ami_info = image if (image.imageLocation.eql?( bucket_manifest_key( appliance_name, path ) ))
+        ami_info = image if (image.imageLocation.eql?(bucket_manifest_key(appliance_name, path)))
       end
 
       ami_info
     end
 
-    def s3_path( path )
+    def s3_path(path)
       return path if path == '/'
 
       "/#{path.gsub(/^(\/)*/, '').gsub(/(\/)*$/, '')}/"
     end
 
-    def ami_bucket_key( appliance_name, path )
-      "#{@plugin_config['bucket']}#{s3_path( path )}#{appliance_name}/#{@appliance_config.os.name}/#{@appliance_config.os.version}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
+    def ami_bucket_key(appliance_name, path)
+      "#{@plugin_config['bucket']}#{s3_path(path)}#{appliance_name}/#{@appliance_config.os.name}/#{@appliance_config.os.version}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
     end
 
-    def bucket_manifest_key( appliance_name, path )
-      "#{ami_bucket_key( appliance_name, path )}/#{appliance_name}.ec2.manifest.xml"
+    def bucket_manifest_key(appliance_name, path)
+      "#{ami_bucket_key(appliance_name, path)}/#{appliance_name}.ec2.manifest.xml"
     end
   end
 end

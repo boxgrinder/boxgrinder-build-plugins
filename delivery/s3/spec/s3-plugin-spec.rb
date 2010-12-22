@@ -32,7 +32,7 @@ module BoxGrinder
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
-      @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64'}))
+      @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64', :base_arch => 'x86_64'}))
 
       @plugin = S3Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::S3Plugin, :type => :delivery, :name => :s3, :full_name => "Amazon Simple Storage Service (Amazon S3)", :types => [:s3, :cloudfront, :ami]})
 
@@ -149,6 +149,20 @@ module BoxGrinder
       File.should_receive(:size).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(23234566)
 
       @plugin.upload_to_bucket(:disk => "adisk")
+    end
+
+    it "should bundle the image" do
+      File.should_receive(:exists?).with('build/path/s3-plugin/ami').and_return(false)
+      @exec_helper.should_receive(:execute).with(/euca-bundle-image --ec2cert (.*)src\/cert-ec2\.pem -i a\/path\/to\/disk\.ec2 --kernel aki-427d952b  -c \/path\/to\/cert\/file -k \/path\/to\/key\/file -u 0000-0000-0000 -r x86_64 -d build\/path\/s3-plugin\/ami/)
+      @plugin.bundle_image(:disk => "a/path/to/disk.ec2")
+    end
+
+    it "should bundle the image for centos 5 anf choose right kernel and ramdisk" do
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'centos', :version => '5'}))
+
+      File.should_receive(:exists?).with('build/path/s3-plugin/ami').and_return(false)
+      @exec_helper.should_receive(:execute).with(/euca-bundle-image --ec2cert (.*)src\/cert-ec2\.pem -i a\/path\/to\/disk\.ec2 --kernel aki-b51cf9dc --ramdisk ari-b31cf9da -c \/path\/to\/cert\/file -k \/path\/to\/key\/file -u 0000-0000-0000 -r x86_64 -d build\/path\/s3-plugin\/ami/)
+      @plugin.bundle_image(:disk => "a/path/to/disk.ec2")
     end
   end
 end
