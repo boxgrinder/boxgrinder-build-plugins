@@ -64,16 +64,6 @@ module BoxGrinder
       @ami_manifest   = "#{@ami_build_dir}/#{@appliance_config.name}.ec2.manifest.xml"
     end
 
-    def supported_os
-      supported = ""
-
-      @supported_oses.each_key do |os_name|
-        supported << "#{os_name}, versions: #{AMI_OSES[os_name].join(", ")}"
-      end
-
-      supported
-    end
-
     def execute( type = :ami )
       validate_plugin_config(['bucket', 'access_key', 'secret_access_key'], 'http://community.jboss.org/docs/DOC-15217')
 
@@ -90,7 +80,7 @@ module BoxGrinder
           @ec2 = AWS::EC2::Base.new(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'])
 
           unless @supported_oses[@appliance_config.os.name].include?(@appliance_config.os.version)
-            @log.error "You cannot convert selected image to AMI because of unsupported operating system: #{@appliance_config.os.name} #{@appliance_config.os.version}. Supported systems: #{supported_os}."
+            @log.error "You cannot convert selected image to AMI because of unsupported operating system: #{@appliance_config.os.name} #{@appliance_config.os.version}. Supported systems: #{supported_oses}."
             return
           end
 
