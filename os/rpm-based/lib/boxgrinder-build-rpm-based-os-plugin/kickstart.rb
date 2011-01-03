@@ -30,7 +30,7 @@ module BoxGrinder
       @dir              = dir
       @log              = options[:log] || Logger.new(STDOUT)
 
-      @kickstart_file   = "#{@dir.base}/#{@appliance_config.name}.ks"
+      @kickstart_file   = "#{@dir.tmp}/#{@appliance_config.name}.ks"
     end
 
     def create

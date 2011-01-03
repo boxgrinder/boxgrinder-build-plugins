@@ -5,7 +5,7 @@
 
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.10
+Version: 0.0.11
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -73,6 +73,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Jan 03 2011  <mgoldman@redhat.com> - 0.0.11-1
+- Updated to upstream version: 0.0.11
+- [BGBUILD-125] Create kickstart files in RPM-based OS plugin in a temporary directory
+
 * Tue Dec 21 2010  <mgoldman@redhat.com> - 0.0.10-1
 - Updated to upstream version: 0.0.10
 - [BGBUILD-100] Enable boxgrinder_build to create a Fedora image with encrypted partition(s)
