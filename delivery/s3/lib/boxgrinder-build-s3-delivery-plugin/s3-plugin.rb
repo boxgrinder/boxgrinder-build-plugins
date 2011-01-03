@@ -25,6 +25,54 @@ require 'aws'
 module BoxGrinder
   class S3Plugin < BasePlugin
     KERNELS = {
+        'eu-west-1' => {
+            'i386' => {:aki => 'aki-4deec439'},
+            'x86_64' => {:aki => 'aki-4feec43b'},
+            'centos' => {
+                '5' => {
+                    'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
+                    'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
+                }
+            },
+            'rhel' => {
+                '5' => {
+                    'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
+                    'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
+                }
+            }
+        },
+        'ap-southeast-1' => {
+            'i386' => {:aki => 'aki-13d5aa41'},
+            'x86_64' => {:aki => 'aki-11d5aa43'},
+            'centos' => {
+                '5' => {
+                    'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
+                    'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
+                }
+            },
+            'rhel' => {
+                '5' => {
+                    'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
+                    'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
+                }
+            }
+        },
+        'us-west-1' => {
+            'i386' => {:aki => 'aki-99a0f1dc'},
+            'x86_64' => {:aki => 'aki-9ba0f1de'},
+            'centos' => {
+                '5' => {
+                    'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
+                    'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
+                }
+            },
+            'rhel' => {
+                '5' => {
+                    'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
+                    'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
+                }
+            }
+        },
         'us-east-1' => {
             'i386' => {:aki => 'aki-407d9529'},
             'x86_64' => {:aki => 'aki-427d952b'},
@@ -47,6 +95,7 @@ module BoxGrinder
       set_default_config_value('overwrite', false)
       set_default_config_value('path', '/')
       set_default_config_value('url', 'http://s3.amazonaws.com')
+      set_default_config_value('region', 'us-east-1')
 
       register_supported_os("fedora", ['13', '14'])
       register_supported_os("centos", ['5'])
@@ -133,20 +182,22 @@ module BoxGrinder
 
       FileUtils.mkdir_p(@ami_build_dir)
 
+      puts @plugin_config['region']
+
       begin
-        aki = KERNELS['us-east-1'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]
+        aki = KERNELS[@plugin_config['region']][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]
       rescue
       end
 
       # use default pvgrub kernel image for selected region if there is no specific one for OS name/version
       if aki.nil?
-        kernel = "--kernel #{KERNELS['us-east-1'][@appliance_config.hardware.base_arch][:aki]}"
+        kernel = "--kernel #{KERNELS[@plugin_config['region']][@appliance_config.hardware.base_arch][:aki]}"
       else
         kernel = "--kernel #{aki}"
       end
 
       begin
-        ari = KERNELS['us-east-1'][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]
+        ari = KERNELS[@plugin_config['region']][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]
       rescue
       end
 

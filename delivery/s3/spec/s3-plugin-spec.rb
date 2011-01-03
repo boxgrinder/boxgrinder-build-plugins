@@ -42,15 +42,17 @@ module BoxGrinder
       @log = @plugin.instance_variable_get(:@log)
       @dir = @plugin.instance_variable_get(:@dir)
 
-      @plugin_config = {
-          'access_key' => 'access_key',
-          'secret_access_key' => 'secret_access_key',
-          'bucket' => 'bucket',
-          'account_number' => '0000-0000-0000',
-          'cert_file' => '/path/to/cert/file',
-          'key_file' => '/path/to/key/file',
-          'path' => '/'
-      }
+      @plugin_config = @plugin.instance_variable_get(:@plugin_config).merge(
+          {
+              'access_key' => 'access_key',
+              'secret_access_key' => 'secret_access_key',
+              'bucket' => 'bucket',
+              'account_number' => '0000-0000-0000',
+              'cert_file' => '/path/to/cert/file',
+              'key_file' => '/path/to/key/file',
+              'path' => '/'
+          }
+      )
 
       @plugin.instance_variable_set(:@plugin_config, @plugin_config)
 
@@ -162,6 +164,15 @@ module BoxGrinder
 
       File.should_receive(:exists?).with('build/path/s3-plugin/ami').and_return(false)
       @exec_helper.should_receive(:execute).with(/euca-bundle-image --ec2cert (.*)src\/cert-ec2\.pem -i a\/path\/to\/disk\.ec2 --kernel aki-b51cf9dc --ramdisk ari-b31cf9da -c \/path\/to\/cert\/file -k \/path\/to\/key\/file -u 0000-0000-0000 -r x86_64 -d build\/path\/s3-plugin\/ami/)
+      @plugin.bundle_image(:disk => "a/path/to/disk.ec2")
+    end
+
+    it "should bundle the image for centos 5 anf choose right kernel and ramdisk" do
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'centos', :version => '5'}))
+      @plugin.instance_variable_get(:@plugin_config).merge!({'region' => 'us-west-1'})
+
+      File.should_receive(:exists?).with('build/path/s3-plugin/ami').and_return(false)
+      @exec_helper.should_receive(:execute).with(/euca-bundle-image --ec2cert (.*)src\/cert-ec2\.pem -i a\/path\/to\/disk\.ec2 --kernel aki-813667c4 --ramdisk ari-833667c6 -c \/path\/to\/cert\/file -k \/path\/to\/key\/file -u 0000-0000-0000 -r x86_64 -d build\/path\/s3-plugin\/ami/)
       @plugin.bundle_image(:disk => "a/path/to/disk.ec2")
     end
   end
