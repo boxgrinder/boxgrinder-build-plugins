@@ -1,10 +1,7 @@
-v0.0.11
-
-* [BGBUILD-125] Create kickstart files in RPM-based OS plugin in a temporary directory
-
 v0.0.10
 
 * [BGBUILD-100] Enable boxgrinder_build to create a Fedora image with encrypted partition(s)
+* [BGBUILD-125] Create kickstart files in RPM-based OS plugin in a temporary directory
 
 v0.0.9
 
