@@ -5,7 +5,7 @@
 
 Summary: VMware Platform Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.6
+Version: 0.0.7
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -70,6 +70,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Tue Jan 04 2011  <mgoldman@redhat.com> - 0.0.7-1
+- Upstream release: 0.0.7
+- [BGBUILD-79] Allow to use BoxGrinder Build as a library
+
 * Mon Dec 13 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6
 - [BGBUILD-114] Update VMware disk geometry calculation

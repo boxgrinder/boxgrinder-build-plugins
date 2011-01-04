@@ -45,7 +45,7 @@ module BoxGrinder
 
       # Because we're using repoquery command from our building environment, we must ensure, that our repository
       # names are unique
-      @magic_hash = "#{@config.name.downcase.gsub(" ", "_")}-"
+      @magic_hash = "boxgrinder-"
     end
 
     def resolve_packages

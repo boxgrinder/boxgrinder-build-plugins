@@ -58,8 +58,6 @@ module BoxGrinder
     def create_readme
       readme = File.open("#{File.dirname(__FILE__)}/src/README-#{@plugin_config['type']}").read
       readme.gsub!(/#APPLIANCE_NAME#/, @appliance_config.name)
-      readme.gsub!(/#NAME#/, @config.name)
-      readme.gsub!(/#VERSION#/, @config.version_with_release)
 
       readme
     end
@@ -116,8 +114,6 @@ module BoxGrinder
 
       # replace version with current appliance version
       vmx_data.gsub!(/#VERSION#/, "#{@appliance_config.version}.#{@appliance_config.release}")
-      # replace builder with current builder name and version
-      vmx_data.gsub!(/#BUILDER#/, "#{@config.name} #{@config.version_with_release}")
       # change name
       vmx_data.gsub!(/#NAME#/, @appliance_config.name.to_s)
       # and summary

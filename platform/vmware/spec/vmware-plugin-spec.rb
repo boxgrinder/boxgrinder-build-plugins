@@ -24,8 +24,7 @@ module BoxGrinder
   describe VMwarePlugin do
     def prepare_image(plugin_config, options = {})
       @config = mock('Config')
-      @config.stub!(:name).and_return('BoxGrinder')
-      @config.stub!(:version_with_release).and_return('0.1.2')
+      @config.stub!(:version).and_return('0.1.2')
 
       @appliance_config = mock('ApplianceConfig')
 
@@ -268,9 +267,9 @@ module BoxGrinder
       file = mock(File)
 
       File.should_receive(:open).and_return(file)
-      file.should_receive(:read).and_return("one #APPLIANCE_NAME# two #NAME# three #VERSION# four")
+      file.should_receive(:read).and_return("one #APPLIANCE_NAME# two")
 
-      @plugin.create_readme.should == "one full two BoxGrinder three 0.1.2 four"
+      @plugin.create_readme.should == "one full two"
     end
   end
 end

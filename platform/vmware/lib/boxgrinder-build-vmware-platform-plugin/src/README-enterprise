@@ -1,5 +1,3 @@
-#NAME# version #VERSION#
-
 This package contains #APPLIANCE_NAME# image for VMware.
 
 VMware Enterprise (VMware ESX/ESXi/, VMware vSphere)
