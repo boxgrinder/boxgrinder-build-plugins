@@ -35,7 +35,7 @@ module BoxGrinder
       validate_plugin_config(['path'], 'http://community.jboss.org/docs/DOC-15216')
 
       if @plugin_config['overwrite'] or !deliverables_exists?
-        PackageHelper.new(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).package(File.dirname(@previous_deliverables[:disk]), @deliverables[:package]) if @plugin_config['package']
+        PackageHelper.new(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).package(File.dirname(@previous_deliverables[:disk]), @deliverables[:package]) if @plugin_config['package']
 
         FileUtils.mkdir_p @plugin_config['path']
 

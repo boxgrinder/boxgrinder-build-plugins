@@ -5,7 +5,7 @@
 
 Summary: SSH File Transfer Protocol Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
+Version: 0.0.6
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -76,6 +76,9 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Wed Jan 05 2011  <mgoldman@redhat.com> - 0.0.6-1
+- Upstream release: 0.0.6
+
 * Tue Dec 14 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
 - [BGBUILD-115] PackageHelper should take directory instead of file list to package
