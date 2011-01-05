@@ -182,8 +182,6 @@ module BoxGrinder
 
       FileUtils.mkdir_p(@ami_build_dir)
 
-      puts @plugin_config['region']
-
       begin
         aki = KERNELS[@plugin_config['region']][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]
       rescue

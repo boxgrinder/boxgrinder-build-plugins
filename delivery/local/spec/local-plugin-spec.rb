@@ -58,7 +58,7 @@ module BoxGrinder
       package_helper = mock(PackageHelper)
       package_helper.should_receive(:package).with('.', "build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz").and_return("deliverable")
 
-      PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
+      PackageHelper.should_receive(:new).with(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
       @exec_helper.should_receive(:execute).with("cp build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz a/path")
       @plugin.should_receive(:deliverables_exists?).and_return(false)

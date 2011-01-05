@@ -106,7 +106,7 @@ module BoxGrinder
       package_helper = mock(PackageHelper)
       package_helper.should_receive(:package).with(".", "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
 
-      PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
+      PackageHelper.should_receive(:new).with(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
       s3 = mock(Aws::S3)
 
@@ -133,7 +133,7 @@ module BoxGrinder
       package_helper = mock(PackageHelper)
       package_helper.should_receive(:package).with(".", "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
 
-      PackageHelper.should_receive(:new).with(@config, @appliance_config, @dir, {:log => @log, :exec_helper => @exec_helper}).and_return(package_helper)
+      PackageHelper.should_receive(:new).with(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
       s3 = mock(Aws::S3)
 
