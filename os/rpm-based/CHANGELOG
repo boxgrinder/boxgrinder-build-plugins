@@ -1,6 +1,7 @@
 v0.0.11
 
 * [BGBUILD-79] Allow to use BoxGrinder Build as a library
+* [BGBUILD-126] Use encrypted password in kickstart files
 
 v0.0.10
 

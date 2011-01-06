@@ -85,6 +85,7 @@ module BoxGrinder
         @log.debug "'/etc/resolv.conf' uploaded."
 
         change_configuration(guestfs_helper)
+        # TODO check if this is still required
         apply_root_password(guestfs)
 
         guestfs.sh("chkconfig firstboot off") if guestfs.exists('/etc/init.d/firstboot') != 0

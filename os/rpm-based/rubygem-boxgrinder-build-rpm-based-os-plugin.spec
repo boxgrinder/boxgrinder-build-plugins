@@ -76,6 +76,7 @@ popd
 * Tue Jan 04 2011  <mgoldman@redhat.com> - 0.0.11-1
 - Upstream release: 0.0.11
 - [BGBUILD-79] Allow to use BoxGrinder Build as a library
+- [BGBUILD-126] Use encrypted password in kickstart files
 
 * Tue Dec 21 2010  <mgoldman@redhat.com> - 0.0.10-1
 - Updated to upstream version: 0.0.10

@@ -15,7 +15,7 @@ network --bootproto=dhcp --device=eth0 --onboot=on
 services --enabled=network
 <% end %>
 
-rootpw <%= root_password %> 
+rootpw --iscrypted <%= root_password.crypt((0...8).map { 65.+(rand(25)).chr }.join) %>
 
 <% partitions.each do |root, partition| %>
 part <%= root %> --size <%= (partition['size'].to_f * 1024).to_i %> --fstype <%= partition['type'] %> <% unless partition['options'].nil? %> --fsoptions '<%= partition['options'] %>' <% end %> <% if partition['passphrase'] %> --encrypted --passphrase='<%= partition['passphrase'] %>' <% end %> --ondisk sda<% end %>
