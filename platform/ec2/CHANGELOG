@@ -1,3 +1,7 @@
+v0.0.9
+
+* [BGBUILD-68] Global .boxgrinder/config or rc style file for config
+
 v0.0.8
 
 * [BGBUILD-122] Remove kernel recreation for Fedora EC2 images

@@ -22,23 +22,6 @@ require 'tempfile'
 
 module BoxGrinder
   class EC2Plugin < BasePlugin
-    REGIONS = {'us_east' => 'url'}
-
-    KERNELS = {
-        'centos' => {
-            '5' => {
-                'i386' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
-                'x86_64' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.x86_64.rpm'}
-            }
-        },
-        'rhel' => {
-            '5' => {
-                'i386' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.i686.rpm'},
-                'x86_64' => {:rpm => 'http://repo.oddthesis.org/packages/other/kernel-xen-2.6.21.7-2.fc8.x86_64.rpm'}
-            }
-        }
-    }
-
     def after_init
       register_deliverable(:disk => "#{@appliance_config.name}.ec2")
 
@@ -97,9 +80,12 @@ module BoxGrinder
         upload_rc_local(guestfs)
         enable_nosegneg_flag(guestfs)
         add_ec2_user(guestfs)
-        install_additional_packages(guestfs)
         change_configuration(guestfs_helper)
         install_menu_lst(guestfs)
+
+        # required for CentOS 5 and RHEL 5
+        # TODO write test
+        @linux_helper.recreate_kernel_image(guestfs, ['xenblk', 'xennet']) unless @appliance_config.os.name == 'fedora'
 
         unless @appliance_config.post['ec2'].nil?
           @appliance_config.post['ec2'].each do |cmd|
@@ -114,15 +100,6 @@ module BoxGrinder
       @log.info "Image converted to EC2 format."
     end
 
-    def cache_rpms(rpms)
-      for name in rpms.keys
-        cache_file = "#{@config.dir.src_cache}/#{name}"
-
-        @exec_helper.execute "mkdir -p #{@config.dir.src_cache}"
-        @exec_helper.execute "wget #{rpms[name]} -O #{cache_file}" unless File.exist?(cache_file)
-      end
-    end
-
     def create_devices(guestfs)
       @log.debug "Creating required devices..."
       guestfs.sh("/sbin/MAKEDEV -d /dev -x console")
@@ -133,11 +110,7 @@ module BoxGrinder
 
     def disk_device_prefix
       disk = 's'
-
-      case @appliance_config.os.name
-        when 'fedora'
-          disk = 'xv' if @appliance_config.os.version != '11'
-      end
+      disk = 'xv' if @appliance_config.os.name == 'fedora'
 
       disk
     end
@@ -214,33 +187,6 @@ module BoxGrinder
 
       rc_local.close
       @log.debug "'/etc/rc.local' file uploaded."
-    end
-
-    def install_additional_packages(guestfs)
-      rpms = {}
-
-      begin
-        kernel_rpm = KERNELS[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:rpm]
-        rpms[File.basename(kernel_rpm)] = kernel_rpm
-      rescue
-      end
-
-      return if rpms.empty?
-
-      cache_rpms(rpms)
-
-      @log.debug "Installing additional packages (#{rpms.keys.join(", ")})..."
-      guestfs.mkdir_p("/tmp/rpms")
-
-      for name in rpms.keys
-        cache_file = "#{@config.dir.src_cache}/#{name}"
-        guestfs.upload(cache_file, "/tmp/rpms/#{name}")
-      end
-
-      guestfs.sh("rpm -ivh --nodeps /tmp/rpms/*.rpm")
-      guestfs.rm_rf("/tmp/rpms")
-
-      @log.debug "Additional packages installed."
     end
 
     def change_configuration(guestfs_helper)

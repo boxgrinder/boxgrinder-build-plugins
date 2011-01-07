@@ -24,7 +24,6 @@ module BoxGrinder
   describe EC2Plugin do
     before(:each) do
       @config = mock('Config')
-      @config.stub!(:dir).and_return(OpenCascade.new({:src_cache => '/var/cache/boxgrinder/sources-cache'}))
 
       @appliance_config = mock('ApplianceConfig')
 
@@ -33,35 +32,31 @@ module BoxGrinder
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
       @appliance_config.stub!(:packages).and_return(OpenCascade.new({:includes => ["gcc-c++", "wget"]}))
-      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '13'}))
       @appliance_config.stub!(:is64bit?).and_return(false)
+      @appliance_config.stub!(:post).and_return(OpenCascade.new({:base => ['ls /']}))
 
       @appliance_config.stub!(:hardware).and_return(
           OpenCascade.new({
                               :partitions =>
                                   {
-                                      '/'     => {'size' => 2},
+                                      '/' => {'size' => 2},
                                       '/home' => {'size' => 3},
                                   },
-                              :arch       => 'i686',
-                              :base_arch  => 'i386',
-                              :cpus       => 1,
-                              :memory     => 256,
+                              :arch => 'i686',
+                              :base_arch => 'i386',
+                              :cpus => 1,
+                              :memory => 256,
                           })
       )
 
-      @plugin           = EC2Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name => "Amazon Elastic Compute Cloud (Amazon EC2)"})
+      @plugin = EC2Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name => "Amazon Elastic Compute Cloud (Amazon EC2)"})
 
-      @config           = @plugin.instance_variable_get(:@config)
+      @config = @plugin.instance_variable_get(:@config)
       @appliance_config = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper      = @plugin.instance_variable_get(:@exec_helper)
-      @log              = @plugin.instance_variable_get(:@log)
-    end
-
-    it "should download a rpm to cache directory" do
-      @exec_helper.should_receive(:execute).with("mkdir -p /var/cache/boxgrinder/sources-cache")
-      @exec_helper.should_receive(:execute).with("wget http://rpm_location -O /var/cache/boxgrinder/sources-cache/rpm_name")
-      @plugin.cache_rpms('rpm_name' => 'http://rpm_location')
+      @image_helper = @plugin.instance_variable_get(:@image_helper)
+      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      @log = @plugin.instance_variable_get(:@log)
     end
 
     it "should create devices" do
@@ -101,7 +96,7 @@ module BoxGrinder
     end
 
     it "should upload rc_local" do
-      guestfs  = mock("guestfs")
+      guestfs = mock("guestfs")
       tempfile = mock("tempfile")
 
       Tempfile.should_receive(:new).with("rc_local").and_return(tempfile)
@@ -118,28 +113,6 @@ module BoxGrinder
       @log.should_receive(:debug).once.with("'/etc/rc.local' file uploaded.")
 
       @plugin.upload_rc_local(guestfs)
-    end
-
-    it "should install additional packages" do
-      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'centos', :version => '5'}))
-
-      guestfs    = mock("guestfs")
-
-      kernel_rpm = "kernel-xen-2.6.21.7-2.fc8.i686.rpm"
-
-      rpms       = {kernel_rpm => "http://repo.oddthesis.org/packages/other/#{kernel_rpm}"}
-
-      @plugin.should_receive(:cache_rpms).ordered.with(rpms)
-
-      guestfs.should_receive(:mkdir_p).ordered.with("/tmp/rpms")
-      guestfs.should_receive(:upload).ordered.with("/var/cache/boxgrinder/sources-cache/#{kernel_rpm}", "/tmp/rpms/#{kernel_rpm}")
-      guestfs.should_receive(:sh).ordered.with("rpm -ivh --nodeps /tmp/rpms/*.rpm")
-      guestfs.should_receive(:rm_rf).ordered.with("/tmp/rpms")
-
-      @log.should_receive(:debug).ordered.with("Installing additional packages (#{kernel_rpm})...")
-      @log.should_receive(:debug).ordered.with("Additional packages installed.")
-
-      @plugin.install_additional_packages(guestfs)
     end
 
     it "should change configuration" do
@@ -166,7 +139,7 @@ module BoxGrinder
       @plugin.instance_variable_set(:@linux_helper, linux_helper)
 
       tempfile = mock(Tempfile)
-      tempfile.should_receive(:<<).with("default=0\ntimeout=0\ntitle full\n        root (hd0)\n        kernel /boot/vmlinuz-2.6.18 ro root=/dev/sda1 rd_NO_PLYMOUTH\n        initrd /boot/vmlinuz-2.6.18.img")
+      tempfile.should_receive(:<<).with("default=0\ntimeout=0\ntitle full\n        root (hd0)\n        kernel /boot/vmlinuz-2.6.18 ro root=/dev/xvda1 rd_NO_PLYMOUTH\n        initrd /boot/vmlinuz-2.6.18.img")
       tempfile.should_receive(:flush)
       tempfile.should_receive(:path).and_return('path/menu.lst')
       tempfile.should_receive(:close)
@@ -186,11 +159,6 @@ module BoxGrinder
       @plugin.disk_device_prefix.should == 'xv'
     end
 
-    it "should use sda disks for Fedora < 12" do
-      @appliance_config.os.version = '11'
-      @plugin.disk_device_prefix.should == 's'
-    end
-
     it "should enable nosegneg flag" do
       guestfs = mock("guestfs")
 
@@ -207,6 +175,79 @@ module BoxGrinder
       guestfs.should_receive(:sh).with("echo -e 'ec2-user\tALL=(ALL)\tNOPASSWD: ALL' >> /etc/sudoers")
 
       @plugin.add_ec2_user(guestfs)
+    end
+
+    describe ".execute" do
+      it "should convert the appliance to EC2 format" do
+        linux_helper = mock(LinuxHelper)
+
+        LinuxHelper.should_receive(:new).with(:log => @log).and_return(linux_helper)
+
+        @image_helper.should_receive(:create_disk).with("build/path/ec2-plugin/tmp/full.ec2", 10)
+        @image_helper.should_receive(:create_filesystem).with("build/path/ec2-plugin/tmp/full.ec2")
+        @image_helper.should_receive(:mount_image).twice
+        @image_helper.should_receive(:sync_files)
+        @image_helper.should_receive(:umount_image).twice
+
+        guestfs = mock("guestfs")
+        guestfs_helper = mock("guestfsHelper")
+
+        @image_helper.should_receive(:customize).with("build/path/ec2-plugin/tmp/full.ec2").and_yield(guestfs, guestfs_helper)
+
+        guestfs.should_receive(:upload).with("/etc/resolv.conf", "/etc/resolv.conf")
+        @plugin.should_receive(:create_devices).with(guestfs)
+        @plugin.should_receive(:upload_fstab).with(guestfs)
+
+
+        @plugin.should_receive(:enable_networking).with(guestfs)
+        @plugin.should_receive(:upload_rc_local).with(guestfs)
+        @plugin.should_receive(:enable_nosegneg_flag).with(guestfs)
+        @plugin.should_receive(:add_ec2_user).with(guestfs)
+        @plugin.should_receive(:change_configuration).with(guestfs_helper)
+        @plugin.should_receive(:install_menu_lst).with(guestfs)
+
+        linux_helper.should_not_receive(:recreate_kernel_image)
+
+        @plugin.execute
+      end
+
+      it "should recreate kernel image while converting to EC2 format for OS other than fedora" do
+        @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
+        @appliance_config.stub!(:is64bit?).and_return(true)
+
+        linux_helper = mock(LinuxHelper)
+
+        LinuxHelper.should_receive(:new).with(:log => @log).and_return(linux_helper)
+
+        @image_helper.should_receive(:create_disk).with("build/path/ec2-plugin/tmp/full.ec2", 10)
+        @image_helper.should_receive(:create_filesystem).with("build/path/ec2-plugin/tmp/full.ec2")
+        @image_helper.should_receive(:mount_image).twice
+        @image_helper.should_receive(:sync_files)
+        @image_helper.should_receive(:umount_image).twice
+
+        guestfs = mock("guestfs")
+        guestfs_helper = mock("guestfsHelper")
+
+        @image_helper.should_receive(:customize).with("build/path/ec2-plugin/tmp/full.ec2").and_yield(guestfs, guestfs_helper)
+
+        guestfs.should_receive(:upload).with("/etc/resolv.conf", "/etc/resolv.conf")
+        guestfs.should_receive(:mkdir).with("/data")
+
+        @plugin.should_receive(:create_devices).with(guestfs)
+        @plugin.should_receive(:upload_fstab).with(guestfs)
+
+
+        @plugin.should_receive(:enable_networking).with(guestfs)
+        @plugin.should_receive(:upload_rc_local).with(guestfs)
+        @plugin.should_receive(:enable_nosegneg_flag).with(guestfs)
+        @plugin.should_receive(:add_ec2_user).with(guestfs)
+        @plugin.should_receive(:change_configuration).with(guestfs_helper)
+        @plugin.should_receive(:install_menu_lst).with(guestfs)
+
+        linux_helper.should_receive(:recreate_kernel_image).with(guestfs, ['xenblk', 'xennet'])
+
+        @plugin.execute
+      end
     end
   end
 end

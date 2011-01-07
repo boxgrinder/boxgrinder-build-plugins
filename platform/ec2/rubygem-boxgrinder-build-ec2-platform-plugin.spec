@@ -5,7 +5,7 @@
 
 Summary: Elastic Compute Cloud (EC2) Platform Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.8
+Version: 0.0.9
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -76,6 +76,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Thu Jan 06 2011  <mgoldman@redhat.com> - 0.0.9-1
+- Upstream release: 0.0.8
+- [BGBUILD-68] Global .boxgrinder/config or rc style file for config
+
 * Mon Dec 20 2010  <mgoldman@redhat.com> - 0.0.8-1
 - Upstream release: 0.0.8
 - [BGBUILD-123] Remove RPM database recreation code
