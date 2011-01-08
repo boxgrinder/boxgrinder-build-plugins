@@ -6,9 +6,8 @@ VMware Personal (VMware Fusion, VMware Server, VMware Player)
 Required files:
 ---------------
 
-#APPLIANCE_NAME#.raw
-#APPLIANCE_NAME#-personal.vmx
-#APPLIANCE_NAME#-personal.vmdk
+#APPLIANCE_NAME#.vmx
+#APPLIANCE_NAME#.vmdk
 
 Required steps:
 ---------------
