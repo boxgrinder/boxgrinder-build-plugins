@@ -22,7 +22,7 @@ require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 module BoxGrinder
   describe RPMBasedOSPlugin do
     before(:each) do
-      @config           = mock('Config')
+      @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
@@ -31,12 +31,12 @@ module BoxGrinder
       @appliance_config.stub!(:release).and_return(0)
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
 
-      @plugin           = RPMBasedOSPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:name => :rpm_based})
+      @plugin = RPMBasedOSPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:name => :rpm_based})
 
-      @config           = @plugin.instance_variable_get(:@config)
+      @config = @plugin.instance_variable_get(:@config)
       @appliance_config = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper      = @plugin.instance_variable_get(:@exec_helper)
-      @log              = @plugin.instance_variable_get(:@log)
+      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      @log = @plugin.instance_variable_get(:@log)
     end
 
     it "should install repos" do
@@ -97,6 +97,48 @@ module BoxGrinder
       end
     end
 
+    it "should fix partition labels" do
+      guestfs = mock("guestfs")
+
+      guestfs.should_receive(:list_partitions).and_return(['/dev/vda1', '/dev/vda2'])
+      guestfs.should_receive(:vfs_label).with('/dev/vda1').and_return('_/')
+      guestfs.should_receive(:vfs_label).with('/dev/vda2').and_return('_/boot')
+
+      guestfs.should_receive(:sh).with('/sbin/e2label /dev/vda1 /')
+      guestfs.should_receive(:sh).with('/sbin/e2label /dev/vda2 /boot')
+
+      @plugin.fix_partition_labels(guestfs)
+    end
+
+    describe ".use_labels_for_partitions" do
+      it "should use labels for partitions instead of paths" do
+        guestfs = mock("guestfs")
+
+        guestfs.should_receive(:read_file).with('/etc/fstab').and_return("/dev/sda1 / something\nLABEL=/boot /boot something\n")
+        guestfs.should_receive(:vfs_label).with('/dev/vda1').and_return('/')
+        guestfs.should_receive(:write_file).with('/etc/fstab', "LABEL=/ / something\nLABEL=/boot /boot something\n", 0)
+
+        guestfs.should_receive(:read_file).with('/boot/grub/grub.conf').and_return("default=0\ntimeout=5\nsplashimage=(hd0,0)/boot/grub/splash.xpm.gz\nhiddenmenu\ntitle f14-core (2.6.35.10-74.fc14.x86_64)\nroot (hd0,0)\nkernel /boot/vmlinuz-2.6.35.10-74.fc14.x86_64 ro root=/dev/sda1\ninitrd /boot/initramfs-2.6.35.10-74.fc14.x86_64.img")
+        guestfs.should_receive(:vfs_label).with('/dev/vda1').and_return('/')
+        guestfs.should_receive(:write_file).with('/boot/grub/grub.conf', "default=0\ntimeout=5\nsplashimage=(hd0,0)/boot/grub/splash.xpm.gz\nhiddenmenu\ntitle f14-core (2.6.35.10-74.fc14.x86_64)\nroot (hd0,0)\nkernel /boot/vmlinuz-2.6.35.10-74.fc14.x86_64 ro root=LABEL=/\ninitrd /boot/initramfs-2.6.35.10-74.fc14.x86_64.img", 0)
+
+        @plugin.use_labels_for_partitions(guestfs)
+      end
+
+      it "should not change anything" do
+        guestfs = mock("guestfs")
+
+        guestfs.should_receive(:read_file).with('/etc/fstab').and_return("LABEL=/ / something\nLABEL=/boot /boot something\n")
+        guestfs.should_not_receive(:vfs_label)
+        guestfs.should_not_receive(:write_file)
+
+        guestfs.should_receive(:read_file).with('/boot/grub/grub.conf').and_return("default=0\ntimeout=5\nsplashimage=(hd0,0)/boot/grub/splash.xpm.gz\nhiddenmenu\ntitle f14-core (2.6.35.10-74.fc14.x86_64)\nroot (hd0,0)\nkernel /boot/vmlinuz-2.6.35.10-74.fc14.x86_64 ro root=LABEL=/\ninitrd /boot/initramfs-2.6.35.10-74.fc14.x86_64.img")
+        guestfs.should_not_receive(:vfs_label)
+        guestfs.should_not_receive(:write_file)
+
+        @plugin.use_labels_for_partitions(guestfs)
+      end
+    end
   end
 end
 

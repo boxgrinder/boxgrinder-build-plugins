@@ -77,6 +77,7 @@ popd
 - Upstream release: 0.0.11
 - [BGBUILD-79] Allow to use BoxGrinder Build as a library
 - [BGBUILD-126] Use encrypted password in kickstart files
+- [BGBUILD-129] Use partitions labels instead of device path in grub and fstab
 
 * Tue Dec 21 2010  <mgoldman@redhat.com> - 0.0.10-1
 - Updated to upstream version: 0.0.10

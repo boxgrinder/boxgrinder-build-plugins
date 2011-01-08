@@ -26,7 +26,7 @@ module BoxGrinder
   class RPMBasedOSPlugin < BasePlugin
     def after_init
       register_deliverable(
-          :disk       => "#{@appliance_config.name}-sda.raw",
+          :disk => "#{@appliance_config.name}-sda.raw",
           :descriptor => "#{@appliance_config.name}.xml"
       )
 
@@ -38,12 +38,12 @@ module BoxGrinder
     end
 
     def read_kickstart(file)
-      appliance_config      = ApplianceConfig.new
+      appliance_config = ApplianceConfig.new
 
       appliance_config.name = File.basename(file, '.ks')
 
-      name                  = nil
-      version               = nil
+      name = nil
+      version = nil
 
       File.read(file).each do |line|
         n = line.scan(/^# bg_os_name: (.*)/).flatten.first
@@ -56,7 +56,7 @@ module BoxGrinder
       raise "No operating system name specified, please add comment to you kickstrt file like this: # bg_os_name: fedora" if name.nil?
       raise "No operating system version specified, please add comment to you kickstrt file like this: # bg_os_version: 14" if version.nil?
 
-      appliance_config.os.name    = name
+      appliance_config.os.name = name
       appliance_config.os.version = version
 
       appliance_config
@@ -87,6 +87,8 @@ module BoxGrinder
         change_configuration(guestfs_helper)
         # TODO check if this is still required
         apply_root_password(guestfs)
+        fix_partition_labels(guestfs)
+        use_labels_for_partitions(guestfs)
 
         guestfs.sh("chkconfig firstboot off") if guestfs.exists('/etc/init.d/firstboot') != 0
 
@@ -110,6 +112,24 @@ module BoxGrinder
       end
 
       @log.info "Base image for #{@appliance_config.name} appliance was built successfully."
+    end
+
+    def fix_partition_labels(guestfs)
+      guestfs.list_partitions.each do |partition|
+        guestfs.sh("/sbin/e2label #{partition} #{guestfs.vfs_label(partition).gsub('_', '')}")
+      end
+    end
+
+    def use_labels_for_partitions(guestfs)
+      # /etc/fstab
+      if fstab = guestfs.read_file('/etc/fstab').gsub!(/^(\/dev\/sda.)/) { |path| "LABEL=#{guestfs.vfs_label(path.gsub('/dev/sda', '/dev/vda'))}" }
+        guestfs.write_file('/etc/fstab', fstab, 0)
+      end
+
+      # /boot/grub/grub.conf
+      if grub = guestfs.read_file('/boot/grub/grub.conf').gsub!(/(\/dev\/sda.)/) { |path| "LABEL=#{guestfs.vfs_label(path.gsub('/dev/sda', '/dev/vda'))}" }
+        guestfs.write_file('/boot/grub/grub.conf', grub, 0)
+      end
     end
 
     def apply_root_password(guestfs)
