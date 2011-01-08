@@ -5,7 +5,7 @@
 
 Summary: Red Hat Enterprise Linux Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.7
+Version: 0.0.8
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -74,6 +74,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Sat Jan 08 2011  <mgoldman@redhat.com> - 0.0.8-1
+- Updated to upstream version: 0.0.8
+- [BGBUILD-130] Add virtio support out of the box
+
 * Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.7-1
 - Updated to upstream version: 0.0.7
 - [BGBUILD-113] Allow to specify supported file formats for operating system plugin

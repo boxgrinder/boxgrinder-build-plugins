@@ -20,19 +20,20 @@ require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 
 module BoxGrinder
   class RHELPlugin < RPMBasedOSPlugin
-    def build_rhel( appliance_definition_file, repos = {} )
+    def build_rhel(appliance_definition_file, repos = {})
       adjust_partition_table
 
-      normalize_packages( @appliance_config.packages.includes )
+      normalize_packages(@appliance_config.packages.includes)
 
-      build_with_appliance_creator( appliance_definition_file, repos )  do |guestfs, guestfs_helper|
-        # required for VMware
-        @linux_helper.recreate_kernel_image( guestfs, ['mptspi'] )
+      build_with_appliance_creator(appliance_definition_file, repos) do |guestfs, guestfs_helper|
+        # required for VMware and KVM
+        @linux_helper.recreate_kernel_image(guestfs, ['mptspi', 'virtio_pci', 'virtio_blk']) if @appliance_config.os.version == '5'
       end
     end
 
-    def normalize_packages( packages )
+    def normalize_packages(packages)
       packages << "curl" unless packages.include?("curl")
+      packages << "kernel" unless packages.include?("kernel") or packages.include?("kernel-xen")
 
       case @appliance_config.os.version
         when "5" then
@@ -42,7 +43,7 @@ module BoxGrinder
 
     # https://bugzilla.redhat.com/show_bug.cgi?id=466275
     def adjust_partition_table
-      @appliance_config.hardware.partitions['/boot'] = { 'root' => '/boot', 'type' => 'ext3', 'size' => 0.1 } if @appliance_config.hardware.partitions['/boot'].nil?
+      @appliance_config.hardware.partitions['/boot'] = {'root' => '/boot', 'type' => 'ext3', 'size' => 0.1} if @appliance_config.hardware.partitions['/boot'].nil?
     end
 
     def execute(appliance_definition_file)
