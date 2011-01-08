@@ -18,6 +18,7 @@
 
 require 'rubygems'
 require 'boxgrinder-build-ec2-platform-plugin/ec2-plugin'
+require 'boxgrinder-core/helpers/log-helper'
 require 'hashery/opencascade'
 
 module BoxGrinder
@@ -50,7 +51,7 @@ module BoxGrinder
                           })
       )
 
-      @plugin = EC2Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name => "Amazon Elastic Compute Cloud (Amazon EC2)"})
+      @plugin = EC2Plugin.new.init(@config, @appliance_config, :log => LogHelper.new(:level => :trace), :plugin_info => {:class => BoxGrinder::EC2Plugin, :type => :platform, :name => :ec2, :full_name => "Amazon Elastic Compute Cloud (Amazon EC2)"})
 
       @config = @plugin.instance_variable_get(:@config)
       @appliance_config = @plugin.instance_variable_get(:@appliance_config)
