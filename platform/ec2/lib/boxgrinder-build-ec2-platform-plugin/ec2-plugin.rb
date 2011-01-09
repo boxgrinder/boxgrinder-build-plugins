@@ -31,11 +31,6 @@ module BoxGrinder
     end
 
     def execute
-      unless is_supported_os?
-        @log.error "EC2 delivery plugin supports following operating systems: #{supported_oses}. Your OS is #{@appliance_config.os.name} #{@appliance_config.os.version}."
-        return
-      end
-
       @linux_helper = LinuxHelper.new(:log => @log)
 
       @log.info "Converting #{@appliance_config.name} appliance image to EC2 format..."

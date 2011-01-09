@@ -77,8 +77,9 @@ rm -rf %{buildroot}
 
 %changelog
 * Thu Jan 06 2011  <mgoldman@redhat.com> - 0.0.9-1
-- Upstream release: 0.0.8
+- Upstream release: 0.0.9
 - [BGBUILD-68] Global .boxgrinder/config or rc style file for config
+- [BGBUILD-131] Check if OS is supported before executing the plugin
 
 * Mon Dec 20 2010  <mgoldman@redhat.com> - 0.0.8-1
 - Upstream release: 0.0.8

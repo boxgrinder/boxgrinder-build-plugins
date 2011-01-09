@@ -95,11 +95,6 @@ module BoxGrinder
       raise "You can only convert to EBS type AMI appliances converted to EC2 format. Use '-p ec2' switch. For more info about EC2 plugin see http://community.jboss.org/docs/DOC-15527." unless @previous_plugin_info[:name] == :ec2
       raise "You selected #{@plugin_config['availability_zone']} avaibility zone, but your instance is running in #{@current_avaibility_zone} zone. Please change avaibility zone in plugin configuration file to #{@current_avaibility_zone} (see http://community.jboss.org/docs/DOC-15921) or use another instance in #{@plugin_config['availability_zone']} zone to create your EBS AMI." if @plugin_config['availability_zone'] != @current_avaibility_zone
 
-      unless is_supported_os?
-        @log.error "EBS delivery plugin supports following operating systems: #{supported_oses}. Your OS is #{@appliance_config.os.name} #{@appliance_config.os.version}."
-        return
-      end
-
       ebs_appliance_description = "#{@appliance_config.summary} | Appliance version #{@appliance_config.version}.#{@appliance_config.release} | #{@appliance_config.hardware.arch} architecture"
       ebs_appliance_name        = "#{@appliance_config.name}/#{@appliance_config.os.name}/#{@appliance_config.os.version}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
 

@@ -5,7 +5,7 @@
 
 Summary: Elastic Block Storage Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.4
+Version: 0.0.5
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -76,6 +76,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Sun Jan 09 2011  <mgoldman@redhat.com> - 0.0.5-1
+- Upstream release: 0.0.5
+- [BGBUILD-131] Check if OS is supported before executing the plugin
+
 * Fri Dec 17 2010  <mgoldman@redhat.com> - 0.0.4-1
 - Upstream release: 0.0.4
 
