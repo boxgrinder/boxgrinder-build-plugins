@@ -116,20 +116,24 @@ module BoxGrinder
 
     def fix_partition_labels(guestfs)
       guestfs.list_partitions.each do |partition|
-        guestfs.sh("/sbin/e2label #{partition} #{guestfs.vfs_label(partition).gsub('_', '')}")
+        guestfs.sh("/sbin/e2label #{partition} #{read_label(guestfs, partition)}")
       end
     end
 
     def use_labels_for_partitions(guestfs)
       # /etc/fstab
-      if fstab = guestfs.read_file('/etc/fstab').gsub!(/^(\/dev\/sda.)/) { |path| "LABEL=#{guestfs.vfs_label(path.gsub('/dev/sda', '/dev/vda'))}" }
+      if fstab = guestfs.read_file('/etc/fstab').gsub!(/^(\/dev\/sda.)/) { |path| "LABEL=#{read_label(guestfs, path.gsub('/dev/sda', '/dev/vda'))}" }
         guestfs.write_file('/etc/fstab', fstab, 0)
       end
 
       # /boot/grub/grub.conf
-      if grub = guestfs.read_file('/boot/grub/grub.conf').gsub!(/(\/dev\/sda.)/) { |path| "LABEL=#{guestfs.vfs_label(path.gsub('/dev/sda', '/dev/vda'))}" }
+      if grub = guestfs.read_file('/boot/grub/grub.conf').gsub!(/(\/dev\/sda.)/) { |path| "LABEL=#{read_label(guestfs, path.gsub('/dev/sda', '/dev/vda'))}" }
         guestfs.write_file('/boot/grub/grub.conf', grub, 0)
       end
+    end
+
+    def read_label(guestfs, partition)
+      (guestfs.respond_to?(:vfs_label) ? guestfs.vfs_label(partition) : guestfs.sh("/sbin/e2label #{partition}").chomp.strip).gsub('_', '')
     end
 
     def apply_root_password(guestfs)
