@@ -22,18 +22,23 @@ module BoxGrinder
   class CentOSPlugin < RHELPlugin
 
     CENTOS_REPOS = {
-            "5" => {
-                    "base" => {
-                            "mirrorlist" => "http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=os"
-                    },
-                    "updates" => {
-                            "mirrorlist" => "http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=updates"
-                    }
+        "5" => {
+            "base" => {
+                "mirrorlist" => "http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=os"
+            },
+            "updates" => {
+                "mirrorlist" => "http://mirrorlist.centos.org/?release=#OS_VERSION#&arch=#BASE_ARCH#&repo=updates"
             }
+        }
     }
 
+    def after_init
+      super
+      register_supported_os('centos', ['5'])
+    end
+
     def execute(appliance_definition_file)
-      build_rhel( appliance_definition_file, CENTOS_REPOS )
+      build_rhel(appliance_definition_file, CENTOS_REPOS)
     end
   end
 end

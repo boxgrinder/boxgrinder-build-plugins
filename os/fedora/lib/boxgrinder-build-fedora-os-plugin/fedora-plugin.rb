@@ -20,6 +20,11 @@ require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 
 module BoxGrinder
   class FedoraPlugin < RPMBasedOSPlugin
+    def after_init
+      super
+      register_supported_os('fedora', ["13", "14", "rawhide"])
+    end
+
     def execute(appliance_definition_file)
       normalize_packages(@appliance_config.packages.includes)
 
@@ -28,7 +33,7 @@ module BoxGrinder
       @plugin_info[:versions].each do |version|
         if version.match(/\d+/)
           @repos[version] = {
-              "base"    => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-#{version}&arch=#BASE_ARCH#"},
+              "base" => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-#{version}&arch=#BASE_ARCH#"},
               "updates" => {"mirrorlist" => "http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f#{version}&arch=#BASE_ARCH#"}
           }
         else

@@ -5,7 +5,7 @@
 
 Summary: CentOS Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.6
+Version: 0.0.7
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -75,6 +75,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Sun Jan 09 2011  <mgoldman@redhat.com> - 0.0.7-1
+- Updated to upstream version: 0.0.7
+- [BGBUILD-131] Check if OS is supported before executing the plugin
+
 * Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Updated to upstream version: 0.0.6
 - [BGBUILD-113] Allow to specify supported file formats for operating system plugin
