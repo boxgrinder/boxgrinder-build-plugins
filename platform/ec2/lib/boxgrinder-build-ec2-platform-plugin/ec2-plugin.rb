@@ -27,7 +27,7 @@ module BoxGrinder
 
       register_supported_os('fedora', ['13', '14'])
       register_supported_os('centos', ['5'])
-      register_supported_os('rhel', ['5'])
+      register_supported_os('rhel', ['5', '6'])
     end
 
     def execute
@@ -79,8 +79,7 @@ module BoxGrinder
         install_menu_lst(guestfs)
 
         # required for CentOS 5 and RHEL 5
-        # TODO write test
-        @linux_helper.recreate_kernel_image(guestfs, ['xenblk', 'xennet']) unless @appliance_config.os.name == 'fedora'
+        @linux_helper.recreate_kernel_image(guestfs, ['xenblk', 'xennet']) if (@appliance_config.os.name == 'rhel' or @appliance_config.os.name == 'centos') and @appliance_config.os.version == '5' 
 
         unless @appliance_config.post['ec2'].nil?
           @appliance_config.post['ec2'].each do |cmd|

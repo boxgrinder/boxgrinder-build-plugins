@@ -80,6 +80,7 @@ rm -rf %{buildroot}
 - Upstream release: 0.0.9
 - [BGBUILD-68] Global .boxgrinder/config or rc style file for config
 - [BGBUILD-131] Check if OS is supported before executing the plugin
+- [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 
 * Mon Dec 20 2010  <mgoldman@redhat.com> - 0.0.8-1
 - Upstream release: 0.0.8

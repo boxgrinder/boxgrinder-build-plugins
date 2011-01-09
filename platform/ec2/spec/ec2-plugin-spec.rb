@@ -212,7 +212,7 @@ module BoxGrinder
         @plugin.execute
       end
 
-      it "should recreate kernel image while converting to EC2 format for OS other than fedora" do
+      it "should recreate kernel image while converting to EC2 format for RHEL/CentOS 5" do
         @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
         @appliance_config.stub!(:is64bit?).and_return(true)
 
