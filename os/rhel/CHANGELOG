@@ -1,5 +1,6 @@
 v0.0.8
 
+* [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 * [BGBUILD-130] Add virtio support out of the box
 
 v0.0.7

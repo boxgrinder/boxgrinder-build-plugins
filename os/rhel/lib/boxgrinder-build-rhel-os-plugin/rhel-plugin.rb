@@ -20,6 +20,11 @@ require 'boxgrinder-build-rpm-based-os-plugin/rpm-based-os-plugin'
 
 module BoxGrinder
   class RHELPlugin < RPMBasedOSPlugin
+    def after_init
+      super
+      register_supported_os('rhel', ['5', '6'])
+    end
+
     def build_rhel(appliance_definition_file, repos = {})
       adjust_partition_table
 
@@ -33,11 +38,14 @@ module BoxGrinder
 
     def normalize_packages(packages)
       packages << "curl" unless packages.include?("curl")
-      packages << "kernel" unless packages.include?("kernel") or packages.include?("kernel-xen")
 
       case @appliance_config.os.version
-        when "5" then
+        when '5'
+          packages << "kernel" unless packages.include?("kernel") or packages.include?("kernel-xen")
           packages << "system-config-securitylevel-tui" unless packages.include?("system-config-securitylevel-tui")
+        when '6'
+          packages << "kernel" unless packages.include?("kernel")
+          packages << "system-config-firewall-base" unless packages.include?("system-config-firewall-base")
       end
     end
 

@@ -77,6 +77,7 @@ rm -rf %{buildroot}
 * Sat Jan 08 2011  <mgoldman@redhat.com> - 0.0.8-1
 - Updated to upstream version: 0.0.8
 - [BGBUILD-130] Add virtio support out of the box
+- [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 
 * Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.7-1
 - Updated to upstream version: 0.0.7
