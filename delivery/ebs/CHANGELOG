@@ -1,5 +1,6 @@
 v0.0.5
 
+* [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 * [BGBUILD-131] Check if OS is supported before executing the plugin
 
 v0.0.4

@@ -23,55 +23,22 @@ require 'open-uri'
 
 module BoxGrinder
   class EBSPlugin < BasePlugin
-
     KERNELS = {
-        'us-east-1'  => {
-            'fedora' => {
-                '14' => {
-                    'i386'     => {:aki => 'aki-407d9529'},
-                    'x86_64'   => {:aki => 'aki-427d952b'}
-                },
-                '13' => {
-                    'i386'     => {:aki => 'aki-407d9529'},
-                    'x86_64'   => {:aki => 'aki-427d952b'}
-                }
-            }
-        },
-        'us-west-1'  => {
-            'fedora' => {
-                '14' => {
-                    'i386'     => {:aki => 'aki-99a0f1dc'},
-                    'x86_64'   => {:aki => 'aki-9ba0f1de'}
-                },
-                '13' => {
-                    'i386'     => {:aki => 'aki-99a0f1dc'},
-                    'x86_64'   => {:aki => 'aki-9ba0f1de'}
-                }
-            }
-        },
-        'eu-west-1'  => {
-            'fedora' => {
-                '14' => {
-                    'i386'     => {:aki => 'aki-4deec439'},
-                    'x86_64'   => {:aki => 'aki-4feec43b'}
-                },
-                '13' => {
-                    'i386'     => {:aki => 'aki-4deec439'},
-                    'x86_64'   => {:aki => 'aki-4feec43b'}
-                }
-            }
+        'eu-west-1' => {
+            'i386' => {:aki => 'aki-4deec439'},
+            'x86_64' => {:aki => 'aki-4feec43b'}
         },
         'ap-southeast-1' => {
-            'fedora' => {
-                '14' => {
-                    'i386'     => {:aki => 'aki-13d5aa41'},
-                    'x86_64'   => {:aki => 'aki-11d5aa43'}
-                },
-                '13' => {
-                    'i386'     => {:aki => 'aki-13d5aa41'},
-                    'x86_64'   => {:aki => 'aki-11d5aa43'}
-                }
-            }
+            'i386' => {:aki => 'aki-13d5aa41'},
+            'x86_64' => {:aki => 'aki-11d5aa43'}
+        },
+        'us-west-1' => {
+            'i386' => {:aki => 'aki-99a0f1dc'},
+            'x86_64' => {:aki => 'aki-9ba0f1de'}
+        },
+        'us-east-1' => {
+            'i386' => {:aki => 'aki-407d9529'},
+            'x86_64' => {:aki => 'aki-427d952b'}
         }
     }
 
@@ -86,6 +53,7 @@ module BoxGrinder
       set_default_config_value('delete_on_termination', true)
 
       register_supported_os('fedora', ['13', '14'])
+      register_supported_os('rhel', ['6'])
     end
 
     def execute(type = :ebs)
@@ -96,13 +64,13 @@ module BoxGrinder
       raise "You selected #{@plugin_config['availability_zone']} avaibility zone, but your instance is running in #{@current_avaibility_zone} zone. Please change avaibility zone in plugin configuration file to #{@current_avaibility_zone} (see http://community.jboss.org/docs/DOC-15921) or use another instance in #{@plugin_config['availability_zone']} zone to create your EBS AMI." if @plugin_config['availability_zone'] != @current_avaibility_zone
 
       ebs_appliance_description = "#{@appliance_config.summary} | Appliance version #{@appliance_config.version}.#{@appliance_config.release} | #{@appliance_config.hardware.arch} architecture"
-      ebs_appliance_name        = "#{@appliance_config.name}/#{@appliance_config.os.name}/#{@appliance_config.os.version}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
+      ebs_appliance_name = "#{@appliance_config.name}/#{@appliance_config.os.name}/#{@appliance_config.os.version}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
 
-      @ec2                      = AWS::EC2::Base.new(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'])
+      @ec2 = AWS::EC2::Base.new(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'])
 
       @log.debug "Checking if appliance is already registered..."
 
-      ami_id                    = already_registered?(ebs_appliance_name)
+      ami_id = already_registered?(ebs_appliance_name)
 
       if ami_id
         @log.warn "EBS AMI '#{ebs_appliance_name}' is already registered as '#{ami_id}'."
@@ -111,12 +79,12 @@ module BoxGrinder
 
       @log.info "Creating new EBS volume..."
 
-      size                      = 0
+      size = 0
 
       @appliance_config.hardware.partitions.each_value { |partition| size += partition['size'] }
 
       # create_volume with 10GB size
-      volume_id                 = @ec2.create_volume(:size => size.to_s, :availability_zone => @plugin_config['availability_zone'])['volumeId']
+      volume_id = @ec2.create_volume(:size => size.to_s, :availability_zone => @plugin_config['availability_zone'])['volumeId']
 
       @log.debug "Volume #{volume_id} created."
       @log.debug "Waiting for EBS volume #{volume_id} to be available..."
@@ -125,13 +93,13 @@ module BoxGrinder
       wait_for_volume_status('available', volume_id)
 
       # get first free device to mount the volume
-      suffix                    = free_device_suffix
+      suffix = free_device_suffix
 
       @log.trace "Got free device suffix: '#{suffix}'"
       @log.trace "Reading current instance id..."
 
       # read current instance id
-      instance_id               = open('http://169.254.169.254/latest/meta-data/instance-id').string
+      instance_id = open('http://169.254.169.254/latest/meta-data/instance-id').string
 
       @log.trace "Got: #{instance_id}"
       @log.info "Attaching created volume..."
@@ -148,8 +116,8 @@ module BoxGrinder
 
       @log.info "Copying data to EBS volume..."
 
-      ec2_disk_mount_dir        = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
-      ebs_disk_mount_dir        = "#{@dir.tmp}/ebs-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
+      ec2_disk_mount_dir = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
+      ebs_disk_mount_dir = "#{@dir.tmp}/ebs-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
 
       FileUtils.mkdir_p(ec2_disk_mount_dir)
       FileUtils.mkdir_p(ebs_disk_mount_dir)
@@ -190,8 +158,8 @@ module BoxGrinder
 
       @log.info "Creating snapshot from EBS volume..."
 
-      snapshot_id               = @ec2.create_snapshot(
-          :volume_id   => volume_id,
+      snapshot_id = @ec2.create_snapshot(
+          :volume_id => volume_id,
           :description => ebs_appliance_description)['snapshotId']
 
       @log.debug "Waiting for snapshot #{snapshot_id} to be completed..."
@@ -204,34 +172,34 @@ module BoxGrinder
 
       @log.info "Registering image..."
 
-      region                    = @current_avaibility_zone.scan(/((\w+)-(\w+)-(\d+))/).flatten.first
-      image_id                  = @ec2.register_image(
-          :block_device_mapping   => [{
-                                          :device_name               => '/dev/sda1',
-                                          :ebs_snapshot_id           => snapshot_id,
-                                          :ebs_delete_on_termination => @plugin_config['delete_on_termination']
-                                      },
-                                      {
-                                          :device_name               => '/dev/sdb',
-                                          :virtual_name              => 'ephemeral0'
-                                      },
-                                      {
-                                          :device_name               => '/dev/sdc',
-                                          :virtual_name              => 'ephemeral1'
-                                      },
-                                      {
-                                          :device_name               => '/dev/sdd',
-                                          :virtual_name              => 'ephemeral2'
-                                      },
-                                      {
-                                          :device_name               => '/dev/sde',
-                                          :virtual_name              => 'ephemeral3'
-                                      }],
-          :root_device_name       => '/dev/sda1',
-          :architecture           => @appliance_config.hardware.base_arch,
-          :kernel_id              => KERNELS[region][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki],
-          :name                   => ebs_appliance_name,
-          :description            => ebs_appliance_description)['imageId']
+      region = @current_avaibility_zone.scan(/((\w+)-(\w+)-(\d+))/).flatten.first
+      image_id = @ec2.register_image(
+          :block_device_mapping => [{
+                                        :device_name => '/dev/sda1',
+                                        :ebs_snapshot_id => snapshot_id,
+                                        :ebs_delete_on_termination => @plugin_config['delete_on_termination']
+                                    },
+                                    {
+                                        :device_name => '/dev/sdb',
+                                        :virtual_name => 'ephemeral0'
+                                    },
+                                    {
+                                        :device_name => '/dev/sdc',
+                                        :virtual_name => 'ephemeral1'
+                                    },
+                                    {
+                                        :device_name => '/dev/sdd',
+                                        :virtual_name => 'ephemeral2'
+                                    },
+                                    {
+                                        :device_name => '/dev/sde',
+                                        :virtual_name => 'ephemeral3'
+                                    }],
+          :root_device_name => '/dev/sda1',
+          :architecture => @appliance_config.hardware.base_arch,
+          :kernel_id => KERNELS[region][@appliance_config.hardware.base_arch][:aki],
+          :name => ebs_appliance_name,
+          :description => ebs_appliance_description)['imageId']
 
       @log.info "EBS AMI registered: #{image_id}"
     end

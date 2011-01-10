@@ -78,6 +78,7 @@ rm -rf %{buildroot}
 %changelog
 * Sun Jan 09 2011  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
+- [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 - [BGBUILD-131] Check if OS is supported before executing the plugin
 
 * Fri Dec 17 2010  <mgoldman@redhat.com> - 0.0.4-1

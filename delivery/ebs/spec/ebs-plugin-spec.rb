@@ -41,10 +41,26 @@ module BoxGrinder
       @plugin = @plugin.init(
           @config,
           @appliance_config,
-          :log    => Logger.new('/dev/null'),
-          :plugin_info => {:class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name  => "Elastic Block Storage"},
+          :log => Logger.new('/dev/null'),
+          :plugin_info => {:class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name => "Elastic Block Storage"},
           :config_file => "#{File.dirname(__FILE__)}/ebs.yaml"
       )
+    end
+
+    it "should register all operating systems with specific versions" do
+      prepare_plugin do |plugin|
+        avaibility_zone = mock('AZ')
+        avaibility_zone.should_receive(:string).and_return('avaibility-zone1')
+
+        plugin.should_receive(:open).with('http://169.254.169.254/latest/meta-data/placement/availability-zone').and_return(avaibility_zone)
+      end
+
+      supportes_oses = @plugin.instance_variable_get(:@supported_oses)
+
+      supportes_oses.size.should == 2
+      supportes_oses.keys.sort.should == ['fedora', 'rhel']
+      supportes_oses['rhel'].should == ['6']
+      supportes_oses['fedora'].should == ['13', '14']
     end
 
     describe ".after_init" do
