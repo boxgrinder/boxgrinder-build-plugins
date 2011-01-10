@@ -55,7 +55,6 @@ module BoxGrinder
       @plugin = VirtualBoxPlugin.new
 
       @plugin.should_receive(:read_plugin_config)
-      @plugin.should_receive(:validate_plugin_config)
       @plugin.init(@config, @appliance_config, options)
 
       @exec_helper = @plugin.instance_variable_get(:@exec_helper)

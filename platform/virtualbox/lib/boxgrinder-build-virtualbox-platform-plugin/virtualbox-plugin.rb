@@ -22,13 +22,11 @@ require 'boxgrinder-build/helpers/appliance-customize-helper'
 module BoxGrinder
   class VirtualBoxPlugin < BasePlugin
     def after_init
-      # TODO add wiki page
-      validate_plugin_config(['type'], 'TODO')
       register_deliverable(:disk => "#{@appliance_config.name}.vmdk")
     end
 
     def execute
-      @log.info "Converting image to VirtualBox #{@plugin_config['type']} format..."
+      @log.info "Converting image to VirtualBox format..."
 
       build_virtualbox
       customize
