@@ -14,6 +14,7 @@ plugins = [
     {:name => "boxgrinder-build-centos-os-plugin", :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :runtime_deps => {'boxgrinder-build-rhel-os-plugin' => '~>0.0.7'}},
 
     {:name => "boxgrinder-build-vmware-platform-plugin", :dir =>"platform/vmware", :desc => 'VMware Platform Plugin'},
+    {:name => "boxgrinder-build-virtualbox-platform-plugin", :dir =>"platform/virtualbox", :desc => 'VirtualBox Platform Plugin'},
     {:name => "boxgrinder-build-ec2-platform-plugin", :dir => "platform/ec2", :desc => 'Elastic Compute Cloud (EC2) Platform Plugin'}
 ]
 

@@ -1,0 +1,10 @@
+CHANGELOG
+LICENSE
+Manifest
+README
+Rakefile
+boxgrinder-build-virtualbox-platform-plugin.gemspec
+lib/boxgrinder-build-virtualbox-platform-plugin.rb
+lib/boxgrinder-build-virtualbox-platform-plugin/virtualbox-plugin.rb
+rubygem-boxgrinder-build-virtualbox-platform-plugin.spec
+spec/virtualbox-plugin-spec.rb

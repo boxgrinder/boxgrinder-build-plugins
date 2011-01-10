@@ -1,0 +1,42 @@
+require 'rubygems'
+require 'echoe'
+
+Echoe.new('boxgrinder-build-virtualbox-platform-plugin') do |p|
+  p.project = 'BoxGrinder Build'
+  p.author = 'Marek Goldmann'
+  p.summary = 'VirtualBox Platform Plugin'
+  p.description = 'BoxGrinder Build VirtualBox Platform Plugin'
+  p.url = 'http://www.jboss.org/boxgrinder'
+  p.email = 'info@boxgrinder.org'
+  p.runtime_dependencies = ['boxgrinder-build ~>0.7.0']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.7.0', 'hashery >=1.3.0']
+end
+
+desc "Run all tests"
+Spec::Rake::SpecTask.new('spec') do |t|
+  t.rcov = false
+  t.spec_files = FileList["spec/**/*-spec.rb"]
+  t.spec_opts = ['--colour', '--format', 'specdoc', '-b']
+end
+
+desc "Run all tests and generate code coverage report"
+Spec::Rake::SpecTask.new('spec:coverage') do |t|
+  t.spec_files = FileList["spec/**/*-spec.rb"]
+  t.spec_opts = ['--colour', '--format', 'html:pkg/rspec_report.html', '-b']
+  t.rcov = true
+  t.rcov_opts = ['--exclude', 'spec,teamcity/*,/usr/lib/ruby/,.gem/ruby,/boxgrinder-core/,/boxgrinder-build/']
+end
+
+desc "Create RPM"
+task :rpm, :target, :version, :arch, :needs => ['gem'] do |t, args|
+  target  = args[:target]   || 'fedora'
+  version = args[:version]  || 'rawhide'
+  arch    = args[:arch]     || RbConfig::CONFIG['host_cpu']
+
+  Dir["**/rubygem-*.spec"].each do |spec|
+    `mock -v -r #{target}-#{version}-#{arch} --buildsrpm --sources pkg/*.gem --spec #{spec} --resultdir pkg/`
+    exit 1 unless $? == 0
+    `mock -v -r #{target}-#{version}-#{arch} --rebuild pkg/*.rpm --resultdir pkg/`
+    exit 1 unless $? == 0
+  end
+end
