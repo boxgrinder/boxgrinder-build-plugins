@@ -1,5 +1,7 @@
 v0.0.7
 
+* [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
+
 v0.0.6
 
 * [BGBUILD-120] Add support for all EC2 regions

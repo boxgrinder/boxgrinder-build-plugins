@@ -1,5 +1,6 @@
 v0.0.9
 
+* [BGBUILD-129] Use partitions labels instead of device path in grub and fstab
 * [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 * [BGBUILD-131] Check if OS is supported before executing the plugin
 * [BGBUILD-68] Global .boxgrinder/config or rc style file for config

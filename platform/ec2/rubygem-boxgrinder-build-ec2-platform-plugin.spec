@@ -78,6 +78,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Jan 06 2011  <mgoldman@redhat.com> - 0.0.9-1
 - Upstream release: 0.0.9
+- [BGBUILD-129] Use partitions labels instead of device path in grub and fstab
 - [BGBUILD-68] Global .boxgrinder/config or rc style file for config
 - [BGBUILD-131] Check if OS is supported before executing the plugin
 - [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
