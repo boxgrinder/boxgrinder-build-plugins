@@ -40,8 +40,8 @@ module BoxGrinder
         @image_helper.create_disk(@deliverables.disk, 10)
         @image_helper.create_filesystem(@deliverables.disk)
       rescue => e
-        @log.error "Error while preparing EC2 disk image. See logs for more info"
-        raise e
+        @log.error e
+        raise "Error while preparing EC2 disk image. See logs for more info."
       end
 
       ec2_disk_mount_dir = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
@@ -51,8 +51,8 @@ module BoxGrinder
         ec2_mounts = @image_helper.mount_image(@deliverables.disk, ec2_disk_mount_dir)
         raw_mounts = @image_helper.mount_image(@previous_deliverables.disk, raw_disk_mount_dir)
       rescue => e
-        @log.debug e
-        raise "Error while mounting image. See logs for more info"
+        @log.error e
+        raise "Error while mounting image. See logs for more info."
       end
 
       @image_helper.sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
@@ -79,19 +79,23 @@ module BoxGrinder
         install_menu_lst(guestfs)
 
         # required for CentOS 5 and RHEL 5
-        @linux_helper.recreate_kernel_image(guestfs, ['xenblk', 'xennet']) if (@appliance_config.os.name == 'rhel' or @appliance_config.os.name == 'centos') and @appliance_config.os.version == '5' 
+        @linux_helper.recreate_kernel_image(guestfs, ['xenblk', 'xennet']) if (@appliance_config.os.name == 'rhel' or @appliance_config.os.name == 'centos') and @appliance_config.os.version == '5'
 
-        unless @appliance_config.post['ec2'].nil?
-          @appliance_config.post['ec2'].each do |cmd|
-            guestfs_helper.sh(cmd, :arch => @appliance_config.hardware.arch)
-          end
-          @log.debug "Post commands from appliance definition file executed."
-        else
-          @log.debug "No commands specified, skipping."
-        end
+        execute_post(guestfs_helper)
       end
 
       @log.info "Image converted to EC2 format."
+    end
+
+    def execute_post(guestfs_helper)
+      unless @appliance_config.post['ec2'].nil?
+        @appliance_config.post['ec2'].each do |cmd|
+          guestfs_helper.sh(cmd, :arch => @appliance_config.hardware.arch)
+        end
+        @log.debug "Post commands from appliance definition file executed."
+      else
+        @log.debug "No commands specified, skipping."
+      end
     end
 
     def create_devices(guestfs)
@@ -103,8 +107,8 @@ module BoxGrinder
     end
 
     def disk_device_prefix
-      disk = 's'
-      disk = 'xv' if @appliance_config.os.name == 'fedora'
+      disk = 'xv'
+      disk = 's' if (@appliance_config.os.name == 'rhel' or @appliance_config.os.name == 'centos') and @appliance_config.os.version == '5'
 
       disk
     end
@@ -116,6 +120,7 @@ module BoxGrinder
 
       fstab_data = File.open(fstab_file).read
       fstab_data.gsub!(/#DISK_DEVICE_PREFIX#/, disk_device_prefix)
+      fstab_data.gsub!(/#FILESYSTEM_TYPE#/, @appliance_config.hardware.partitions['/']['type'])
 
       fstab = Tempfile.new('fstab')
       fstab << fstab_data
@@ -135,7 +140,6 @@ module BoxGrinder
       menu_lst_data.gsub!(/#TITLE#/, @appliance_config.name)
       menu_lst_data.gsub!(/#KERNEL_VERSION#/, @linux_helper.kernel_version(guestfs))
       menu_lst_data.gsub!(/#KERNEL_IMAGE_NAME#/, @linux_helper.kernel_image_name(guestfs))
-      menu_lst_data.gsub!(/#DISK_DEVICE_PREFIX#/, disk_device_prefix)
 
       menu_lst = Tempfile.new('menu_lst')
       menu_lst << menu_lst_data

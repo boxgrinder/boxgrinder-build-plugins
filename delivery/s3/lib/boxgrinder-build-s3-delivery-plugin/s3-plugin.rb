@@ -99,7 +99,7 @@ module BoxGrinder
 
       register_supported_os("fedora", ['13', '14'])
       register_supported_os("centos", ['5'])
-      register_supported_os("rhel", ['5'])
+      register_supported_os("rhel", ['5', '6'])
 
       @ami_build_dir = "#{@dir.base}/ami"
       @ami_manifest = "#{@ami_build_dir}/#{@appliance_config.name}.ec2.manifest.xml"

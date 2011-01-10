@@ -35,14 +35,14 @@ module BoxGrinder
       @appliance_config.stub!(:packages).and_return(OpenCascade.new({:includes => ["gcc-c++", "wget"]}))
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '13'}))
       @appliance_config.stub!(:is64bit?).and_return(false)
-      @appliance_config.stub!(:post).and_return(OpenCascade.new({:base => ['ls /']}))
+      @appliance_config.stub!(:post).and_return(OpenCascade.new)
 
       @appliance_config.stub!(:hardware).and_return(
           OpenCascade.new({
                               :partitions =>
                                   {
-                                      '/' => {'size' => 2},
-                                      '/home' => {'size' => 3},
+                                      '/' => {'size' => 2, 'type' => 'ext4'},
+                                      '/home' => {'size' => 3, 'type' => 'ext4'},
                                   },
                               :arch => 'i686',
                               :base_arch => 'i386',
@@ -140,7 +140,7 @@ module BoxGrinder
       @plugin.instance_variable_set(:@linux_helper, linux_helper)
 
       tempfile = mock(Tempfile)
-      tempfile.should_receive(:<<).with("default=0\ntimeout=0\ntitle full\n        root (hd0)\n        kernel /boot/vmlinuz-2.6.18 ro root=/dev/xvda1 rd_NO_PLYMOUTH\n        initrd /boot/vmlinuz-2.6.18.img")
+      tempfile.should_receive(:<<).with("default=0\ntimeout=0\ntitle full\n        root (hd0)\n        kernel /boot/vmlinuz-2.6.18 ro root=LABEL=/ rd_NO_PLYMOUTH\n        initrd /boot/vmlinuz-2.6.18.img")
       tempfile.should_receive(:flush)
       tempfile.should_receive(:path).and_return('path/menu.lst')
       tempfile.should_receive(:close)
@@ -150,14 +150,22 @@ module BoxGrinder
       @plugin.install_menu_lst(guestfs)
     end
 
-    it "should use xvda disks for Fedora 13" do
-      @appliance_config.os.version = '13'
-      @plugin.disk_device_prefix.should == 'xv'
-    end
+    describe ".disk_device_prefix" do
+      it "should use xvda disks for Fedora 13" do
+        @appliance_config.os.version = '13'
+        @plugin.disk_device_prefix.should == 'xv'
+      end
 
-    it "should use xvda disks for Fedora 12" do
-      @appliance_config.os.version = '12'
-      @plugin.disk_device_prefix.should == 'xv'
+      it "should use xvda disks for Fedora 12" do
+        @appliance_config.os.version = '12'
+        @plugin.disk_device_prefix.should == 'xv'
+      end
+
+      it "should use sda disks for RHEL/CentOS 5" do
+        @appliance_config.os.name = 'rhel'
+        @appliance_config.os.version = '5'
+        @plugin.disk_device_prefix.should == 's'
+      end
     end
 
     it "should enable nosegneg flag" do
@@ -206,6 +214,7 @@ module BoxGrinder
         @plugin.should_receive(:add_ec2_user).with(guestfs)
         @plugin.should_receive(:change_configuration).with(guestfs_helper)
         @plugin.should_receive(:install_menu_lst).with(guestfs)
+        @plugin.should_receive(:execute_post).with(guestfs_helper)
 
         linux_helper.should_not_receive(:recreate_kernel_image)
 
@@ -237,17 +246,69 @@ module BoxGrinder
         @plugin.should_receive(:create_devices).with(guestfs)
         @plugin.should_receive(:upload_fstab).with(guestfs)
 
-
         @plugin.should_receive(:enable_networking).with(guestfs)
         @plugin.should_receive(:upload_rc_local).with(guestfs)
         @plugin.should_receive(:enable_nosegneg_flag).with(guestfs)
         @plugin.should_receive(:add_ec2_user).with(guestfs)
         @plugin.should_receive(:change_configuration).with(guestfs_helper)
         @plugin.should_receive(:install_menu_lst).with(guestfs)
+        @plugin.should_receive(:execute_post).with(guestfs_helper)
 
         linux_helper.should_receive(:recreate_kernel_image).with(guestfs, ['xenblk', 'xennet'])
 
         @plugin.execute
+      end
+
+      it "should fail because preparing disk failed" do
+        linux_helper = mock(LinuxHelper)
+
+        LinuxHelper.should_receive(:new).with(:log => @log).and_return(linux_helper)
+
+        @image_helper.should_receive(:create_disk).and_raise("This error is expected!")
+        @image_helper.should_not_receive(:create_filesystem)
+        @image_helper.should_not_receive(:mount_image)
+
+        @image_helper.should_not_receive(:customize)
+
+        lambda {
+          @plugin.execute
+        }.should raise_error(RuntimeError, "Error while preparing EC2 disk image. See logs for more info.")
+      end
+
+      it "should fail because mounting or unmounting failed" do
+        linux_helper = mock(LinuxHelper)
+
+        LinuxHelper.should_receive(:new).with(:log => @log).and_return(linux_helper)
+
+        @image_helper.should_receive(:create_disk).with("build/path/ec2-plugin/tmp/full.ec2", 10)
+        @image_helper.should_receive(:create_filesystem).with("build/path/ec2-plugin/tmp/full.ec2")
+        @image_helper.should_receive(:mount_image).and_raise("This error is expected!")
+
+        @image_helper.should_not_receive(:customize)
+
+        lambda {
+          @plugin.execute
+        }.should raise_error(RuntimeError, "Error while mounting image. See logs for more info.")
+      end
+    end
+
+    describe ".execute_post" do
+      it "should execute post commands" do
+        @appliance_config.stub!(:post).and_return(OpenCascade.new({'ec2' => ['ls /']}))
+
+        guestfs_helper = mock("guestfsHelper")
+        guestfs_helper.should_receive(:sh).with('ls /', :arch => 'i686')
+
+        @plugin.execute_post(guestfs_helper)
+      end
+
+      it "should not execute post commands because there are no commands to execute :)" do
+        @appliance_config.stub!(:post).and_return(OpenCascade.new)
+
+        guestfs_helper = mock("guestfsHelper")
+        guestfs_helper.should_not_receive(:sh)
+
+        @plugin.execute_post(guestfs_helper)
       end
     end
   end
