@@ -31,7 +31,7 @@ module BoxGrinder
       @appliance_config.stub!(:name).and_return('appliance')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '14'}))
       @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64', :base_arch => 'x86_64'}))
 
       @plugin = S3Plugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::S3Plugin, :type => :delivery, :name => :s3, :full_name => "Amazon Simple Storage Service (Amazon S3)", :types => [:s3, :cloudfront, :ami]})
@@ -73,19 +73,19 @@ module BoxGrinder
     end
 
     it "should generate valid bucket_key" do
-      @plugin.ami_bucket_key("name", "this/is/a/path").should == "bucket/this/is/a/path/name/fedora/11/1.0/x86_64"
+      @plugin.ami_bucket_key("name", "this/is/a/path").should == "bucket/this/is/a/path/name/fedora/14/1.0/x86_64"
     end
 
     it "should generate valid bucket_key with mixed slashes" do
-      @plugin.ami_bucket_key("name", "//this/").should == "bucket/this/name/fedora/11/1.0/x86_64"
+      @plugin.ami_bucket_key("name", "//this/").should == "bucket/this/name/fedora/14/1.0/x86_64"
     end
 
     it "should generate valid bucket_key with root path" do
-      @plugin.ami_bucket_key("name", "/").should == "bucket/name/fedora/11/1.0/x86_64"
+      @plugin.ami_bucket_key("name", "/").should == "bucket/name/fedora/14/1.0/x86_64"
     end
 
     it "should generate valid bucket manifest key" do
-      @plugin.bucket_manifest_key("name", "/a/asd/f/sdf///").should == "bucket/a/asd/f/sdf/name/fedora/11/1.0/x86_64/name.ec2.manifest.xml"
+      @plugin.bucket_manifest_key("name", "/a/asd/f/sdf///").should == "bucket/a/asd/f/sdf/name/fedora/14/1.0/x86_64/name.ec2.manifest.xml"
     end
 
     it "should fix sha1 sum" do
@@ -104,51 +104,51 @@ module BoxGrinder
 
     it "should upload to a S3 bucket" do
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with(".", "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
+      package_helper.should_receive(:package).with(".", "build/path/s3-plugin/tmp/appliance-1.0-fedora-14-x86_64-raw.tgz").and_return("a_built_package.zip")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
       s3 = mock(Aws::S3)
-
-      Aws::S3.should_receive(:new).with('access_key', 'secret_access_key', :connection_mode => :single, :logger => @log).and_return(s3)
+      @plugin.instance_variable_set(:@s3, s3)
 
       key = mock('Key')
       key.should_receive(:exists?).and_return(false)
       key.should_receive(:put).with('abc', 'private')
 
       bucket = mock('Bucket')
-      bucket.should_receive(:key).with("appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(key)
+      bucket.should_receive(:key).with("appliance-1.0-fedora-14-x86_64-raw.tgz").and_return(key)
 
-      s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
+      @plugin.should_receive(:bucket).with(true, 'private').and_return(bucket)
+
       s3.should_receive(:close_connection)
 
-      File.should_receive(:size).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(23234566)
+      File.should_receive(:size).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-14-x86_64-raw.tgz").and_return(23234566)
 
-      @plugin.should_receive(:open).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("abc")
+      @plugin.should_receive(:open).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-14-x86_64-raw.tgz").and_return("abc")
 
       @plugin.upload_to_bucket(:disk => "adisk")
     end
 
     it "should NOT upload to a S3 bucket because file exists" do
       package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with(".", "build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return("a_built_package.zip")
+      package_helper.should_receive(:package).with(".", "build/path/s3-plugin/tmp/appliance-1.0-fedora-14-x86_64-raw.tgz").and_return("a_built_package.zip")
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
       s3 = mock(Aws::S3)
-
-      Aws::S3.should_receive(:new).with('access_key', 'secret_access_key', :connection_mode => :single, :logger => @log).and_return(s3)
+      @plugin.instance_variable_set(:@s3, s3)
 
       key = mock('Key')
       key.should_receive(:exists?).and_return(true)
 
       bucket = mock('Bucket')
-      bucket.should_receive(:key).with("appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(key)
+      bucket.should_receive(:key).with("appliance-1.0-fedora-14-x86_64-raw.tgz").and_return(key)
 
-      s3.should_receive(:bucket).with('bucket', true).and_return(bucket)
+      @plugin.should_receive(:bucket).with(true, 'private').and_return(bucket)
+
       s3.should_receive(:close_connection)
 
-      File.should_receive(:size).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-11-x86_64-raw.tgz").and_return(23234566)
+      File.should_receive(:size).with("build/path/s3-plugin/tmp/appliance-1.0-fedora-14-x86_64-raw.tgz").and_return(23234566)
 
       @plugin.upload_to_bucket(:disk => "adisk")
     end
@@ -174,6 +174,22 @@ module BoxGrinder
       File.should_receive(:exists?).with('build/path/s3-plugin/ami').and_return(false)
       @exec_helper.should_receive(:execute).with(/euca-bundle-image --ec2cert (.*)src\/cert-ec2\.pem -i a\/path\/to\/disk\.ec2 --kernel aki-813667c4 --ramdisk ari-833667c6 -c \/path\/to\/cert\/file -k \/path\/to\/key\/file -u 0000-0000-0000 -r x86_64 -d build\/path\/s3-plugin\/ami/)
       @plugin.bundle_image(:disk => "a/path/to/disk.ec2")
+    end
+
+    describe ".execute" do
+      it "should create AMI" do
+        @plugin.instance_variable_set(:@previous_deliverables, {:disk => 'a/disk'})
+
+        @plugin.should_receive(:validate_plugin_config).with(["bucket", "access_key", "secret_access_key"], "http://community.jboss.org/docs/DOC-15217")
+        @plugin.should_receive(:validate_plugin_config).with(["cert_file", "key_file", "account_number"], "http://community.jboss.org/docs/DOC-15217")
+        @plugin.should_receive(:image_already_uploaded?).and_return(false)
+        @plugin.should_receive(:bundle_image).with({:disk => 'a/disk'})
+        @plugin.should_receive(:fix_sha1_sum)
+        @plugin.should_receive(:upload_image)
+        @plugin.should_receive(:register_image)
+
+        @plugin.execute(:ami)
+      end
     end
   end
 end
