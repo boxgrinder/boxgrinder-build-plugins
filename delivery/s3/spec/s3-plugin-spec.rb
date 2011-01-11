@@ -183,14 +183,135 @@ module BoxGrinder
         @plugin.should_receive(:validate_plugin_config).with(["bucket", "access_key", "secret_access_key"], "http://community.jboss.org/docs/DOC-15217")
         @plugin.should_receive(:validate_plugin_config).with(["cert_file", "key_file", "account_number"], "http://community.jboss.org/docs/DOC-15217")
         @plugin.should_receive(:image_already_uploaded?).and_return(false)
-        @plugin.should_receive(:bundle_image).with({:disk => 'a/disk'})
+        @plugin.should_receive(:bundle_image).with(:disk => 'a/disk')
         @plugin.should_receive(:fix_sha1_sum)
         @plugin.should_receive(:upload_image)
         @plugin.should_receive(:register_image)
 
         @plugin.execute(:ami)
       end
+
+      it "should not upload AMI because it's already there" do
+        @plugin.should_receive(:validate_plugin_config).with(["bucket", "access_key", "secret_access_key"], "http://community.jboss.org/docs/DOC-15217")
+        @plugin.should_receive(:validate_plugin_config).with(["cert_file", "key_file", "account_number"], "http://community.jboss.org/docs/DOC-15217")
+        @plugin.should_receive(:image_already_uploaded?).and_return(true)
+        @plugin.should_not_receive(:upload_image)
+        @plugin.should_receive(:register_image)
+
+        @plugin.execute(:ami)
+      end
+
+      it "should upload image to s3" do
+        @plugin.instance_variable_set(:@previous_deliverables, :disk => 'a/disk')
+        @plugin.should_receive(:upload_to_bucket).with({:disk => 'a/disk'})
+        @plugin.execute(:s3)
+      end
+
+      it "should upload image to cludfront" do
+        @plugin.instance_variable_set(:@previous_deliverables, {:disk => 'a/disk'})
+        @plugin.should_receive(:upload_to_bucket).with({:disk => 'a/disk'}, 'public-read')
+        @plugin.execute(:cloudfront)
+      end
+    end
+
+    describe ".bucket" do
+      it "should create the bucket" do
+        @plugin_config.merge!('region' => 'ap-southeast-1')
+        s3 = mock(Aws::S3)
+        Aws::S3.should_receive(:new).with("access_key", "secret_access_key", :connection_mode => :single, :logger => @log, :server=>"s3-ap-southeast-1.amazonaws.com").and_return(s3)
+        s3.should_receive(:bucket).with("bucket", true, "private", :location => "ap-southeast-1")
+        @plugin.bucket
+      end
+
+      it "should not create the bucket" do
+        @plugin_config.merge!('region' => 'ap-southeast-1')
+        s3 = mock(Aws::S3)
+        Aws::S3.should_receive(:new).with("access_key", "secret_access_key", :connection_mode => :single, :logger => @log, :server=>"s3-ap-southeast-1.amazonaws.com").and_return(s3)
+        s3.should_receive(:bucket).with("bucket", false, "private", :location => "ap-southeast-1")
+        @plugin.bucket(false)
+      end
+    end
+
+    describe ".image_already_uploaded?" do
+      it "should return true" do
+        bucket = mock('Bucket')
+        bucket.should_receive(:keys)
+
+        @plugin.should_receive(:bucket).with(false).and_return(bucket)
+        @plugin.should_receive(:bucket_manifest_key).with("appliance", "/").and_return('manifest/key')
+
+        key = mock('Key')
+        key.should_receive(:exists?).and_return(true)
+
+        bucket.should_receive(:key).with('key').and_return(key)
+
+        @plugin.image_already_uploaded?.should == true
+      end
+
+      it "should return false because bucket doesn't exists" do
+        bucket = mock('Bucket')
+        bucket.should_receive(:keys).and_raise('Error!')
+
+        @plugin.should_receive(:bucket).with(false).and_return(bucket)
+
+        @plugin.image_already_uploaded?.should == false
+      end
+
+      it "should return false because the image path doesn't exists" do
+        bucket = mock('Bucket')
+        bucket.should_receive(:keys)
+
+        @plugin.should_receive(:bucket).with(false).and_return(bucket)
+        @plugin.should_receive(:bucket_manifest_key).with("appliance", "/").and_return('manifest/key')
+
+        key = mock('Key')
+        key.should_receive(:exists?).and_return(false)
+
+        bucket.should_receive(:key).with('key').and_return(key)
+
+        @plugin.image_already_uploaded?.should == false
+      end
+    end
+
+    describe ".upload_image" do
+      it "should upload image for default region" do
+        @plugin.should_receive(:bucket)
+        @exec_helper.should_receive(:execute).with("euca-upload-bundle -U http://s3.amazonaws.com -b bucket/appliance/fedora/14/1.0/x86_64 -m build/path/s3-plugin/ami/appliance.ec2.manifest.xml -a access_key -s secret_access_key")
+        @plugin.upload_image
+      end
+
+      it "should upload image for us-west-1 region" do
+        @plugin_config.merge!('region' => 'us-west-1')
+
+        @plugin.should_receive(:bucket)
+        @exec_helper.should_receive(:execute).with("euca-upload-bundle -U http://s3-us-west-1.amazonaws.com -b bucket/appliance/fedora/14/1.0/x86_64 -m build/path/s3-plugin/ami/appliance.ec2.manifest.xml -a access_key -s secret_access_key")
+        @plugin.upload_image
+      end
+    end
+
+    describe ".register_image" do
+      it "should not register AMI because it's already registered" do
+        @plugin.should_receive(:ami_info).with("appliance", "/")
+
+        ami_info = mock('AmiInfo')
+        ami_info.should_receive(:imageId).and_return('ami-1234')
+
+        ec2 = mock("EC2")
+        ec2.should_receive(:register_image).with(:image_location => "bucket/appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml").and_return(ami_info)
+
+        @plugin.instance_variable_set(:@ec2, ec2)
+
+        @plugin.register_image
+      end
+
+      it "should not register AMI because it's already registered" do
+        ami_info = mock('AmiInfo')
+        ami_info.should_receive(:imageId).and_return('ami-1234')
+
+        @plugin.should_receive(:ami_info).with("appliance", "/").and_return(ami_info)
+        @plugin.register_image
+      end
+
     end
   end
 end
-

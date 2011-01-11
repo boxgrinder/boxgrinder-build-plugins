@@ -25,98 +25,97 @@ require 'aws'
 module BoxGrinder
   class S3Plugin < BasePlugin
     REGION_OPTIONS = {
-      
-      'eu-west-1' => {
-        :endpoint => 's3.amazonaws.com',
-        :location => 'EU',
-        :kernel => { 
-          'i386' => {:aki => 'aki-4deec439'},
-          'x86_64' => {:aki => 'aki-4feec43b'},
-          'centos' => {
-            '5' => {
-              'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
-              'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
-            }
-          },
-          'rhel' => {
-            '5' => {
-              'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
-              'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
-            }
-          }
-        }
-      },
-      
-      'ap-southeast-1' => {
-        :endpoint => 's3-ap-southeast-1.amazonaws.com',
-        :location => 'ap-southeast-1',
-        :kernel => { 
-          'i386' => {:aki => 'aki-13d5aa41'},
-          'x86_64' => {:aki => 'aki-11d5aa43'},
-          'centos' => {
-            '5' => {
-              'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
-              'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
-            }
-          },
-            'rhel' => {
-            '5' => {
-              'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
-              'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
-            }
-          }
-        }
-      },
-      
-      'us-west-1' => {
-        :endpoint => 's3-us-west-1.amazonaws.com',
-        :location => 'us-west-1',
-        :kernel => { 
-          'i386' => {:aki => 'aki-99a0f1dc'},
-          'x86_64' => {:aki => 'aki-9ba0f1de'},
-          'centos' => {
-            '5' => {
-              'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
-              'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
-            }
-          },
-          'rhel' => {
-            '5' => {
-              'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
-              'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
-            }
-          }
-        }
-      },
 
-      'us-east-1' => {
-        :endpoint => 's3.amazonaws.com',
-        :location => '',
-        :kernel => { 
-          'i386' => {:aki => 'aki-407d9529'},
-          'x86_64' => {:aki => 'aki-427d952b'},
-          'centos' => {
-            '5' => {
-              'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
-              'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
+        'eu-west-1' => {
+            :endpoint => 's3.amazonaws.com',
+            :location => 'EU',
+            :kernel => {
+                'i386' => {:aki => 'aki-4deec439'},
+                'x86_64' => {:aki => 'aki-4feec43b'},
+                'centos' => {
+                    '5' => {
+                        'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
+                        'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
+                    }
+                },
+                'rhel' => {
+                    '5' => {
+                        'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
+                        'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
+                    }
+                }
             }
-          },
-          'rhel' => {
-            '5' => {
-              'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
-                    'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
+        },
+
+        'ap-southeast-1' => {
+            :endpoint => 's3-ap-southeast-1.amazonaws.com',
+            :location => 'ap-southeast-1',
+            :kernel => {
+                'i386' => {:aki => 'aki-13d5aa41'},
+                'x86_64' => {:aki => 'aki-11d5aa43'},
+                'centos' => {
+                    '5' => {
+                        'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
+                        'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
+                    }
+                },
+                'rhel' => {
+                    '5' => {
+                        'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
+                        'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
+                    }
+                }
             }
-          }
+        },
+
+        'us-west-1' => {
+            :endpoint => 's3-us-west-1.amazonaws.com',
+            :location => 'us-west-1',
+            :kernel => {
+                'i386' => {:aki => 'aki-99a0f1dc'},
+                'x86_64' => {:aki => 'aki-9ba0f1de'},
+                'centos' => {
+                    '5' => {
+                        'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
+                        'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
+                    }
+                },
+                'rhel' => {
+                    '5' => {
+                        'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
+                        'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
+                    }
+                }
+            }
+        },
+
+        'us-east-1' => {
+            :endpoint => 's3.amazonaws.com',
+            :location => '',
+            :kernel => {
+                'i386' => {:aki => 'aki-407d9529'},
+                'x86_64' => {:aki => 'aki-427d952b'},
+                'centos' => {
+                    '5' => {
+                        'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
+                        'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
+                    }
+                },
+                'rhel' => {
+                    '5' => {
+                        'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
+                        'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
+                    }
+                }
+            }
         }
-      }
     }
-    
+
     def after_init
       set_default_config_value('overwrite', false)
       set_default_config_value('path', '/')
       set_default_config_value('region', 'us-east-1')
-      set_default_config_value('url', "http://#{REGION_OPTIONS[@plugin_config['region']][:endpoint]}")
-      
+
       register_supported_os("fedora", ['13', '14'])
       register_supported_os("centos", ['5'])
       register_supported_os("rhel", ['5', '6'])
@@ -139,11 +138,6 @@ module BoxGrinder
           @plugin_config['account_number'] = @plugin_config['account_number'].to_s.gsub(/-/, '')
 
           @ec2 = AWS::EC2::Base.new(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'], :server => "ec2.#{@plugin_config['region']}.amazonaws.com")
-
-          unless @supported_oses[@appliance_config.os.name].include?(@appliance_config.os.version)
-            @log.error "You cannot convert selected image to AMI because of unsupported operating system: #{@appliance_config.os.name} #{@appliance_config.os.version}. Supported systems: #{supported_oses}."
-            return
-          end
 
           unless image_already_uploaded?
             bundle_image(@previous_deliverables)
@@ -195,7 +189,7 @@ module BoxGrinder
       @s3 ||= Aws::S3.new(@plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log, :server => REGION_OPTIONS[@plugin_config['region']][:endpoint])
       @s3.bucket(@plugin_config['bucket'], create_if_missing, permissions, :location => REGION_OPTIONS[@plugin_config['region']][:location])
     end
-    
+
     def bundle_image(deliverables)
       return if File.exists?(@ami_build_dir)
 
@@ -255,7 +249,7 @@ module BoxGrinder
       bucket #this will create the bucket if needed
       @log.info "Uploading #{@appliance_config.name} AMI to bucket '#{@plugin_config['bucket']}'..."
 
-      @exec_helper.execute("euca-upload-bundle -U #{@plugin_config['url']} -b #{ami_bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']}")
+      @exec_helper.execute("euca-upload-bundle -U #{@plugin_config['url'].nil? ? "http://#{REGION_OPTIONS[@plugin_config['region']][:endpoint]}" : @plugin_config['url']} -b #{ami_bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']}")
     end
 
     def register_image
