@@ -91,12 +91,26 @@ module BoxGrinder
         }
     }
 
+    LOCATION_CONSTRAINTS = {
+      'ap-southeast-1' => 'ap-southeast-1',
+      'eu-west-1' => 'EU',
+      #us-east-1 uses no constraint
+      'us-west-1' => 'us-west-1'
+    }
+
+    S3_ENDPOINTS = {
+      'ap-southeast-1' => 's3-ap-southeast-1.amazonaws.com',
+      'eu-west-1' => 's3.amazonaws.com',
+      'us-east-1' => 's3.amazonaws.com',
+      'us-west-1' => 's3-us-west-1.amazonaws.com'
+    }
+    
     def after_init
       set_default_config_value('overwrite', false)
       set_default_config_value('path', '/')
-      set_default_config_value('url', 'http://s3.amazonaws.com')
       set_default_config_value('region', 'us-east-1')
-
+      set_default_config_value('url', "http://#{S3_ENDPOINTS[@plugin_config['region']]}")
+      
       register_supported_os("fedora", ['13', '14'])
       register_supported_os("centos", ['5'])
       register_supported_os("rhel", ['5', '6'])
@@ -118,7 +132,7 @@ module BoxGrinder
 
           @plugin_config['account_number'] = @plugin_config['account_number'].to_s.gsub(/-/, '')
 
-          @ec2 = AWS::EC2::Base.new(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'])
+          @ec2 = AWS::EC2::Base.new(:access_key_id => @plugin_config['access_key'], :secret_access_key => @plugin_config['secret_access_key'], :server => "ec2.#{@plugin_config['region']}.amazonaws.com")
 
           unless @supported_oses[@appliance_config.os.name].include?(@appliance_config.os.version)
             @log.error "You cannot convert selected image to AMI because of unsupported operating system: #{@appliance_config.os.name} #{@appliance_config.os.version}. Supported systems: #{supported_oses}."
@@ -155,14 +169,10 @@ module BoxGrinder
 
       PackageHelper.new(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).package(File.dirname(previous_deliverables[:disk]), @deliverables[:package])
 
-      @s3 = Aws::S3.new(@plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log)
-
-      bucket = @s3.bucket(@plugin_config['bucket'], true)
-
       remote_path = "#{s3_path(@plugin_config['path'])}#{File.basename(@deliverables[:package])}"
       size_b = File.size(@deliverables[:package])
 
-      key = bucket.key(remote_path.gsub(/^\//, '').gsub(/\/\//, ''))
+      key = bucket(true, permissions).key(remote_path.gsub(/^\//, '').gsub(/\/\//, ''))
 
       unless key.exists? or @plugin_config['overwrite']
         @log.info "Uploading #{File.basename(@deliverables[:package])} (#{size_b/1024/1024}MB) to '#{@plugin_config['bucket']}#{remote_path}' path..."
@@ -175,6 +185,11 @@ module BoxGrinder
       @s3.close_connection
     end
 
+    def bucket(create_if_missing = true, permissions = 'private')
+      @s3 ||= Aws::S3.new(@plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log, :server => S3_ENDPOINTS[@plugin_config['region']])
+      @s3.bucket(@plugin_config['bucket'], create_if_missing, permissions, :location => LOCATION_CONSTRAINTS[@plugin_config['region']])
+    end
+    
     def bundle_image(deliverables)
       return if File.exists?(@ami_build_dir)
 
@@ -213,8 +228,9 @@ module BoxGrinder
 
     def image_already_uploaded?
 
+      bucket = nil
       begin
-        bucket = @s3.bucket(@plugin_config['bucket'])
+        bucket = self.bucket(false)
         bucket.keys
       rescue
         return false
@@ -229,6 +245,7 @@ module BoxGrinder
     end
 
     def upload_image
+      bucket #this will create the bucket if needed
       @log.info "Uploading #{@appliance_config.name} AMI to bucket '#{@plugin_config['bucket']}'..."
 
       @exec_helper.execute("euca-upload-bundle -U #{@plugin_config['url']} -b #{ami_bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']}")
