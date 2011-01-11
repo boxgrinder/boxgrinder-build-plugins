@@ -24,92 +24,98 @@ require 'aws'
 
 module BoxGrinder
   class S3Plugin < BasePlugin
-    KERNELS = {
-        'eu-west-1' => {
-            'i386' => {:aki => 'aki-4deec439'},
-            'x86_64' => {:aki => 'aki-4feec43b'},
-            'centos' => {
-                '5' => {
-                    'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
-                    'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
-                }
-            },
-            'rhel' => {
-                '5' => {
-                    'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
-                    'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
-                }
+    REGION_OPTIONS = {
+      
+      'eu-west-1' => {
+        :endpoint => 's3.amazonaws.com',
+        :location => 'EU',
+        :kernel => { 
+          'i386' => {:aki => 'aki-4deec439'},
+          'x86_64' => {:aki => 'aki-4feec43b'},
+          'centos' => {
+            '5' => {
+              'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
+              'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
             }
-        },
-        'ap-southeast-1' => {
-            'i386' => {:aki => 'aki-13d5aa41'},
-            'x86_64' => {:aki => 'aki-11d5aa43'},
-            'centos' => {
-                '5' => {
-                    'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
-                    'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
-                }
-            },
-            'rhel' => {
-                '5' => {
-                    'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
-                    'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
-                }
+          },
+          'rhel' => {
+            '5' => {
+              'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
+              'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
             }
-        },
-        'us-west-1' => {
-            'i386' => {:aki => 'aki-99a0f1dc'},
-            'x86_64' => {:aki => 'aki-9ba0f1de'},
-            'centos' => {
-                '5' => {
-                    'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
-                    'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
-                }
-            },
-            'rhel' => {
-                '5' => {
-                    'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
-                    'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
-                }
-            }
-        },
-        'us-east-1' => {
-            'i386' => {:aki => 'aki-407d9529'},
-            'x86_64' => {:aki => 'aki-427d952b'},
-            'centos' => {
-                '5' => {
-                    'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
-                    'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
-                }
-            },
-            'rhel' => {
-                '5' => {
-                    'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
-                    'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
-                }
-            }
+          }
         }
-    }
+      },
+      
+      'ap-southeast-1' => {
+        :endpoint => 's3-ap-southeast-1.amazonaws.com',
+        :location => 'ap-southeast-1',
+        :kernel => { 
+          'i386' => {:aki => 'aki-13d5aa41'},
+          'x86_64' => {:aki => 'aki-11d5aa43'},
+          'centos' => {
+            '5' => {
+              'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
+              'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
+            }
+          },
+            'rhel' => {
+            '5' => {
+              'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
+              'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
+            }
+          }
+        }
+      },
+      
+      'us-west-1' => {
+        :endpoint => 's3-us-west-1.amazonaws.com',
+        :location => 'us-west-1',
+        :kernel => { 
+          'i386' => {:aki => 'aki-99a0f1dc'},
+          'x86_64' => {:aki => 'aki-9ba0f1de'},
+          'centos' => {
+            '5' => {
+              'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
+              'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
+            }
+          },
+          'rhel' => {
+            '5' => {
+              'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
+              'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
+            }
+          }
+        }
+      },
 
-    LOCATION_CONSTRAINTS = {
-      'ap-southeast-1' => 'ap-southeast-1',
-      'eu-west-1' => 'EU',
-      #us-east-1 uses no constraint
-      'us-west-1' => 'us-west-1'
-    }
-
-    S3_ENDPOINTS = {
-      'ap-southeast-1' => 's3-ap-southeast-1.amazonaws.com',
-      'eu-west-1' => 's3.amazonaws.com',
-      'us-east-1' => 's3.amazonaws.com',
-      'us-west-1' => 's3-us-west-1.amazonaws.com'
+      'us-east-1' => {
+        :endpoint => 's3.amazonaws.com',
+        :location => '',
+        :kernel => { 
+          'i386' => {:aki => 'aki-407d9529'},
+          'x86_64' => {:aki => 'aki-427d952b'},
+          'centos' => {
+            '5' => {
+              'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
+              'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
+            }
+          },
+          'rhel' => {
+            '5' => {
+              'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
+                    'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
+            }
+          }
+        }
+      }
     }
     
     def after_init
       set_default_config_value('overwrite', false)
       set_default_config_value('path', '/')
       set_default_config_value('region', 'us-east-1')
-      set_default_config_value('url', "http://#{S3_ENDPOINTS[@plugin_config['region']]}")
+      set_default_config_value('url', "http://#{REGION_OPTIONS[@plugin_config['region']][:endpoint]}")
       
       register_supported_os("fedora", ['13', '14'])
       register_supported_os("centos", ['5'])
@@ -186,8 +192,8 @@ module BoxGrinder
     end
 
     def bucket(create_if_missing = true, permissions = 'private')
-      @s3 ||= Aws::S3.new(@plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log, :server => S3_ENDPOINTS[@plugin_config['region']])
-      @s3.bucket(@plugin_config['bucket'], create_if_missing, permissions, :location => LOCATION_CONSTRAINTS[@plugin_config['region']])
+      @s3 ||= Aws::S3.new(@plugin_config['access_key'], @plugin_config['secret_access_key'], :connection_mode => :single, :logger => @log, :server => REGION_OPTIONS[@plugin_config['region']][:endpoint])
+      @s3.bucket(@plugin_config['bucket'], create_if_missing, permissions, :location => REGION_OPTIONS[@plugin_config['region']][:location])
     end
     
     def bundle_image(deliverables)
@@ -197,20 +203,21 @@ module BoxGrinder
 
       FileUtils.mkdir_p(@ami_build_dir)
 
+      kernel_options = REGION_OPTIONS[@plugin_config['region']][:kernel]
       begin
-        aki = KERNELS[@plugin_config['region']][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]
+        aki = kernel_options[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]
       rescue
       end
 
       # use default pvgrub kernel image for selected region if there is no specific one for OS name/version
       if aki.nil?
-        kernel = "--kernel #{KERNELS[@plugin_config['region']][@appliance_config.hardware.base_arch][:aki]}"
+        kernel = "--kernel #{kernel_options[@appliance_config.hardware.base_arch][:aki]}"
       else
         kernel = "--kernel #{aki}"
       end
 
       begin
-        ari = KERNELS[@plugin_config['region']][@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]
+        ari = kernel_options[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]
       rescue
       end
 
