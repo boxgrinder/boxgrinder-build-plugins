@@ -52,6 +52,11 @@ module BoxGrinder
         raw_mounts = @image_helper.mount_image(@previous_deliverables.disk, raw_disk_mount_dir)
       rescue => e
         @log.error e
+        @log.error "Mouting failed, trying to clean up." 
+
+        @image_helper.umount_image(@previous_deliverables.disk, raw_disk_mount_dir, raw_mounts)  unless raw_mounts.nil?
+        @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts) unless ec2_mounts.nil?
+
         raise "Error while mounting image. See logs for more info."
       end
 
