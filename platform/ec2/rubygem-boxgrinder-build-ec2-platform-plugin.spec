@@ -13,12 +13,12 @@ URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygem(boxgrinder-build) >= 0.7.0
+Requires: rubygem(boxgrinder-build) >= 0.8.0
 Requires: rsync
 Requires: wget
 Requires: util-linux-ng
 
-BuildRequires: rubygem(boxgrinder-build) >= 0.7.0
+BuildRequires: rubygem(boxgrinder-build) >= 0.8.0
 BuildRequires: rubygem(hashery)
 BuildRequires: rubygem(echoe)
 BuildRequires: rubygem(rake)

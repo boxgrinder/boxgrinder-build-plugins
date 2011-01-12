@@ -8,8 +8,8 @@ Echoe.new('boxgrinder-build-vmware-platform-plugin') do |p|
   p.description = 'BoxGrinder Build VMware Platform Plugin'
   p.url = 'http://www.jboss.org/boxgrinder'
   p.email = 'info@boxgrinder.org'
-  p.runtime_dependencies = ['boxgrinder-build ~>0.7.0']
-  p.development_dependencies = [ 'boxgrinder-build ~>0.7.0', 'hashery >=1.3.0']
+  p.runtime_dependencies = ['boxgrinder-build ~>0.8.0']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.8.0', 'hashery >=1.3.0']
 end
 
 desc "Run all tests"
