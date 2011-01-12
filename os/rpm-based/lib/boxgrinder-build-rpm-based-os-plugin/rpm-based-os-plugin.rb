@@ -25,8 +25,10 @@ require 'boxgrinder-build/helpers/linux-helper'
 module BoxGrinder
   class RPMBasedOSPlugin < BasePlugin
     def after_init
+      set_default_config_value('format', 'raw')
+
       register_deliverable(
-          :disk => "#{@appliance_config.name}-sda.raw",
+          :disk => "#{@appliance_config.name}-sda.#{@plugin_config['format']}",
           :descriptor => "#{@appliance_config.name}.xml"
       )
 
@@ -73,7 +75,7 @@ module BoxGrinder
 
       @log.info "Building #{@appliance_config.name} appliance..."
 
-      @exec_helper.execute "appliance-creator -d -v -t #{@dir.tmp} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.path.main} --config #{kickstart_file} -o #{@dir.tmp} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus}"
+      @exec_helper.execute "appliance-creator -d -v -t #{@dir.tmp} --cache=#{@config.dir.rpms_cache}/#{@appliance_config.path.main} --config #{kickstart_file} -o #{@dir.tmp} --name #{@appliance_config.name} --vmem #{@appliance_config.hardware.memory} --vcpu #{@appliance_config.hardware.cpus} --format #{@plugin_config['format']}"
 
       FileUtils.mv(Dir.glob("#{@dir.tmp}/#{@appliance_config.name}/*"), @dir.tmp)
       FileUtils.rm_rf("#{@dir.tmp}/#{@appliance_config.name}/")

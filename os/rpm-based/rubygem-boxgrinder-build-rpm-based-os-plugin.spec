@@ -78,6 +78,7 @@ popd
 - [BGBUILD-79] Allow to use BoxGrinder Build as a library
 - [BGBUILD-126] Use encrypted password in kickstart files
 - [BGBUILD-129] Use partitions labels instead of device path in grub and fstab
+- [BGBUILD-72] Add support for growing (not pre-allocated) disks for KVM/Xen
 
 * Tue Dec 21 2010  <mgoldman@redhat.com> - 0.0.10-1
 - Updated to upstream version: 0.0.10

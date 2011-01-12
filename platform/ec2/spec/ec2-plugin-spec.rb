@@ -192,6 +192,8 @@ module BoxGrinder
 
         LinuxHelper.should_receive(:new).with(:log => @log).and_return(linux_helper)
 
+        @image_helper.should_receive(:prepare_disk).with("a/disk.raw").and_yield('disk')
+
         @image_helper.should_receive(:create_disk).with("build/path/ec2-plugin/tmp/full.ec2", 10)
         @image_helper.should_receive(:create_filesystem).with("build/path/ec2-plugin/tmp/full.ec2")
         @image_helper.should_receive(:mount_image).twice
@@ -228,6 +230,8 @@ module BoxGrinder
         linux_helper = mock(LinuxHelper)
 
         LinuxHelper.should_receive(:new).with(:log => @log).and_return(linux_helper)
+
+        @image_helper.should_receive(:prepare_disk).with("a/disk.raw").and_yield('disk')
 
         @image_helper.should_receive(:create_disk).with("build/path/ec2-plugin/tmp/full.ec2", 10)
         @image_helper.should_receive(:create_filesystem).with("build/path/ec2-plugin/tmp/full.ec2")
@@ -279,6 +283,8 @@ module BoxGrinder
         linux_helper = mock(LinuxHelper)
 
         LinuxHelper.should_receive(:new).with(:log => @log).and_return(linux_helper)
+
+        @image_helper.should_receive(:prepare_disk).with("a/disk.raw").and_yield('disk')
 
         @image_helper.should_receive(:create_disk).with("build/path/ec2-plugin/tmp/full.ec2", 10)
         @image_helper.should_receive(:create_filesystem).with("build/path/ec2-plugin/tmp/full.ec2")

@@ -35,35 +35,8 @@ module BoxGrinder
 
       @log.info "Converting #{@appliance_config.name} appliance image to EC2 format..."
 
-      begin
-        # TODO using whole 10GB is fine?
-        @image_helper.create_disk(@deliverables.disk, 10)
-        @image_helper.create_filesystem(@deliverables.disk)
-      rescue => e
-        @log.error e
-        raise "Error while preparing EC2 disk image. See logs for more info."
-      end
-
-      ec2_disk_mount_dir = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
-      raw_disk_mount_dir = "#{@dir.tmp}/raw-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
-
-      begin
-        ec2_mounts = @image_helper.mount_image(@deliverables.disk, ec2_disk_mount_dir)
-        raw_mounts = @image_helper.mount_image(@previous_deliverables.disk, raw_disk_mount_dir)
-      rescue => e
-        @log.error e
-        @log.error "Mouting failed, trying to clean up." 
-
-        @image_helper.umount_image(@previous_deliverables.disk, raw_disk_mount_dir, raw_mounts)  unless raw_mounts.nil?
-        @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts) unless ec2_mounts.nil?
-
-        raise "Error while mounting image. See logs for more info."
-      end
-
-      @image_helper.sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
-
-      @image_helper.umount_image(@previous_deliverables.disk, raw_disk_mount_dir, raw_mounts)
-      @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts)
+      create_ec2_disk
+      sync_files
 
       @image_helper.customize(@deliverables.disk) do |guestfs, guestfs_helper|
         # TODO is this really needed?
@@ -90,6 +63,42 @@ module BoxGrinder
       end
 
       @log.info "Image converted to EC2 format."
+    end
+
+    def sync_files
+      ec2_disk_mount_dir = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
+      raw_disk_mount_dir = "#{@dir.tmp}/raw-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
+
+      @image_helper.prepare_disk(@previous_deliverables.disk) do |disk|
+        begin
+          ec2_mounts = @image_helper.mount_image(@deliverables.disk, ec2_disk_mount_dir)
+          raw_mounts = @image_helper.mount_image(disk, raw_disk_mount_dir)
+        rescue => e
+          @log.error e
+          @log.error "Mouting failed, trying to clean up."
+
+          @image_helper.umount_image(disk, raw_disk_mount_dir, raw_mounts) unless raw_mounts.nil?
+          @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts) unless ec2_mounts.nil?
+
+          raise "Error while mounting image. See logs for more info."
+        end
+
+        @image_helper.sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
+
+        @image_helper.umount_image(disk, raw_disk_mount_dir, raw_mounts)
+        @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts)
+      end
+    end
+
+    def create_ec2_disk
+      begin
+        # TODO using whole 10GB is fine?
+        @image_helper.create_disk(@deliverables.disk, 10)
+        @image_helper.create_filesystem(@deliverables.disk)
+      rescue => e
+        @log.error e
+        raise "Error while preparing EC2 disk image. See logs for more info."
+      end
     end
 
     def execute_post(guestfs_helper)

@@ -3,6 +3,7 @@ v0.0.11
 * [BGBUILD-129] Use partitions labels instead of device path in grub and fstab
 * [BGBUILD-79] Allow to use BoxGrinder Build as a library
 * [BGBUILD-126] Use encrypted password in kickstart files
+* [BGBUILD-72] Add support for growing (not pre-allocated) disks for KVM/Xen
 
 v0.0.10
 

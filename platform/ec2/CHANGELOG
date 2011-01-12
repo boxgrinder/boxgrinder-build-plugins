@@ -4,6 +4,7 @@ v0.0.9
 * [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 * [BGBUILD-131] Check if OS is supported before executing the plugin
 * [BGBUILD-68] Global .boxgrinder/config or rc style file for config
+* [BGBUILD-72] Add support for growing (not pre-allocated) disks for KVM/Xen
 
 v0.0.8
 
