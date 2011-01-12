@@ -5,7 +5,7 @@
 
 Summary: Amazon Simple Storage Service (Amazon S3) Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.7
+Version: 0.0.6
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -78,12 +78,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
-* Wed Jan 05 2011  <mgoldman@redhat.com> - 0.0.7-1
-- Upstream release: 0.0.7
-- [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
-
-* Mon Jan 03 2011  <mgoldman@redhat.com> - 0.0.6-1
+* Wed Jan 05 2011  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6
+- [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
+- [BGBUILD-132] Require only region name change for S3 plugin to register AMI in different region
 - [BGBUILD-120] Add support for all EC2 regions
 
 * Tue Dec 14 2010  <mgoldman@redhat.com> - 0.0.5-1
