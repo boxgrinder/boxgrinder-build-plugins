@@ -64,7 +64,7 @@ module BoxGrinder
     it "should build virtualbox image" do
       prepare_image(:previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
-      @exec_helper.should_receive(:execute).with('qemu-img convert -f raw -O vmdk -o compat6 a/base/image/path.raw build/path/virtualbox-plugin/tmp/full.vmdk')
+      @image_helper.should_receive(:convert_disk).with("a/base/image/path.raw", "vmdk -o compat6", "build/path/virtualbox-plugin/tmp/full.vmdk")
 
       @plugin.build_virtualbox
     end
