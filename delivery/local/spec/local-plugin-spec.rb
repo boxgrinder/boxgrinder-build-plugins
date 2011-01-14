@@ -25,6 +25,8 @@ module BoxGrinder
 
     before(:each) do
       @config = mock('Config')
+      @config.stub!(:delivery_config).and_return({})
+
       @appliance_config = mock('ApplianceConfig')
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
@@ -35,23 +37,23 @@ module BoxGrinder
       @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64'}))
 
       @plugin = LocalPlugin.new.init(@config, @appliance_config,
-                                     :log                   => Logger.new('/dev/null'),
-                                     :plugin_info           => {:class => BoxGrinder::LocalPlugin, :type => :delivery, :name => :local, :full_name  => "Local file system"},
+                                     :log => Logger.new('/dev/null'),
+                                     :plugin_info => {:class => BoxGrinder::LocalPlugin, :type => :delivery, :name => :local, :full_name => "Local file system"},
                                      :previous_deliverables => {:disk => "a_disk.raw"}
       )
 
-      @config             = @plugin.instance_variable_get(:@config)
-      @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper        = @plugin.instance_variable_get(:@exec_helper)
-      @log                = @plugin.instance_variable_get(:@log)
-      @dir                = @plugin.instance_variable_get(:@dir)
+      @config = @plugin.instance_variable_get(:@config)
+      @appliance_config = @plugin.instance_variable_get(:@appliance_config)
+      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      @log = @plugin.instance_variable_get(:@log)
+      @dir = @plugin.instance_variable_get(:@dir)
     end
 
     it "should package and deliver the appliance" do
       @plugin.instance_variable_set(:@plugin_config, {
-          'overwrite'   => false,
-          'path'        => 'a/path',
-          'package'     => true
+          'overwrite' => false,
+          'path' => 'a/path',
+          'package' => true
       })
 
       FileUtils.should_receive(:mkdir_p).with('a/path')
@@ -68,9 +70,9 @@ module BoxGrinder
 
     it "should not package, but deliver the appliance" do
       @plugin.instance_variable_set(:@plugin_config, {
-          'overwrite'   => true,
-          'path'        => 'a/path',
-          'package'     => false
+          'overwrite' => true,
+          'path' => 'a/path',
+          'package' => false
       })
 
       FileUtils.should_receive(:mkdir_p).with('a/path')
@@ -83,9 +85,9 @@ module BoxGrinder
 
     it "should not deliver the package, because it is already delivered" do
       @plugin.instance_variable_set(:@plugin_config, {
-          'overwrite'   => false,
-          'path'        => 'a/path',
-          'package'     => false
+          'overwrite' => false,
+          'path' => 'a/path',
+          'package' => false
       })
 
       PackageHelper.should_not_receive(:new)

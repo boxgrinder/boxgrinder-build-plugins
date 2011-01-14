@@ -25,6 +25,8 @@ module BoxGrinder
 
     before(:each) do
       @config = mock('Config')
+      @config.stub!(:delivery_config).and_return({})
+
       @appliance_config = mock('ApplianceConfig')
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))

@@ -24,6 +24,8 @@ module BoxGrinder
   describe FedoraPlugin do
     before(:each) do
       @config = mock('Config')
+      @config.stub!(:os_config).and_return({})
+
       @appliance_config = mock('ApplianceConfig')
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))

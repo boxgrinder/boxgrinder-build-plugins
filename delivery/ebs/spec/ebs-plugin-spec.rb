@@ -34,6 +34,8 @@ module BoxGrinder
       yield @plugin if block_given?
 
       @config = mock('Config')
+      @config.stub!(:delivery_config).and_return({})
+
       @appliance_config = mock('ApplianceConfig')
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => '/a/build/path'}))

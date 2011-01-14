@@ -25,6 +25,7 @@ module BoxGrinder
   describe EC2Plugin do
     before(:each) do
       @config = mock('Config')
+      @config.stub!(:platform_config).and_return({})
 
       @appliance_config = mock('ApplianceConfig')
 

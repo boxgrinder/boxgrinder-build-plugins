@@ -25,6 +25,7 @@ module BoxGrinder
     def prepare_image(plugin_config, options = {})
       @config = mock('Config')
       @config.stub!(:version).and_return('0.1.2')
+      @config.stub!(:platform_config).and_return({})
 
       @appliance_config = mock('ApplianceConfig')
 
