@@ -17,6 +17,8 @@ Requires: euca2ools >= 1.3.1-4
 Requires: rubygem(boxgrinder-build) >= 0.8.0
 Requires: rubygem(amazon-ec2)
 Requires: rubygem(aws)
+# Fixes blankslate error
+Requires: rubygem(builder)
 
 BuildRequires: rubygem(boxgrinder-build) >= 0.8.0
 BuildRequires: rubygem(hashery)
