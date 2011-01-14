@@ -27,6 +27,8 @@ BuildRequires: rubygem(rake)
 BuildRequires: rubygem(rspec)
 BuildRequires: rubygem(amazon-ec2)
 BuildRequires: rubygem(aws)
+# Fixes blankslate error
+Requires: rubygem(builder)
 
 BuildArch: noarch
 Provides: rubygem(%{gemname}) = %{version}
