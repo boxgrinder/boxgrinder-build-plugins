@@ -292,19 +292,18 @@ module BoxGrinder
     end
 
     describe ".register_image" do
-      context "when the AMI has not been registered" do
-        before(:each) do
-          @plugin.should_receive(:ami_info).with("appliance", "/")
-
-          @ami_info = mock('AmiInfo')
-          @ami_info.should_receive(:imageId).and_return('ami-1234')
-
-          @ec2 = mock("EC2")
-          @ec2.stub(:register_image).and_return(@ami_info)
-          @plugin.instance_variable_set(:@ec2, @ec2)
-        end
+      before(:each) do
+        @ami_info = mock('AmiInfo')
+        @ami_info.should_receive(:imageId).and_return('ami-1234')
         
+        @ec2 = mock("EC2")
+        @ec2.stub(:register_image).and_return(@ami_info)
+        @plugin.instance_variable_set(:@ec2, @ec2)
+      end
+
+      context "when the AMI has not been registered" do
         it "should register the AMI" do
+          @plugin.should_receive(:ami_info).with("appliance", "/")
           @ec2.should_receive(:register_image).with(:image_location => "bucket/appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml").and_return(@ami_info)
 
           @plugin.register_image
