@@ -292,28 +292,42 @@ module BoxGrinder
     end
 
     describe ".register_image" do
-      it "should not register AMI because it's already registered" do
-        @plugin.should_receive(:ami_info).with("appliance", "/")
+      context "when the AMI has not been registered" do
+        before(:each) do
+          @plugin.should_receive(:ami_info).with("appliance", "/")
 
-        ami_info = mock('AmiInfo')
-        ami_info.should_receive(:imageId).and_return('ami-1234')
+          @ami_info = mock('AmiInfo')
+          @ami_info.should_receive(:imageId).and_return('ami-1234')
 
-        ec2 = mock("EC2")
-        ec2.should_receive(:register_image).with(:image_location => "bucket/appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml").and_return(ami_info)
+          @ec2 = mock("EC2")
+          @ec2.stub(:register_image).and_return(@ami_info)
+          @plugin.instance_variable_set(:@ec2, @ec2)
+        end
+        
+        it "should register the AMI" do
+          @ec2.should_receive(:register_image).with(:image_location => "bucket/appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml").and_return(@ami_info)
 
-        @plugin.instance_variable_set(:@ec2, ec2)
+          @plugin.register_image
+        end
 
-        @plugin.register_image
+        it "should report the region where the ami is registed" do
+          @plugin.instance_variable_get(:@plugin_config)['region'] = 'a-region'
+          @plugin.instance_variable_get(:@log).should_receive(:info).with(/a-region/)
+        end        
       end
 
-      it "should not register AMI because it's already registered" do
-        ami_info = mock('AmiInfo')
-        ami_info.should_receive(:imageId).and_return('ami-1234')
-
-        @plugin.should_receive(:ami_info).with("appliance", "/").and_return(ami_info)
-        @plugin.register_image
+      context "when the AMI has been registered" do
+        it "should not register the AMI" do
+          @plugin.should_receive(:ami_info).with("appliance", "/").and_return(@ami_info)
+          @ec2.shoud_not_receive(:register_image)
+          @plugin.register_image
+        end
+        
+        it "should report the region where the ami is registed" do
+          @plugin.instance_variable_get(:@plugin_config)['region'] = 'a-region'
+          @plugin.instance_variable_get(:@log).should_receive(:info).with(/a-region/)
+        end        
       end
-
     end
   end
 end
