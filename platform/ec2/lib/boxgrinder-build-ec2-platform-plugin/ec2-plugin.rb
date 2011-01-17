@@ -69,25 +69,30 @@ module BoxGrinder
       ec2_disk_mount_dir = "#{@dir.tmp}/ec2-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
       raw_disk_mount_dir = "#{@dir.tmp}/raw-#{rand(9999999999).to_s.center(10, rand(9).to_s)}"
 
-      @image_helper.prepare_disk(@previous_deliverables.disk) do |disk|
-        begin
-          ec2_mounts = @image_helper.mount_image(@deliverables.disk, ec2_disk_mount_dir)
-          raw_mounts = @image_helper.mount_image(disk, raw_disk_mount_dir)
-        rescue => e
-          @log.error e
-          @log.error "Mouting failed, trying to clean up."
+      tmp_disk = "#{@dir.tmp}/#{@appliance_config.name}.raw"
 
-          @image_helper.umount_image(disk, raw_disk_mount_dir, raw_mounts) unless raw_mounts.nil?
-          @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts) unless ec2_mounts.nil?
+      @log.debug "Conveting disk to RAW format..."
+      @image_helper.convert_disk(@previous_deliverables.disk, 'raw', tmp_disk)
 
-          raise "Error while mounting image. See logs for more info."
-        end
+      begin
+        ec2_mounts = @image_helper.mount_image(@deliverables.disk, ec2_disk_mount_dir)
+        raw_mounts = @image_helper.mount_image(tmp_disk, raw_disk_mount_dir)
+      rescue => e
+        @log.error e
+        @log.error "Mouting failed, trying to clean up."
 
-        @image_helper.sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
+        @image_helper.umount_image(tmp_disk, raw_disk_mount_dir, raw_mounts) unless raw_mounts.nil?
+        @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts) unless ec2_mounts.nil?
 
-        @image_helper.umount_image(disk, raw_disk_mount_dir, raw_mounts)
-        @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts)
+        raise "Error while mounting image. See logs for more info."
       end
+
+      @image_helper.sync_files(raw_disk_mount_dir, ec2_disk_mount_dir)
+
+      @image_helper.umount_image(tmp_disk, raw_disk_mount_dir, raw_mounts)
+      @image_helper.umount_image(@deliverables.disk, ec2_disk_mount_dir, ec2_mounts)
+
+      FileUtils.rm_rf tmp_disk
     end
 
     def create_ec2_disk
