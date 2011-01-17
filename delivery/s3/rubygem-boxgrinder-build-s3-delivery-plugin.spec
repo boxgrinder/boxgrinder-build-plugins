@@ -89,6 +89,9 @@ rm -rf %{buildroot}
 - [BGBUILD-120] Add support for all EC2 regions
 - [BGBUILD-135] Display the region name when reporting the registered ami
 
+* Fri Dec 17 2010  <mgoldman@redhat.com> - 0.0.5-2
+- Added rubygem-builder dependency to fix blankslate gem requirements
+
 * Tue Dec 14 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
 - [BGBUILD-115] PackageHelper should take directory instead of file list to package
