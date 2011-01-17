@@ -24,6 +24,7 @@ module BoxGrinder
     before(:each) do
       @config = mock('Config')
       @appliance_config = mock('ApplianceConfig')
+      @config.stub!(:[]).with('rpm_based').and_return({})
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
       @appliance_config.stub!(:name).and_return('full')

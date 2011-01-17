@@ -25,6 +25,7 @@ module BoxGrinder
     before(:each) do
       @config           = mock('Config')
       @config.stub!(:os_config).and_return({})
+      @config.stub!(:[]).with('centos').and_return({})
 
       @appliance_config = mock('ApplianceConfig')
 

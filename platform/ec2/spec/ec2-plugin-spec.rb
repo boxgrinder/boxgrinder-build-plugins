@@ -26,6 +26,7 @@ module BoxGrinder
     before(:each) do
       @config = mock('Config')
       @config.stub!(:platform_config).and_return({})
+      @config.stub!(:[]).with('ec2').and_return({})
 
       @appliance_config = mock('ApplianceConfig')
 

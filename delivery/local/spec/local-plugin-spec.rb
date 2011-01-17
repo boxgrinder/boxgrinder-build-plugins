@@ -26,6 +26,7 @@ module BoxGrinder
     before(:each) do
       @config = mock('Config')
       @config.stub!(:delivery_config).and_return({})
+      @config.stub!(:[]).with('local').and_return({})
 
       @appliance_config = mock('ApplianceConfig')
 
