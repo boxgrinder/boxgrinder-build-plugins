@@ -87,6 +87,7 @@ rm -rf %{buildroot}
 - [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 - [BGBUILD-132] Require only region name change for S3 plugin to register AMI in different region
 - [BGBUILD-120] Add support for all EC2 regions
+- [BGBUILD-135] Display the region name when reporting the registered ami
 
 * Tue Dec 14 2010  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
