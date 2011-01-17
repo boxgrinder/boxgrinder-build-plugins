@@ -2,6 +2,7 @@ v0.0.5
 
 * [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 * [BGBUILD-131] Check if OS is supported before executing the plugin
+* [BGBUILD-135] Display the region name when reporting the registered ami
 
 v0.0.4
 

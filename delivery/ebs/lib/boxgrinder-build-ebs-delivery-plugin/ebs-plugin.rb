@@ -45,8 +45,10 @@ module BoxGrinder
     def after_init
       begin
         @current_avaibility_zone = open('http://169.254.169.254/latest/meta-data/placement/availability-zone').string
+        @region = @current_avaibility_zone.scan(/((\w+)-(\w+)-(\d+))/).flatten.first
       rescue
         @current_avaibility_zone = nil
+        @region = nil
       end
 
       set_default_config_value('availability_zone', @current_avaibility_zone)
@@ -73,7 +75,7 @@ module BoxGrinder
       ami_id = already_registered?(ebs_appliance_name)
 
       if ami_id
-        @log.warn "EBS AMI '#{ebs_appliance_name}' is already registered as '#{ami_id}'."
+        @log.warn "EBS AMI '#{ebs_appliance_name}' is already registered as '#{ami_id}' (region: #{@region})."
         return
       end
 
@@ -172,7 +174,6 @@ module BoxGrinder
 
       @log.info "Registering image..."
 
-      region = @current_avaibility_zone.scan(/((\w+)-(\w+)-(\d+))/).flatten.first
       image_id = @ec2.register_image(
           :block_device_mapping => [{
                                         :device_name => '/dev/sda1',
@@ -197,11 +198,11 @@ module BoxGrinder
                                     }],
           :root_device_name => '/dev/sda1',
           :architecture => @appliance_config.hardware.base_arch,
-          :kernel_id => KERNELS[region][@appliance_config.hardware.base_arch][:aki],
+          :kernel_id => KERNELS[@region][@appliance_config.hardware.base_arch][:aki],
           :name => ebs_appliance_name,
           :description => ebs_appliance_description)['imageId']
 
-      @log.info "EBS AMI registered: #{image_id}"
+      @log.info "EBS AMI registered: #{image_id} (region: #{@region})"
     end
 
     def sync_files(from_dir, to_dir)
