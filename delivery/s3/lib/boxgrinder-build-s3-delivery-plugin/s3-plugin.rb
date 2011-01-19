@@ -176,7 +176,7 @@ module BoxGrinder
 
       unless key.exists? or @plugin_config['overwrite']
         @log.info "Uploading #{File.basename(@deliverables[:package])} (#{size_b/1024/1024}MB) to '#{@plugin_config['bucket']}#{remote_path}' path..."
-        key.put(open(@deliverables[:package]), permissions)
+        key.put(open(@deliverables[:package]), permissions, :server => REGION_OPTIONS[@plugin_config['region']][:endpoint])
         @log.info "Appliance #{@appliance_config.name} uploaded to S3."
       else
         @log.info "File '#{@plugin_config['bucket']}#{remote_path}' already uploaded, skipping."

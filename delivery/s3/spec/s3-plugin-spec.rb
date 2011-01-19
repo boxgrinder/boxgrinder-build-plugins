@@ -116,7 +116,7 @@ module BoxGrinder
 
       key = mock('Key')
       key.should_receive(:exists?).and_return(false)
-      key.should_receive(:put).with('abc', 'private')
+      key.should_receive(:put).with('abc', 'private', :server => 's3.amazonaws.com')
 
       bucket = mock('Bucket')
       bucket.should_receive(:key).with("appliance-1.0-fedora-14-x86_64-raw.tgz").and_return(key)
