@@ -216,7 +216,7 @@ module BoxGrinder
       end
 
       # use default pvgrub kernel image for selected region if there is no specific one for OS name/version
-      if aki.nil?
+      if ari.nil?
         ramdisk = ""
       else
         ramdisk = "--ramdisk #{ari}"
