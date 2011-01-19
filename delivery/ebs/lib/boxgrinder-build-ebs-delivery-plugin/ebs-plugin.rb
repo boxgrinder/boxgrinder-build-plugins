@@ -202,7 +202,7 @@ module BoxGrinder
           :name => ebs_appliance_name,
           :description => ebs_appliance_description)['imageId']
 
-      @log.info "EBS AMI registered: #{image_id} (region: #{@region})"
+      @log.info "EBS AMI '#{ebs_appliance_name}' registered: #{image_id} (region: #{@region})"
     end
 
     def sync_files(from_dir, to_dir)

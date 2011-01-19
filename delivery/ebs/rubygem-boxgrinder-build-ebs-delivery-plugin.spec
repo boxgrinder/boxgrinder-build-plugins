@@ -81,6 +81,7 @@ rm -rf %{buildroot}
 - [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 - [BGBUILD-131] Check if OS is supported before executing the plugin
 - [BGBUILD-135] Display the region name when reporting the registered ami
+- [BGBUILD-137] Show the appliance name in the ami registration notice
 
 * Fri Dec 17 2010  <mgoldman@redhat.com> - 0.0.4-1
 - Upstream release: 0.0.4
