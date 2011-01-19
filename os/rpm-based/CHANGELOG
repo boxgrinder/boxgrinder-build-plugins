@@ -1,5 +1,6 @@
 v0.0.11
 
+* [BGBUILD-89] Install @core package group as a minimum package list for RPM-based operating systems
 * [BGBUILD-129] Use partitions labels instead of device path in grub and fstab
 * [BGBUILD-79] Allow to use BoxGrinder Build as a library
 * [BGBUILD-126] Use encrypted password in kickstart files
