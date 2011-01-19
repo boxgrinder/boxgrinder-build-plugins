@@ -26,7 +26,9 @@ module BoxGrinder
     before(:each) do
       @config = mock('Config')
       @config.stub!(:delivery_config).and_return({})
-      @config.stub!(:[]).with('s3').and_return({})
+      plugins = mock('Plugins')
+      plugins.stub!(:[]).with('s3').and_return({})
+      @config.stub!(:[]).with(:plugins).and_return(plugins)
 
       @appliance_config = mock('ApplianceConfig')
 
@@ -296,7 +298,7 @@ module BoxGrinder
       before(:each) do
         @ami_info = mock('AmiInfo')
         @ami_info.should_receive(:imageId).and_return('ami-1234')
-        
+
         @ec2 = mock("EC2")
         @ec2.stub(:register_image).and_return(@ami_info)
         @plugin.instance_variable_set(:@ec2, @ec2)
@@ -306,7 +308,7 @@ module BoxGrinder
         before(:each) do
           @plugin.stub(:ami_info)
         end
-        
+
         it "should register the AMI" do
           @plugin.should_receive(:ami_info).with("appliance", "/")
           @ec2.should_receive(:register_image).with(:image_location => "bucket/appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml").and_return(@ami_info)
@@ -319,7 +321,7 @@ module BoxGrinder
           @plugin.instance_variable_get(:@log).should_receive(:info).with(/a-region/)
 
           @plugin.register_image
-        end        
+        end
       end
 
       context "when the AMI has been registered" do
@@ -330,16 +332,16 @@ module BoxGrinder
         it "should not register the AMI" do
           @plugin.should_receive(:ami_info).with("appliance", "/").and_return(@ami_info)
           @ec2.should_not_receive(:register_image)
-          
+
           @plugin.register_image
         end
-        
+
         it "should report the region where the ami is registed" do
           @plugin.instance_variable_get(:@plugin_config)['region'] = 'a-region'
           @plugin.instance_variable_get(:@log).should_receive(:info).with(/a-region/)
-          
+
           @plugin.register_image
-        end        
+        end
       end
     end
   end

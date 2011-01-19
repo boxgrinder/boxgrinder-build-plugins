@@ -26,7 +26,9 @@ module BoxGrinder
     before(:each) do
       @config = mock('Config')
       @config.stub!(:platform_config).and_return({})
-      @config.stub!(:[]).with('ec2').and_return({})
+      plugins = mock('Plugins')
+      plugins.stub!(:[]).with('ec2').and_return({})
+      @config.stub!(:[]).with(:plugins).and_return(plugins)
 
       @appliance_config = mock('ApplianceConfig')
 
@@ -195,7 +197,7 @@ module BoxGrinder
         LinuxHelper.should_receive(:new).with(:log => @log).and_return(linux_helper)
 
         @image_helper.should_receive(:convert_disk).with("a/disk.raw").with("a/disk.raw", "raw", "build/path/ec2-plugin/tmp/full.raw")
-        
+
         @image_helper.should_receive(:create_disk).with("build/path/ec2-plugin/tmp/full.ec2", 10)
         @image_helper.should_receive(:create_filesystem).with("build/path/ec2-plugin/tmp/full.ec2")
         @image_helper.should_receive(:mount_image).twice

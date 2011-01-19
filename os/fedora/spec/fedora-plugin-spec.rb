@@ -25,7 +25,9 @@ module BoxGrinder
     before(:each) do
       @config = mock('Config')
       @config.stub!(:os_config).and_return({})
-      @config.stub!(:[]).with('fedora').and_return({})
+      plugins = mock('Plugins')
+      plugins.stub!(:[]).with('fedora').and_return({})
+      @config.stub!(:[]).with(:plugins).and_return(plugins)
 
       @appliance_config = mock('ApplianceConfig')
 

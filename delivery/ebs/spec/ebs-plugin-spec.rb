@@ -35,7 +35,9 @@ module BoxGrinder
 
       @config = mock('Config')
       @config.stub!(:delivery_config).and_return({})
-      @config.stub!(:[]).with('ebs').and_return({})
+      plugins = mock('Plugins')
+      plugins.stub!(:[]).with('ebs').and_return({})
+      @config.stub!(:[]).with(:plugins).and_return(plugins)
 
       @appliance_config = mock('ApplianceConfig')
 
