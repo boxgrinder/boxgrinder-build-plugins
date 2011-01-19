@@ -4,6 +4,7 @@ v0.0.6
 * [BGBUILD-132] Require only region name change for S3 plugin to register AMI in different region
 * [BGBUILD-120] Add support for all EC2 regions
 * [BGBUILD-135] Display the region name when reporting the registered ami
+* [BGBUILD-137] Show the appliance name in the ami registration notice
 
 v0.0.5
 

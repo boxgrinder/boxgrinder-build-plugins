@@ -256,10 +256,10 @@ module BoxGrinder
       info = ami_info(@appliance_config.name, @plugin_config['path'])
 
       if info
-        @log.info "Image is registered under id: #{info.imageId} (region: #{@plugin_config['region']})."
+        @log.info "Image for #{@appliance_config.name} is registered under id: #{info.imageId} (region: #{@plugin_config['region']})."
       else
         info = @ec2.register_image(:image_location => bucket_manifest_key(@appliance_config.name, @plugin_config['path']))
-        @log.info "Image successfully registered under id: #{info.imageId} (region: #{@plugin_config['region']})."
+        @log.info "Image for #{@appliance_config.name} successfully registered under id: #{info.imageId} (region: #{@plugin_config['region']})."
       end
     end
 
