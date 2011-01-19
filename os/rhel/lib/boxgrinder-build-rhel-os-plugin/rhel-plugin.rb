@@ -28,7 +28,7 @@ module BoxGrinder
     def build_rhel(appliance_definition_file, repos = {})
       adjust_partition_table
 
-      normalize_packages(@appliance_config.packages.includes)
+      normalize_packages(@appliance_config.packages)
 
       build_with_appliance_creator(appliance_definition_file, repos) do |guestfs, guestfs_helper|
         # required for VMware and KVM

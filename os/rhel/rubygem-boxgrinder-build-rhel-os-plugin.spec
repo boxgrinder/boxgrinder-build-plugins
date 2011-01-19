@@ -78,6 +78,7 @@ rm -rf %{buildroot}
 - Updated to upstream version: 0.0.8
 - [BGBUILD-130] Add virtio support out of the box
 - [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
+- [BGBUILD-101] Don't use 'includes' subsection when specifying packages
 
 * Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.7-1
 - Updated to upstream version: 0.0.7

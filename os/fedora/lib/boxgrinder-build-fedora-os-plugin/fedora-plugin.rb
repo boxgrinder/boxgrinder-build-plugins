@@ -26,7 +26,7 @@ module BoxGrinder
     end
 
     def execute(appliance_definition_file)
-      normalize_packages(@appliance_config.packages.includes)
+      normalize_packages(@appliance_config.packages)
 
       @repos = {}
 

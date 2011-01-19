@@ -73,7 +73,7 @@ module BoxGrinder
     it "should recreate the kernel and add some modules to RHEL 5" do
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
 
-      @appliance_config.should_receive(:packages).and_return(OpenCascade.new({:includes => []}))
+      @appliance_config.should_receive(:packages).and_return([])
 
       @plugin.should_receive(:adjust_partition_table).ordered
       @plugin.should_receive(:normalize_packages).ordered
@@ -101,7 +101,7 @@ module BoxGrinder
     end
 
     it "should build the appliance" do
-      @appliance_config.should_receive(:packages).and_return(OpenCascade.new({:includes => ['kernel']}))
+      @appliance_config.should_receive(:packages).and_return(['kernel'])
 
       @plugin.should_receive(:adjust_partition_table).ordered
       @plugin.should_receive(:normalize_packages).ordered

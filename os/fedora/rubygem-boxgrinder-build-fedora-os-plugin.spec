@@ -74,6 +74,7 @@ popd
 * Sun Jan 09 2011  <mgoldman@redhat.com> - 0.0.7-1
 - Updated to upstream version: 0.0.7
 - [BGBUILD-131] Check if OS is supported before executing the plugin
+- [BGBUILD-101] Don't use 'includes' subsection when specifying packages
 
 * Sun Dec 12 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Updated to upstream version: 0.0.6

@@ -34,7 +34,7 @@ module BoxGrinder
       @appliance_config.stub!(:name).and_return('full')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:packages).and_return(OpenCascade.new({:includes => ["gcc-c++", "wget"]}))
+      @appliance_config.stub!(:packages).and_return(["gcc-c++", "wget"])
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '13'}))
       @appliance_config.stub!(:is64bit?).and_return(false)
       @appliance_config.stub!(:post).and_return(OpenCascade.new)

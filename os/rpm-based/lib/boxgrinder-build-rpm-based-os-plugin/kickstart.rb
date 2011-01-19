@@ -46,16 +46,7 @@ module BoxGrinder
 
       definition['appliance_config']  = @appliance_config
       definition['repos']             = []
-      definition['graphical']         = (@appliance_config.packages.includes.include?( '@base-x' ) or @appliance_config.packages.includes.include?( '@X Window System' )) ? true : false
-      definition['packages']          = []
-
-      definition['packages'] += @appliance_config.packages.includes
-
-      @appliance_config.packages.excludes do |package|
-        definition['packages'].push("-#{package}")
-      end
-
-      definition['root_password'] = @appliance_config.os.password
+      definition['graphical']         = (@appliance_config.packages.include?( '@base-x' ) or @appliance_config.packages.include?( '@X Window System' )) ? true : false
 
       def definition.method_missing(sym, * args)
         self[sym.to_s]
@@ -66,7 +57,7 @@ module BoxGrinder
       definition['partitions'] = @appliance_config.hardware.partitions
 
       repos = []
-      repos += valid_repos if @appliance_config.default_repos
+      repos += default_repos if @appliance_config.default_repos
       repos += @appliance_config.repos
 
       for repo in repos
@@ -91,10 +82,7 @@ module BoxGrinder
           name  = name.gsub(key, value)
         end
 
-        repo_def = "repo --name=#{name} --cost=#{cost} --#{urltype}=#{url}"
-        repo_def += " --excludepkgs=#{repo['excludes'].join(',')}" unless repo['excludes'].nil? or repo['excludes'].empty?
-
-        definition['repos'] << repo_def
+        definition['repos'] << "repo --name=#{name} --cost=#{cost} --#{urltype}=#{url}"
 
         cost += 1
       end
@@ -102,7 +90,7 @@ module BoxGrinder
       definition
     end
 
-    def valid_repos
+    def default_repos
       os_repos = @repos[@appliance_config.os.version]
 
       repos = Array.new
