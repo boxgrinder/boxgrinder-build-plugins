@@ -41,6 +41,11 @@ module BoxGrinder
 
       @appliance_config = mock('ApplianceConfig')
 
+      @appliance_config.stub!(:name).and_return('appliance_name')
+      @appliance_config.stub!(:version).and_return(1)
+      @appliance_config.stub!(:release).and_return(0)
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '14'}))
+      @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64', :base_arch => 'x86_64'}))
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => '/a/build/path'}))
 
       @plugin = @plugin.init(
@@ -50,6 +55,19 @@ module BoxGrinder
           :plugin_info => {:class => BoxGrinder::EBSPlugin, :type => :delivery, :name => :ebs, :full_name => "Elastic Block Storage"},
           :config_file => "#{File.dirname(__FILE__)}/ebs.yaml"
       )
+
+      @plugin_config = @plugin.instance_variable_get(:@plugin_config).merge(
+          {
+              'access_key' => 'access_key',
+              'secret_access_key' => 'secret_access_key',
+              'bucket' => 'bucket',
+              'account_number' => '0000-0000-0000',
+              'cert_file' => '/path/to/cert/file',
+              'key_file' => '/path/to/key/file'
+          }
+      )
+
+      @plugin.instance_variable_set(:@plugin_config, @plugin_config)
     end
 
     it "should register all operating systems with specific versions" do
@@ -195,6 +213,28 @@ module BoxGrinder
       @plugin.valid_platform?.should == false
     end
 
+    describe ".ebs_appliance_name" do
+      it "should return basic appliance name" do
+        prepare_plugin { |plugin| plugin.stub!(:after_init) }
+        @plugin.ebs_appliance_name.should == "appliance_name/fedora/14/1.0/x86_64"
+      end
+
+      it "should return 2nd snapshot of appliance" do
+        prepare_plugin { |plugin| plugin.stub!(:after_init) }
+
+        @plugin_config.merge!('snapshot' => true)
+
+        ec2 = mock('EC2')
+        ec2.should_receive(:describe_images).twice.with(:owner_id => '000000000000').and_return({'imagesSet' => {'item' => [
+            {'imageId' => '1', 'name' => 'appliance_name/fedora/14/1.0/x86_64'},
+            {'imageId' => '2', 'name' => 'appliance_name/fedora/14/1.0-SNAPSHOT-1/x86_64'}
+        ]}})
+
+        @plugin.instance_variable_set(:@ec2, ec2)
+
+        @plugin.ebs_appliance_name.should == "appliance_name/fedora/14/1.0-SNAPSHOT-2/x86_64"
+      end
+    end
   end
 end
 

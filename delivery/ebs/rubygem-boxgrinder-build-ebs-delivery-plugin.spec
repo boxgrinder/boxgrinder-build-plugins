@@ -82,6 +82,7 @@ rm -rf %{buildroot}
 - [BGBUILD-131] Check if OS is supported before executing the plugin
 - [BGBUILD-135] Display the region name when reporting the registered ami
 - [BGBUILD-137] Show the appliance name in the ami registration notice
+- [BGBUILD-75] Allow for some way to build and push EBS-backed AMIs to Amazon without bumping the version or release numbers in the .appl file
 
 * Fri Dec 17 2010  <mgoldman@redhat.com> - 0.0.4-1
 - Upstream release: 0.0.4
