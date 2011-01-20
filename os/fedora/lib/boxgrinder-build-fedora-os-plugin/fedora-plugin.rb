@@ -45,24 +45,18 @@ module BoxGrinder
     end
 
     def normalize_packages(packages)
-      packages << 'passwd'
+      # https://issues.jboss.org/browse/BGBUILD-89
+      packages << '@core'
+      packages << "system-config-firewall-base"
+      packages << "dhclient"
 
       case @appliance_config.os.version
-        when "13", "14" then
-          packages << "system-config-firewall-base"
-          packages << "selinux-policy-targeted"
-          packages << "dhclient"
-        when "12" then
-          packages << "system-config-firewall-base"
-        when "11" then
-          packages << "lokkit"
+        when "13"
+          # kernel_PAE for 32 bit, kernel for 64 bit
+          packages.delete('kernel')
+          packages.delete('kernel-PAE')
+          packages << (@appliance_config.is64bit? ? "kernel" : "kernel-PAE")
       end
-
-      # kernel_PAE for 32 bit, kernel for 64 bit
-      packages.delete('kernel')
-      packages.delete('kernel-PAE')
-
-      packages << (@appliance_config.is64bit? ? "kernel" : "kernel-PAE")
     end
   end
 end

@@ -46,7 +46,7 @@ module BoxGrinder
       @log = @plugin.instance_variable_get(:@log)
     end
 
-    it "should add system-config-securitylevel-tui to package list if missing for RHEL 5" do
+    it "should add @core to package list" do
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
 
       packages = []
@@ -54,7 +54,7 @@ module BoxGrinder
       @plugin.normalize_packages(packages)
 
       packages.size.should == 3
-      packages[0].should == 'curl'
+      packages[0].should == '@core'
       packages[1].should == 'kernel'
       packages[2].should == 'system-config-securitylevel-tui'
     end
@@ -68,7 +68,7 @@ module BoxGrinder
 
       packages.size.should == 3
       packages[0].should == 'kernel-xen'
-      packages[1].should == 'curl'
+      packages[1].should == '@core'
       packages[2].should == 'system-config-securitylevel-tui'
     end
 

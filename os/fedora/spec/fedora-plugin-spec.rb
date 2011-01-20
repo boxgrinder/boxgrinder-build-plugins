@@ -35,7 +35,7 @@ module BoxGrinder
       @appliance_config.stub!(:name).and_return('full')
       @appliance_config.stub!(:version).and_return(1)
       @appliance_config.stub!(:release).and_return(0)
-      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '11'}))
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '13'}))
       @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64'}))
       @appliance_config.stub!(:is64bit?).and_return(true)
 
@@ -53,32 +53,30 @@ module BoxGrinder
       @appliance_config.should_receive(:is64bit?).and_return(false)
 
       @plugin.normalize_packages(packages)
-      packages.should == ['abc', 'def', 'passwd', 'lokkit', 'kernel-PAE']
+      packages.should ==  ["abc", "def", "@core", "system-config-firewall-base", "dhclient", "kernel-PAE"]
     end
 
     it "should normalize packages for 64bit" do
       packages = ['abc', 'def', 'kernel']
 
       @plugin.normalize_packages(packages)
-      packages.should == ['abc', 'def', 'passwd', 'lokkit', 'kernel']
+      packages.should ==  ["abc", "def", "@core", "system-config-firewall-base", "dhclient", "kernel"]
     end
 
     it "should add packages for fedora 13" do
       packages = ['kernel']
 
-      @appliance_config.os.name = "fedora"
-      @appliance_config.os.version = "13"
       @plugin.normalize_packages(packages)
-      packages.should == ["passwd", "system-config-firewall-base", "selinux-policy-targeted", "dhclient", "kernel"]
+      packages.should == ["@core", "system-config-firewall-base", "dhclient", "kernel"]
     end
 
     it "should add packages for fedora 14" do
+      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '14'}))
+
       packages = ['kernel']
 
-      @appliance_config.os.name = "fedora"
-      @appliance_config.os.version = "14"
       @plugin.normalize_packages(packages)
-      packages.should == ["passwd", "system-config-firewall-base", "selinux-policy-targeted", "dhclient", "kernel"]
+      packages.should == ["kernel", "@core", "system-config-firewall-base", "dhclient"]
     end
 
   end

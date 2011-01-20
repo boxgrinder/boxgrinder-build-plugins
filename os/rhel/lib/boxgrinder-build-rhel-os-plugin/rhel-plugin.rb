@@ -37,7 +37,8 @@ module BoxGrinder
     end
 
     def normalize_packages(packages)
-      packages << "curl" unless packages.include?("curl")
+      # https://issues.jboss.org/browse/BGBUILD-89
+      packages << '@core'
 
       case @appliance_config.os.version
         when '5'

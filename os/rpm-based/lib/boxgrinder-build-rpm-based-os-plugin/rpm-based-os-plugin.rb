@@ -68,7 +68,6 @@ module BoxGrinder
       if File.extname(appliance_definition_file).eql?('.ks')
         kickstart_file = appliance_definition_file
       else
-        install_core_group_at_least
         kickstart_file = Kickstart.new(@config, @appliance_config, repos, @dir, :log => @log).create
       end
 
@@ -115,11 +114,6 @@ module BoxGrinder
       end
 
       @log.info "Base image for #{@appliance_config.name} appliance was built successfully."
-    end
-
-    # https://issues.jboss.org/browse/BGBUILD-89
-    def install_core_group_at_least
-      @appliance_config.packages.push('@core')
     end
 
     def fix_partition_labels(guestfs)
