@@ -14,6 +14,7 @@ lib/boxgrinder-build-rpm-based-os-plugin/src/motd.init
 rubygem-boxgrinder-build-rpm-based-os-plugin.spec
 spec/kickstart-spec.rb
 spec/rpm-based-os-plugin-spec.rb
+spec/rpm-dependency-validator-spec.rb
 spec/src/jeos-f13-plain.ks
 spec/src/jeos-f13-without-version.ks
 spec/src/jeos-f13.ks

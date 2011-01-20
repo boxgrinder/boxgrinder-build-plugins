@@ -74,23 +74,50 @@ module BoxGrinder
     end
 
     it "should generate valid s3 path" do
-      @plugin.s3_path('/').should == "/"
+      @plugin.s3_path('/').should == ""
     end
 
-    it "should generate valid bucket_key" do
-      @plugin.ami_bucket_key("name", "this/is/a/path").should == "bucket/this/is/a/path/name/fedora/14/1.0/x86_64"
+    describe ".ami_key" do
+      it "should generate valid ami_key" do
+        @plugin.ami_key("name", "this/is/a/path").should == "this/is/a/path/name/fedora/14/1.0/x86_64"
+      end
+
+      it "should generate valid ami_key with mixed slashes" do
+        @plugin.ami_key("name", "//this/").should == "this/name/fedora/14/1.0/x86_64"
+      end
+
+      it "should generate valid ami_key with root path" do
+        @plugin.ami_key("name", "/").should == "name/fedora/14/1.0/x86_64"
+      end
+
+      it "should generate valid ami_key with snapshot number two" do
+        @plugin_config.merge!('snapshot' => true)
+        bucket = mock('Bucket')
+        bucket.should_receive(:keys).twice
+
+        key = mock('Key')
+        key.should_receive(:exists?).and_return(true)
+
+        key1 = mock('Key')
+        key1.should_receive(:exists?).and_return(false)
+
+        bucket.should_receive(:key).with("name/fedora/14/1.0-SNAPSHOT-1/x86_64").and_return(key)
+        bucket.should_receive(:key).with("name/fedora/14/1.0-SNAPSHOT-2/x86_64").and_return(key1)
+
+        @plugin.should_receive(:bucket).twice.with(false).and_return(bucket)
+
+        @plugin.ami_key("name", "/").should == "name/fedora/14/1.0-SNAPSHOT-2/x86_64"
+      end
+
+      it "should generate valid ami_key with snapshot when bucket doesn't exists" do
+        @plugin_config.merge!('snapshot' => true)
+        @plugin.should_receive(:bucket).with(false).and_raise('ABC')
+        @plugin.ami_key("name", "/").should == "name/fedora/14/1.0-SNAPSHOT-1/x86_64"
+      end
     end
 
-    it "should generate valid bucket_key with mixed slashes" do
-      @plugin.ami_bucket_key("name", "//this/").should == "bucket/this/name/fedora/14/1.0/x86_64"
-    end
-
-    it "should generate valid bucket_key with root path" do
-      @plugin.ami_bucket_key("name", "/").should == "bucket/name/fedora/14/1.0/x86_64"
-    end
-
-    it "should generate valid bucket manifest key" do
-      @plugin.bucket_manifest_key("name", "/a/asd/f/sdf///").should == "bucket/a/asd/f/sdf/name/fedora/14/1.0/x86_64/name.ec2.manifest.xml"
+    it "should generate valid manifest key" do
+      @plugin.manifest_key("name", "/a/asd/f/sdf///").should == "a/asd/f/sdf/name/fedora/14/1.0/x86_64/name.ec2.manifest.xml"
     end
 
     it "should fix sha1 sum" do
@@ -243,12 +270,11 @@ module BoxGrinder
         bucket.should_receive(:keys)
 
         @plugin.should_receive(:bucket).with(false).and_return(bucket)
-        @plugin.should_receive(:bucket_manifest_key).with("appliance", "/").and_return('manifest/key')
 
         key = mock('Key')
         key.should_receive(:exists?).and_return(true)
 
-        bucket.should_receive(:key).with('key').and_return(key)
+        bucket.should_receive(:key).with('appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml').and_return(key)
 
         @plugin.image_already_uploaded?.should == true
       end
@@ -267,12 +293,11 @@ module BoxGrinder
         bucket.should_receive(:keys)
 
         @plugin.should_receive(:bucket).with(false).and_return(bucket)
-        @plugin.should_receive(:bucket_manifest_key).with("appliance", "/").and_return('manifest/key')
 
         key = mock('Key')
         key.should_receive(:exists?).and_return(false)
 
-        bucket.should_receive(:key).with('key').and_return(key)
+        bucket.should_receive(:key).with('appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml').and_return(key)
 
         @plugin.image_already_uploaded?.should == false
       end

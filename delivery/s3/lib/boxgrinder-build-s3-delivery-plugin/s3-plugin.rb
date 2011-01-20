@@ -133,6 +133,7 @@ module BoxGrinder
         when :cloudfront
           upload_to_bucket(@previous_deliverables, 'public-read')
         when :ami
+          set_default_config_value('snapshot', false)
           validate_plugin_config(['cert_file', 'key_file', 'account_number'], 'http://community.jboss.org/docs/DOC-15217')
 
           @plugin_config['account_number'] = @plugin_config['account_number'].to_s.gsub(/-/, '')
@@ -228,20 +229,7 @@ module BoxGrinder
     end
 
     def image_already_uploaded?
-
-      bucket = nil
-      begin
-        bucket = self.bucket(false)
-        bucket.keys
-      rescue
-        return false
-      end
-
-      manifest_location = bucket_manifest_key(@appliance_config.name, @plugin_config['path'])
-      manifest_location = manifest_location[manifest_location.index("/") + 1, manifest_location.length]
-
-      return true if bucket.key(manifest_location).exists?
-
+      return true if s3_object_exists?(manifest_key(@appliance_config.name, @plugin_config['path']))
       false
     end
 
@@ -249,7 +237,7 @@ module BoxGrinder
       bucket #this will create the bucket if needed
       @log.info "Uploading #{@appliance_config.name} AMI to bucket '#{@plugin_config['bucket']}'..."
 
-      @exec_helper.execute("euca-upload-bundle -U #{@plugin_config['url'].nil? ? "http://#{REGION_OPTIONS[@plugin_config['region']][:endpoint]}" : @plugin_config['url']} -b #{ami_bucket_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']}")
+      @exec_helper.execute("euca-upload-bundle -U #{@plugin_config['url'].nil? ? "http://#{REGION_OPTIONS[@plugin_config['region']][:endpoint]}" : @plugin_config['url']} -b #{@plugin_config['bucket']}/#{ami_key(@appliance_config.name, @plugin_config['path'])} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']}")
     end
 
     def register_image
@@ -258,7 +246,7 @@ module BoxGrinder
       if info
         @log.info "Image for #{@appliance_config.name} is registered under id: #{info.imageId} (region: #{@plugin_config['region']})."
       else
-        info = @ec2.register_image(:image_location => bucket_manifest_key(@appliance_config.name, @plugin_config['path']))
+        info = @ec2.register_image(:image_location => "#{@plugin_config['bucket']}/#{manifest_key(@appliance_config.name, @plugin_config['path'])}")
         @log.info "Image for #{@appliance_config.name} successfully registered under id: #{info.imageId} (region: #{@plugin_config['region']})."
       end
     end
@@ -271,24 +259,44 @@ module BoxGrinder
       return nil if images.nil?
 
       for image in images.item do
-        ami_info = image if (image.imageLocation.eql?(bucket_manifest_key(appliance_name, path)))
+        ami_info = image if (image.imageLocation.eql?("#{@plugin_config['bucket']}/#{manifest_key(appliance_name, path)}"))
       end
 
       ami_info
     end
 
     def s3_path(path)
-      return path if path == '/'
+      return '' if path == '/'
 
-      "/#{path.gsub(/^(\/)*/, '').gsub(/(\/)*$/, '')}/"
+      "#{path.gsub(/^(\/)*/, '').gsub(/(\/)*$/, '')}/"
     end
 
-    def ami_bucket_key(appliance_name, path)
-      "#{@plugin_config['bucket']}#{s3_path(path)}#{appliance_name}/#{@appliance_config.os.name}/#{@appliance_config.os.version}/#{@appliance_config.version}.#{@appliance_config.release}/#{@appliance_config.hardware.arch}"
+    def ami_key(appliance_name, path)
+      base_path = "#{s3_path(path)}#{appliance_name}/#{@appliance_config.os.name}/#{@appliance_config.os.version}/#{@appliance_config.version}.#{@appliance_config.release}"
+
+      return "#{base_path}/#{@appliance_config.hardware.arch}" unless @plugin_config['snapshot']
+
+      snapshot = 1
+
+      while s3_object_exists?("#{base_path}-SNAPSHOT-#{snapshot}/#{@appliance_config.hardware.arch}")
+        snapshot += 1
+      end
+
+      "#{base_path}-SNAPSHOT-#{snapshot}/#{@appliance_config.hardware.arch}"
     end
 
-    def bucket_manifest_key(appliance_name, path)
-      "#{ami_bucket_key(appliance_name, path)}/#{appliance_name}.ec2.manifest.xml"
+    def manifest_key(appliance_name, path)
+      "#{ami_key(appliance_name, path)}/#{appliance_name}.ec2.manifest.xml"
+    end
+
+    def s3_object_exists?(path)
+      begin
+        b = bucket(false)
+        b.keys
+        return path if b.key(path).exists?
+      rescue
+      end
+      false
     end
   end
 end

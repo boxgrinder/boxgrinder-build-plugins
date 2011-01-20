@@ -89,6 +89,7 @@ rm -rf %{buildroot}
 - [BGBUILD-120] Add support for all EC2 regions
 - [BGBUILD-135] Display the region name when reporting the registered ami
 - [BGBUILD-137] Show the appliance name in the ami registration notice
+- [BGBUILD-74] Allow for some way to build and push AMIs to Amazon without bumping the version or release numbers in the .appl file
 
 * Fri Dec 17 2010  <mgoldman@redhat.com> - 0.0.5-2
 - Added rubygem-builder dependency to fix blankslate gem requirements
