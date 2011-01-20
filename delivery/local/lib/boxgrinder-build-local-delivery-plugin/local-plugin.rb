@@ -42,12 +42,12 @@ module BoxGrinder
         @log.debug "Copying files to '#{@plugin_config['path']}'..."
 
         (@deliverables.empty? ? @previous_deliverables : @deliverables).values.each do |file|
-          @log.debug "Copying #{file}..."
-          @exec_helper.execute("cp #{file} #{@plugin_config['path']}")
+          @log.debug "Copying '#{file}'..."
+          @exec_helper.execute("cp '#{file}' '#{@plugin_config['path']}'")
         end
-        @log.info "Appliance delivered to #{@plugin_config['path']}."
+        @log.info "Appliance delivered to '#{@plugin_config['path']}'."
       else
-        @log.info "Appliance already delivered to #{@plugin_config['path']}."
+        @log.info "Appliance already delivered to '#{@plugin_config['path']}'."
       end
     end
 

@@ -1,5 +1,7 @@
 v0.0.7
 
+* [BGBUILD-138] enablerepo path is not escaped when calling repoquery
+
 v0.0.6
 
 * [BGBUILD-115] PackageHelper should take directory instead of file list to package

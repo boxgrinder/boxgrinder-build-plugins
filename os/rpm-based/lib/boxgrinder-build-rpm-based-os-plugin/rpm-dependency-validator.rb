@@ -75,7 +75,7 @@ module BoxGrinder
         arches = "x86_64"
       end
 
-      repoquery_output = @exec_helper.execute( "repoquery --quiet --disablerepo=* --enablerepo=#{repo_list} -c #{@yum_config_file} list available #{package_list.join( ' ' )} --nevra --archlist=#{arches},noarch" )
+      repoquery_output = @exec_helper.execute( "repoquery --quiet --disablerepo=* --enablerepo=#{repo_list} -c '#{@yum_config_file}' list available #{package_list.join( ' ' )} --nevra --archlist=#{arches},noarch" )
 
       invalid_names = []
 
@@ -117,7 +117,7 @@ module BoxGrinder
     end
 
     def read_repos_from_kickstart_file
-      repos = `grep -e "^repo" #{@kickstart_file}`
+      repos = `grep -e "^repo" '#{@kickstart_file}'`
       repo_list = []
 
       repos.each do |repo_line|

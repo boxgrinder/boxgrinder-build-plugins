@@ -72,6 +72,7 @@ popd
 %changelog
 * Wed Jan 05 2011  <mgoldman@redhat.com> - 0.0.7-1
 - Upstream release: 0.0.7
+- [BGBUILD-138] enablerepo path is not escaped when calling repoquery
 
 * Tue Dec 14 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6

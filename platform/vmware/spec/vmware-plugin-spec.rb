@@ -182,7 +182,7 @@ module BoxGrinder
       it "should build personal thick image" do
         prepare_image({'type' => 'personal', 'thin_disk' => false}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
-        @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
+        @exec_helper.should_receive(:execute).with("cp 'a/base/image/path.raw' 'build/path/vmware-plugin/tmp/full.raw'")
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmdk", "w")
 
@@ -192,7 +192,7 @@ module BoxGrinder
       it "should build personal thin image" do
         prepare_image({'type' => 'personal', 'thin_disk' => true}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
-        @exec_helper.should_receive(:execute).with('qemu-img convert -f raw -O vmdk -o compat6 a/base/image/path.raw build/path/vmware-plugin/tmp/full.vmdk')
+        @exec_helper.should_receive(:execute).with("qemu-img convert -f raw -O vmdk -o compat6 'a/base/image/path.raw' 'build/path/vmware-plugin/tmp/full.vmdk'")
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
 
         @plugin.build_vmware_personal
@@ -204,7 +204,7 @@ module BoxGrinder
         prepare_image({'type' => 'enterprise', 'thin_disk' => false}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
         @plugin.should_receive(:change_common_vmx_values).and_return("")
-        @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
+        @exec_helper.should_receive(:execute).with("cp 'a/base/image/path.raw' 'build/path/vmware-plugin/tmp/full.raw'")
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmdk", "w")
 
@@ -215,7 +215,7 @@ module BoxGrinder
         prepare_image({'type' => 'enterprise', 'thin_disk' => true}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
         @plugin.should_receive(:change_common_vmx_values).and_return("")
-        @exec_helper.should_receive(:execute).with('cp a/base/image/path.raw build/path/vmware-plugin/tmp/full.raw')
+        @exec_helper.should_receive(:execute).with("cp 'a/base/image/path.raw' 'build/path/vmware-plugin/tmp/full.raw'")
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmdk", "w")
 

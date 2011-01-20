@@ -1,6 +1,7 @@
 v0.0.7
 
 * [BGBUILD-79] Allow to use BoxGrinder Build as a library
+* [BGBUILD-138] enablerepo path is not escaped when calling repoquery
 
 v0.0.6
 

@@ -81,6 +81,7 @@ popd
 - [BGBUILD-72] Add support for growing (not pre-allocated) disks for KVM/Xen
 - [BGBUILD-101] Don't use 'includes' subsection when specifying packages
 - [BGBUILD-89] Install @core package group as a minimum package list for RPM-based operating systems
+- [BGBUILD-138] enablerepo path is not escaped when calling repoquery
 
 * Tue Dec 21 2010  <mgoldman@redhat.com> - 0.0.10-1
 - Updated to upstream version: 0.0.10

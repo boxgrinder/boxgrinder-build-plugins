@@ -73,6 +73,7 @@ popd
 * Tue Jan 04 2011  <mgoldman@redhat.com> - 0.0.7-1
 - Upstream release: 0.0.7
 - [BGBUILD-79] Allow to use BoxGrinder Build as a library
+- [BGBUILD-138] enablerepo path is not escaped when calling repoquery
 
 * Mon Dec 13 2010  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6

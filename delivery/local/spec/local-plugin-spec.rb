@@ -65,7 +65,7 @@ module BoxGrinder
 
       PackageHelper.should_receive(:new).with(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
-      @exec_helper.should_receive(:execute).with("cp build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz a/path")
+      @exec_helper.should_receive(:execute).with("cp 'build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz' 'a/path'")
       @plugin.should_receive(:deliverables_exists?).and_return(false)
 
       @plugin.execute
@@ -81,7 +81,7 @@ module BoxGrinder
       FileUtils.should_receive(:mkdir_p).with('a/path')
       PackageHelper.should_not_receive(:new)
 
-      @exec_helper.should_receive(:execute).with("cp build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz a/path")
+      @exec_helper.should_receive(:execute).with("cp 'build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz' 'a/path'")
 
       @plugin.execute
     end

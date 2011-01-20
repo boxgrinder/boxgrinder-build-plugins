@@ -6,6 +6,7 @@ v0.0.11
 * [BGBUILD-126] Use encrypted password in kickstart files
 * [BGBUILD-72] Add support for growing (not pre-allocated) disks for KVM/Xen
 * [BGBUILD-101] Don't use 'includes' subsection when specifying packages
+* [BGBUILD-138] enablerepo path is not escaped when calling repoquery
 
 v0.0.10
 

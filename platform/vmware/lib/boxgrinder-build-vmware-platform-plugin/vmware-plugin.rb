@@ -145,7 +145,7 @@ module BoxGrinder
 
     def copy_raw_image
       @log.debug "Copying VMware image file, this may take several minutes..."
-      @exec_helper.execute "cp #{@previous_deliverables.disk} #{@deliverables.disk}"
+      @exec_helper.execute "cp '#{@previous_deliverables.disk}' '#{@deliverables.disk}'"
       @log.debug "VMware image copied."
     end
 
@@ -154,7 +154,7 @@ module BoxGrinder
 
       if @plugin_config['thin_disk']
         @log.debug "Using qemu-img to convert the image..."
-        @exec_helper.execute "qemu-img convert -f raw -O vmdk -o compat6 #{@previous_deliverables.disk} #{@deliverables.disk}"
+        @exec_helper.execute "qemu-img convert -f raw -O vmdk -o compat6 '#{@previous_deliverables.disk}' '#{@deliverables.disk}'"
         @log.debug "Conversion done."
       else
         copy_raw_image
