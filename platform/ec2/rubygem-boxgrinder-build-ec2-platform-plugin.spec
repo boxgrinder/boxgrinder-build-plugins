@@ -11,6 +11,7 @@ Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
+BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires: ruby(abi) = %{rubyabi}
 Requires: rubygem(boxgrinder-build) >= 0.8.0
@@ -78,6 +79,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Jan 06 2011  <mgoldman@redhat.com> - 0.0.9-1
 - Upstream release: 0.0.9
+- Added BuildRoot tag to build for EPEL 5
 - [BGBUILD-129] Use partitions labels instead of device path in grub and fstab
 - [BGBUILD-68] Global .boxgrinder/config or rc style file for config
 - [BGBUILD-131] Check if OS is supported before executing the plugin

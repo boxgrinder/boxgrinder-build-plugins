@@ -11,9 +11,9 @@ Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
+BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires: ruby(abi) = %{rubyabi}
-
 Requires: rubygem(boxgrinder-build-rpm-based-os-plugin) >= 0.0.11
 
 BuildRequires: rubygem(boxgrinder-build-rpm-based-os-plugin) >= 0.0.11
@@ -73,6 +73,7 @@ popd
 %changelog
 * Sun Jan 09 2011  <mgoldman@redhat.com> - 0.0.7-1
 - Updated to upstream version: 0.0.7
+- Added BuildRoot tag to build for EPEL 5
 - [BGBUILD-131] Check if OS is supported before executing the plugin
 - [BGBUILD-101] Don't use 'includes' subsection when specifying packages
 

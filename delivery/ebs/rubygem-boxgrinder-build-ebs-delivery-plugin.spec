@@ -11,6 +11,7 @@ Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
+BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires: ruby(abi) = %{rubyabi}
 Requires: rubygem(boxgrinder-build) >= 0.8.0
@@ -78,6 +79,7 @@ rm -rf %{buildroot}
 %changelog
 * Sun Jan 09 2011  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
+- Added BuildRoot tag to build for EPEL 5
 - [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 - [BGBUILD-131] Check if OS is supported before executing the plugin
 - [BGBUILD-135] Display the region name when reporting the registered ami

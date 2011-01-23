@@ -11,6 +11,7 @@ Group: Development/Languages
 License: LGPLv3+
 URL: http://www.jboss.org/boxgrinder
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
+BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires: ruby(abi) = %{rubyabi}
 Requires: rubygem(boxgrinder-build) >= 0.8.0
@@ -72,6 +73,7 @@ popd
 %changelog
 * Tue Jan 04 2011  <mgoldman@redhat.com> - 0.0.7-1
 - Upstream release: 0.0.7
+- Added BuildRoot tag to build for EPEL 5
 - [BGBUILD-79] Allow to use BoxGrinder Build as a library
 - [BGBUILD-138] enablerepo path is not escaped when calling repoquery
 
