@@ -14,7 +14,7 @@ Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygem(boxgrinder-build) >= 0.8.0
+Requires: rubygem(boxgrinder-build-ec2-platform-plugin)
 Requires: rubygem(amazon-ec2)
 Requires: rubygem(aws)
 
