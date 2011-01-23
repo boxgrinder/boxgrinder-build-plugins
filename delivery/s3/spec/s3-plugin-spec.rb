@@ -19,6 +19,10 @@
 require 'rubygems'
 require 'boxgrinder-build-s3-delivery-plugin/s3-plugin'
 require 'hashery/opencascade'
+# TODO remove this when it'll become not necessary
+# quick fix for old active_support require issue in EPEL 5
+require 'active_support/basic_object'
+require 'active_support/duration'
 
 module BoxGrinder
   describe S3Plugin do
