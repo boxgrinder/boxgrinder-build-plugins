@@ -17,7 +17,7 @@ Requires: ruby(abi) = %{rubyabi}
 Requires: rubygem(boxgrinder-build) >= 0.8.0
 Requires: rsync
 Requires: wget
-Requires: util-linux-ng
+Requires: util-linux
 
 BuildRequires: rubygem(boxgrinder-build) >= 0.8.0
 BuildRequires: rubygem(hashery)
