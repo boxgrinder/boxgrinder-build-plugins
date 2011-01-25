@@ -32,13 +32,14 @@ module BoxGrinder
 
       build_with_appliance_creator(appliance_definition_file, repos) do |guestfs, guestfs_helper|
         # required for VMware and KVM
-        @linux_helper.recreate_kernel_image(guestfs, ['mptspi', 'virtio_pci', 'virtio_blk']) if @appliance_config.os.version == '5'
+        @linux_helper.recreate_kernel_image(guestfs, ['mptspi', 'virtio_pci', 'virtio_blk']) if @appliance_config.os.version == '5' and !@appliance_config.packages.include?('kernel-xen')
       end
     end
 
     def normalize_packages(packages)
       # https://issues.jboss.org/browse/BGBUILD-89
       packages << '@core'
+      packages << 'curl'
 
       case @appliance_config.os.version
         when '5'

@@ -28,7 +28,7 @@ module BoxGrinder
       plugins = mock('Plugins')
       plugins.stub!(:[]).with('rhel').and_return({})
       @config.stub!(:[]).with(:plugins).and_return(plugins)
-      
+
       @appliance_config = mock('ApplianceConfig')
 
       @appliance_config.stub!(:path).and_return(OpenCascade.new({:build => 'build/path'}))
@@ -53,10 +53,11 @@ module BoxGrinder
 
       @plugin.normalize_packages(packages)
 
-      packages.size.should == 3
+      packages.size.should == 4
       packages[0].should == '@core'
-      packages[1].should == 'kernel'
-      packages[2].should == 'system-config-securitylevel-tui'
+      packages[1].should == 'curl'
+      packages[2].should == 'kernel'
+      packages[3].should == 'system-config-securitylevel-tui'
     end
 
     it "should not add kernel package if kernel-xen is already choose" do
@@ -66,28 +67,61 @@ module BoxGrinder
 
       @plugin.normalize_packages(packages)
 
-      packages.size.should == 3
+      packages.size.should == 4
       packages[0].should == 'kernel-xen'
       packages[1].should == '@core'
-      packages[2].should == 'system-config-securitylevel-tui'
+      packages[2].should == 'curl'
+      packages[3].should == 'system-config-securitylevel-tui'
     end
 
-    it "should recreate the kernel and add some modules to RHEL 5" do
-      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
+    describe ".execute" do
+      it "should recreate the kernel and add some modules to RHEL 5 with normal kernel" do
+        @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
 
-      @appliance_config.should_receive(:packages).and_return([])
+        @appliance_config.stub!(:packages).and_return([])
 
-      @plugin.should_receive(:adjust_partition_table).ordered
-      @plugin.should_receive(:normalize_packages).ordered
+        @plugin.should_receive(:adjust_partition_table).ordered
+        @plugin.should_receive(:normalize_packages).ordered
 
-      guestfs = mock('guestfs')
-      guestfs_helper = mock('guestfshelper')
+        guestfs = mock('guestfs')
+        guestfs_helper = mock('guestfshelper')
 
-      @plugin.should_receive(:build_with_appliance_creator).ordered.and_yield(guestfs, guestfs_helper)
+        @plugin.should_receive(:build_with_appliance_creator).ordered.and_yield(guestfs, guestfs_helper)
 
-      @linux_helper.should_receive(:recreate_kernel_image).with(guestfs, ['mptspi', 'virtio_pci', 'virtio_blk'])
+        @linux_helper.should_receive(:recreate_kernel_image).with(guestfs, ['mptspi', 'virtio_pci', 'virtio_blk'])
 
-      @plugin.execute('file')
+        @plugin.execute('file')
+      end
+
+      it "should NOT recreate the kernel and add some modules to RHEL 5 if kernel-xen is choosen" do
+        @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
+
+        @appliance_config.stub!(:packages).and_return(['kernel-xen'])
+
+        @plugin.should_receive(:adjust_partition_table).ordered
+        @plugin.should_receive(:normalize_packages).ordered
+
+        guestfs = mock('guestfs')
+        guestfs_helper = mock('guestfshelper')
+
+        @plugin.should_receive(:build_with_appliance_creator).ordered.and_yield(guestfs, guestfs_helper)
+
+        @linux_helper.should_not_receive(:recreate_kernel_image)
+
+        @plugin.execute('file')
+      end
+
+      it "should build the appliance" do
+        @appliance_config.should_receive(:packages).and_return(['kernel'])
+
+        @plugin.should_receive(:adjust_partition_table).ordered
+        @plugin.should_receive(:normalize_packages).ordered
+        @plugin.should_receive(:build_with_appliance_creator).ordered
+
+        @linux_helper.should_not_receive(:recreate_kernel_image)
+
+        @plugin.execute('file')
+      end
     end
 
     it "should adjust partition table for RHEL 5" do
@@ -100,18 +134,6 @@ module BoxGrinder
       @appliance_config.hardware.partitions.size.should == 2
       @appliance_config.hardware.partitions['/']['size'].should == 2
       @appliance_config.hardware.partitions['/boot']['size'].should == 0.1
-    end
-
-    it "should build the appliance" do
-      @appliance_config.should_receive(:packages).and_return(['kernel'])
-
-      @plugin.should_receive(:adjust_partition_table).ordered
-      @plugin.should_receive(:normalize_packages).ordered
-      @plugin.should_receive(:build_with_appliance_creator).ordered
-
-      @linux_helper.should_not_receive(:recreate_kernel_image)
-
-      @plugin.execute('file')
     end
   end
 end
