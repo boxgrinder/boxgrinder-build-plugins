@@ -46,32 +46,46 @@ module BoxGrinder
       @log = @plugin.instance_variable_get(:@log)
     end
 
-    it "should add @core to package list" do
-      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
+    describe ".normalize_packages" do
+      it "should add @core to package list" do
+        @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
 
-      packages = []
+        packages = []
 
-      @plugin.normalize_packages(packages)
+        @plugin.normalize_packages(packages)
 
-      packages.size.should == 4
-      packages[0].should == '@core'
-      packages[1].should == 'curl'
-      packages[2].should == 'kernel'
-      packages[3].should == 'system-config-securitylevel-tui'
-    end
+        packages.size.should == 4
+        packages[0].should == '@core'
+        packages[1].should == 'curl'
+        packages[2].should == 'kernel'
+        packages[3].should == 'system-config-securitylevel-tui'
+      end
 
-    it "should not add kernel package if kernel-xen is already choose" do
-      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
+      it "should not add kernel package if kernel-xen is already choose" do
+        @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'rhel', :version => '5'}))
 
-      packages = ['kernel-xen']
+        packages = ['kernel-xen']
 
-      @plugin.normalize_packages(packages)
+        @plugin.normalize_packages(packages)
 
-      packages.size.should == 4
-      packages[0].should == 'kernel-xen'
-      packages[1].should == '@core'
-      packages[2].should == 'curl'
-      packages[3].should == 'system-config-securitylevel-tui'
+        packages.size.should == 4
+        packages[0].should == 'kernel-xen'
+        packages[1].should == '@core'
+        packages[2].should == 'curl'
+        packages[3].should == 'system-config-securitylevel-tui'
+      end
+
+      it "should not add default packages for RHEL 6" do
+        packages = []
+
+        @plugin.normalize_packages(packages)
+
+        packages.size.should == 4
+        packages[0].should == '@core'
+        packages[1].should == 'curl'
+        packages[2].should == 'kernel'
+        packages[3].should == 'system-config-firewall-base'
+      end
     end
 
     describe ".execute" do
