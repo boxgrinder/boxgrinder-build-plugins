@@ -25,25 +25,12 @@ require 'aws'
 module BoxGrinder
   class S3Plugin < BasePlugin
     REGION_OPTIONS = {
-
         'eu-west-1' => {
             :endpoint => 's3.amazonaws.com',
             :location => 'EU',
             :kernel => {
                 'i386' => {:aki => 'aki-4deec439'},
-                'x86_64' => {:aki => 'aki-4feec43b'},
-                'centos' => {
-                    '5' => {
-                        'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
-                        'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
-                    }
-                },
-                'rhel' => {
-                    '5' => {
-                        'i386' => {:aki => 'aki-7e0d250a', :ari => 'ari-7d0d2509'},
-                        'x86_64' => {:aki => 'aki-780d250c', :ari => 'ari-7f0d250b'}
-                    }
-                }
+                'x86_64' => {:aki => 'aki-4feec43b'}
             }
         },
 
@@ -52,19 +39,7 @@ module BoxGrinder
             :location => 'ap-southeast-1',
             :kernel => {
                 'i386' => {:aki => 'aki-13d5aa41'},
-                'x86_64' => {:aki => 'aki-11d5aa43'},
-                'centos' => {
-                    '5' => {
-                        'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
-                        'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
-                    }
-                },
-                'rhel' => {
-                    '5' => {
-                        'i386' => {:aki => 'aki-15f58a47', :ari => 'ari-37f58a65'},
-                        'x86_64' => {:aki => 'aki-1df58a4f', :ari => 'ari-35f58a67'}
-                    }
-                }
+                'x86_64' => {:aki => 'aki-11d5aa43'}
             }
         },
 
@@ -73,19 +48,7 @@ module BoxGrinder
             :location => 'us-west-1',
             :kernel => {
                 'i386' => {:aki => 'aki-99a0f1dc'},
-                'x86_64' => {:aki => 'aki-9ba0f1de'},
-                'centos' => {
-                    '5' => {
-                        'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
-                        'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
-                    }
-                },
-                'rhel' => {
-                    '5' => {
-                        'i386' => {:aki => 'aki-873667c2', :ari => 'ari-853667c0'},
-                        'x86_64' => {:aki => 'aki-813667c4', :ari => 'ari-833667c6'}
-                    }
-                }
+                'x86_64' => {:aki => 'aki-9ba0f1de'}
             }
         },
 
@@ -94,19 +57,7 @@ module BoxGrinder
             :location => '',
             :kernel => {
                 'i386' => {:aki => 'aki-407d9529'},
-                'x86_64' => {:aki => 'aki-427d952b'},
-                'centos' => {
-                    '5' => {
-                        'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
-                        'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
-                    }
-                },
-                'rhel' => {
-                    '5' => {
-                        'i386' => {:aki => 'aki-a71cf9ce', :ari => 'ari-a51cf9cc'},
-                        'x86_64' => {:aki => 'aki-b51cf9dc', :ari => 'ari-b31cf9da'}
-                    }
-                }
+                'x86_64' => {:aki => 'aki-427d952b'}
             }
         }
     }
@@ -206,38 +157,13 @@ module BoxGrinder
 
       FileUtils.mkdir_p(@ami_build_dir)
 
-      kernel_options = REGION_OPTIONS[@plugin_config['region']][:kernel]
-      begin
-        aki = kernel_options[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:aki]
-      rescue
-      end
-
-      # use default pvgrub kernel image for selected region if there is no specific one for OS name/version
-      if aki.nil?
-        kernel = "--kernel #{kernel_options[@appliance_config.hardware.base_arch][:aki]}"
-      else
-        kernel = "--kernel #{aki}"
-      end
-
-      begin
-        ari = kernel_options[@appliance_config.os.name][@appliance_config.os.version][@appliance_config.hardware.base_arch][:ari]
-      rescue
-      end
-
-      # use default pvgrub kernel image for selected region if there is no specific one for OS name/version
-      if ari.nil?
-        ramdisk = ""
-      else
-        ramdisk = "--ramdisk #{ari}"
-      end
-
-      @exec_helper.execute("euca-bundle-image --ec2cert #{File.dirname(__FILE__)}/src/cert-ec2.pem -i #{deliverables[:disk]} #{kernel} #{ramdisk} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.base_arch} -d #{@ami_build_dir}")
+      @exec_helper.execute("euca-bundle-image --ec2cert #{File.dirname(__FILE__)}/src/cert-ec2.pem -i #{deliverables[:disk]} --kernel #{REGION_OPTIONS[@plugin_config['region']][:kernel][@appliance_config.hardware.base_arch][:aki]} -c #{@plugin_config['cert_file']} -k #{@plugin_config['key_file']} -u #{@plugin_config['account_number']} -r #{@appliance_config.hardware.base_arch} -d #{@ami_build_dir}")
 
       @log.info "Bundling AMI finished."
     end
 
     def upload_image(ami_dir)
-      bucket #this will create the bucket if needed
+      bucket # this will create the bucket if needed
       @log.info "Uploading #{@appliance_config.name} AMI to bucket '#{@plugin_config['bucket']}'..."
 
       @exec_helper.execute("euca-upload-bundle -U #{@plugin_config['url'].nil? ? "http://#{REGION_OPTIONS[@plugin_config['region']][:endpoint]}" : @plugin_config['url']} -b #{@plugin_config['bucket']}/#{ami_dir} -m #{@ami_manifest} -a #{@plugin_config['access_key']} -s #{@plugin_config['secret_access_key']}")

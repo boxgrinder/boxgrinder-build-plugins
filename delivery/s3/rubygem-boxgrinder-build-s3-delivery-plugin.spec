@@ -86,6 +86,7 @@ rm -rf %{buildroot}
 * Wed Jan 05 2011  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6
 - Added BuildRoot tag to build for EPEL 5
+- [BGBUILD-121] Use pvgrub for RHEL/CentOS 5
 - [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 - [BGBUILD-132] Require only region name change for S3 plugin to register AMI in different region
 - [BGBUILD-120] Add support for all EC2 regions

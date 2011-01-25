@@ -1,5 +1,6 @@
 v0.0.6
 
+* [BGBUILD-121] Use pvgrub for RHEL/CentOS 5
 * [BGBUILD-74] Allow for some way to build and push AMIs to Amazon without bumping the version or release numbers in the .appl file
 * [BGBUILD-93] Add Red Hat Enterprise Linux 6 support
 * [BGBUILD-132] Require only region name change for S3 plugin to register AMI in different region
