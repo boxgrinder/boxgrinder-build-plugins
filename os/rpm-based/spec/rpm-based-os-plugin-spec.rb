@@ -121,12 +121,14 @@ module BoxGrinder
       it "should use labels for partitions instead of paths" do
         guestfs = mock("guestfs")
 
+        guestfs.should_receive(:list_devices).and_return(['/dev/hda'])
+
         guestfs.should_receive(:read_file).with('/etc/fstab').and_return("/dev/sda1 / something\nLABEL=/boot /boot something\n")
-        guestfs.should_receive(:vfs_label).with('/dev/vda1').and_return('/')
+        guestfs.should_receive(:vfs_label).with('/dev/hda1').and_return('/')
         guestfs.should_receive(:write_file).with('/etc/fstab', "LABEL=/ / something\nLABEL=/boot /boot something\n", 0)
 
         guestfs.should_receive(:read_file).with('/boot/grub/grub.conf').and_return("default=0\ntimeout=5\nsplashimage=(hd0,0)/boot/grub/splash.xpm.gz\nhiddenmenu\ntitle f14-core (2.6.35.10-74.fc14.x86_64)\nroot (hd0,0)\nkernel /boot/vmlinuz-2.6.35.10-74.fc14.x86_64 ro root=/dev/sda1\ninitrd /boot/initramfs-2.6.35.10-74.fc14.x86_64.img")
-        guestfs.should_receive(:vfs_label).with('/dev/vda1').and_return('/')
+        guestfs.should_receive(:vfs_label).with('/dev/hda1').and_return('/')
         guestfs.should_receive(:write_file).with('/boot/grub/grub.conf', "default=0\ntimeout=5\nsplashimage=(hd0,0)/boot/grub/splash.xpm.gz\nhiddenmenu\ntitle f14-core (2.6.35.10-74.fc14.x86_64)\nroot (hd0,0)\nkernel /boot/vmlinuz-2.6.35.10-74.fc14.x86_64 ro root=LABEL=/\ninitrd /boot/initramfs-2.6.35.10-74.fc14.x86_64.img", 0)
 
         @plugin.use_labels_for_partitions(guestfs)
@@ -134,6 +136,8 @@ module BoxGrinder
 
       it "should not change anything" do
         guestfs = mock("guestfs")
+
+        guestfs.should_receive(:list_devices).and_return(['/dev/sda'])
 
         guestfs.should_receive(:read_file).with('/etc/fstab').and_return("LABEL=/ / something\nLABEL=/boot /boot something\n")
         guestfs.should_not_receive(:vfs_label)

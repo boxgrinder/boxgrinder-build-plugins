@@ -123,13 +123,15 @@ module BoxGrinder
     end
 
     def use_labels_for_partitions(guestfs)
+      device = guestfs.list_devices.first
+
       # /etc/fstab
-      if fstab = guestfs.read_file('/etc/fstab').gsub!(/^(\/dev\/sda.)/) { |path| "LABEL=#{read_label(guestfs, path.gsub('/dev/sda', '/dev/vda'))}" }
+      if fstab = guestfs.read_file('/etc/fstab').gsub!(/^(\/dev\/sda.)/) { |path| "LABEL=#{read_label(guestfs, path.gsub('/dev/sda', device))}" }
         guestfs.write_file('/etc/fstab', fstab, 0)
       end
 
       # /boot/grub/grub.conf
-      if grub = guestfs.read_file('/boot/grub/grub.conf').gsub!(/(\/dev\/sda.)/) { |path| "LABEL=#{read_label(guestfs, path.gsub('/dev/sda', '/dev/vda'))}" }
+      if grub = guestfs.read_file('/boot/grub/grub.conf').gsub!(/(\/dev\/sda.)/) { |path| "LABEL=#{read_label(guestfs, path.gsub('/dev/sda', device))}" }
         guestfs.write_file('/boot/grub/grub.conf', grub, 0)
       end
     end
