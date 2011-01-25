@@ -41,26 +41,26 @@ module BoxGrinder
           OpenCascade.new({
                               :partitions =>
                                   {
-                                      '/'     => {'size' => 2},
+                                      '/' => {'size' => 2},
                                       '/home' => {'size' => 3},
                                   },
-                              :arch       => 'i686',
-                              :base_arch  => 'i386',
-                              :cpus       => 1,
-                              :memory     => 256,
+                              :arch => 'i686',
+                              :base_arch => 'i386',
+                              :cpus => 1,
+                              :memory => 256,
                           })
       )
 
-      options[:log]         = Logger.new('/dev/null')
+      options[:log] = Logger.new('/dev/null')
       options[:plugin_info] = {:class => BoxGrinder::VMwarePlugin, :type => :platform, :name => :vmware, :full_name => "VMware"}
-      @plugin               = VMwarePlugin.new
+      @plugin = VMwarePlugin.new
 
       @plugin.instance_variable_set(:@plugin_config, plugin_config)
       @plugin.should_receive(:read_plugin_config)
       @plugin.should_receive(:validate_plugin_config)
       @plugin.init(@config, @appliance_config, options)
 
-      @exec_helper  = @plugin.instance_variable_get(:@exec_helper)
+      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
       @image_helper = @plugin.instance_variable_get(:@image_helper)
     end
 
@@ -88,7 +88,7 @@ module BoxGrinder
 
     it "should calculate good CHS value for 40GB disk" do
       prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
-      
+
       c, h, s, total_sectors = @plugin.generate_scsi_chs(40)
 
       c.should == 5221
@@ -155,7 +155,7 @@ module BoxGrinder
       it "should change vmdk data (flat) enabling thin disk" do
         prepare_image({'thin_disk' => true, 'type' => 'enterprise'})
 
-        vmdk_image                  = @plugin.change_vmdk_values("monolithicFlat")
+        vmdk_image = @plugin.change_vmdk_values("monolithicFlat")
 
         vmdk_image.scan(/^ddb.thinProvisioned = "(.*)"\s?$/).to_s.should == "1"
       end
@@ -223,48 +223,72 @@ module BoxGrinder
       end
     end
 
-    it "should convert image to vmware personal" do
-      prepare_image({'type' => 'personal'})
+    describe ".execute" do
+      it "should convert image to vmware personal" do
+        prepare_image({'type' => 'personal'})
 
-      @plugin.should_receive(:build_vmware_personal).with(no_args())
-      @plugin.should_receive(:customize_image).with(no_args())
+        @plugin.should_receive(:build_vmware_personal).with(no_args())
+        @plugin.should_receive(:customize_image).with(no_args())
 
-      File.should_receive(:open)
+        File.should_receive(:open)
 
-      @plugin.execute
+        @plugin.execute
+      end
+
+      it "should convert image to vmware enterprise" do
+        prepare_image({'type' => 'enterprise'})
+
+        @plugin.should_receive(:build_vmware_enterprise).with(no_args())
+        @plugin.should_receive(:customize_image).with(no_args())
+
+        File.should_receive(:open)
+
+        @plugin.execute
+      end
+
+      it "should fail because not supported format was choosen" do
+        prepare_image({'type' => 'unknown'})
+
+        @plugin.should_not_receive(:build_vmware_enterprise)
+        @plugin.should_not_receive(:customize_image)
+
+        lambda {
+          @plugin.execute
+        }.should raise_error(RuntimeError, "Not known VMware format specified. Available are: personal and enterprise. See http://community.jboss.org/docs/DOC-15528 for more info.")
+      end
     end
 
-    it "should convert image to vmware enterprise" do
-      prepare_image({'type' => 'enterprise'})
+    describe ".customize_image" do
+      it "should customize the image" do
+        prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
 
-      @plugin.should_receive(:build_vmware_enterprise).with(no_args())
-      @plugin.should_receive(:customize_image).with(no_args())
+        @appliance_config.post['vmware'] = ["one", "two", "three"]
 
-      File.should_receive(:open)
+        guestfs_mock = mock("GuestFS")
+        guestfs_helper_mock = mock("GuestFSHelper")
 
-      @plugin.execute
-    end
+        @image_helper.should_receive(:customize).with("build/path/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, guestfs_helper_mock)
 
-    it "should customize the image" do
-      prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
+        guestfs_helper_mock.should_receive(:sh).once.ordered.with("one", :arch => 'i686')
+        guestfs_helper_mock.should_receive(:sh).once.ordered.with("two", :arch => 'i686')
+        guestfs_helper_mock.should_receive(:sh).once.ordered.with("three", :arch => 'i686')
 
-      @appliance_config.post['vmware'] = ["one", "two", "three"]
+        @plugin.customize_image
+      end
 
-      guestfs_mock                     = mock("GuestFS")
-      guestfs_helper_mock              = mock("GuestFSHelper")
+      it "should skip customizing the image" do
+        prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
 
-      @image_helper.should_receive(:customize).with("build/path/vmware-plugin/tmp/full.raw").and_yield(guestfs_mock, guestfs_helper_mock)
+        @appliance_config.post['vmware'] = []
+        @image_helper.should_not_receive(:customize)
 
-      guestfs_helper_mock.should_receive(:sh).once.ordered.with("one", :arch => 'i686')
-      guestfs_helper_mock.should_receive(:sh).once.ordered.with("two", :arch => 'i686')
-      guestfs_helper_mock.should_receive(:sh).once.ordered.with("three", :arch => 'i686')
-
-      @plugin.customize_image
+        @plugin.customize_image
+      end
     end
 
     it "should create a valid README file" do
       prepare_image({'thin_disk' => false, 'type' => 'enterprise'})
-      
+
       file = mock(File)
 
       File.should_receive(:open).and_return(file)

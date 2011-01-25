@@ -131,7 +131,7 @@ module BoxGrinder
     end
 
     def customize_image
-      unless @appliance_config.post['vmware'].nil?
+      unless @appliance_config.post['vmware'].nil? or @appliance_config.post['vmware'].empty?
         @image_helper.customize(@deliverables.disk) do |guestfs, guestfs_helper|
           @appliance_config.post['vmware'].each do |cmd|
             guestfs_helper.sh(cmd, :arch => @appliance_config.hardware.arch)
