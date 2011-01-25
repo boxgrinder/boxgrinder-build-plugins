@@ -39,25 +39,35 @@ module BoxGrinder
       sync_files
 
       @image_helper.customize(@deliverables.disk) do |guestfs, guestfs_helper|
+        if (@appliance_config.os.name == 'rhel' or @appliance_config.os.name == 'centos') and @appliance_config.os.version == '5'
+          # Not sure why it's messed but this prevents booting on AWS
+          recreate_journal(guestfs)
+
+          # Remove normal kernel
+          guestfs.sh("yum -y remove kernel")
+          # because we need to install kernel-xen package
+          guestfs.sh("yum -y install kernel-xen")
+          # and add require modules
+          @linux_helper.recreate_kernel_image(guestfs, ['xenblk', 'xennet'])
+        end
+
         # TODO is this really needed?
         @log.debug "Uploading '/etc/resolv.conf'..."
         guestfs.upload("/etc/resolv.conf", "/etc/resolv.conf")
         @log.debug "'/etc/resolv.conf' uploaded."
 
         create_devices(guestfs)
-        upload_fstab(guestfs)
 
         guestfs.mkdir("/data") if @appliance_config.is64bit?
 
+        upload_fstab(guestfs)
         enable_networking(guestfs)
         upload_rc_local(guestfs)
-        enable_nosegneg_flag(guestfs)
         add_ec2_user(guestfs)
         change_configuration(guestfs_helper)
         install_menu_lst(guestfs)
 
-        # required for CentOS 5 and RHEL 5
-        @linux_helper.recreate_kernel_image(guestfs, ['xenblk', 'xennet']) if (@appliance_config.os.name == 'rhel' or @appliance_config.os.name == 'centos') and @appliance_config.os.version == '5'
+        enable_nosegneg_flag(guestfs) if @appliance_config.os.name == 'fedora'
 
         execute_post(guestfs_helper)
       end
@@ -115,6 +125,12 @@ module BoxGrinder
       else
         @log.debug "No commands specified, skipping."
       end
+    end
+
+    def recreate_journal(guestfs)
+      @log.debug "Recreating EXT3 journal on root partition."
+      guestfs.sh("tune2fs -j #{guestfs.list_devices.first}")
+      @log.debug "Journal recreated."
     end
 
     def create_devices(guestfs)
