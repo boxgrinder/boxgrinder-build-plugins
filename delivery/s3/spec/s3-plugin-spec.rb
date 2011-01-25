@@ -105,8 +105,8 @@ module BoxGrinder
         key1 = mock('Key')
         key1.should_receive(:exists?).and_return(false)
 
-        bucket.should_receive(:key).with("name/fedora/14/1.0-SNAPSHOT-1/x86_64").and_return(key)
-        bucket.should_receive(:key).with("name/fedora/14/1.0-SNAPSHOT-2/x86_64").and_return(key1)
+        bucket.should_receive(:key).with("name/fedora/14/1.0-SNAPSHOT-1/x86_64/").and_return(key)
+        bucket.should_receive(:key).with("name/fedora/14/1.0-SNAPSHOT-2/x86_64/").and_return(key1)
 
         @plugin.should_receive(:bucket).twice.with(false).and_return(bucket)
 
@@ -118,10 +118,6 @@ module BoxGrinder
         @plugin.should_receive(:bucket).with(false).and_raise('ABC')
         @plugin.ami_key("name", "/").should == "name/fedora/14/1.0-SNAPSHOT-1/x86_64"
       end
-    end
-
-    it "should generate valid manifest key" do
-      @plugin.manifest_key("name", "/a/asd/f/sdf///").should == "a/asd/f/sdf/name/fedora/14/1.0/x86_64/name.ec2.manifest.xml"
     end
 
     it "should fix sha1 sum" do
@@ -218,7 +214,8 @@ module BoxGrinder
 
         @plugin.should_receive(:validate_plugin_config).with(["bucket", "access_key", "secret_access_key"], "http://community.jboss.org/docs/DOC-15217")
         @plugin.should_receive(:validate_plugin_config).with(["cert_file", "key_file", "account_number"], "http://community.jboss.org/docs/DOC-15217")
-        @plugin.should_receive(:image_already_uploaded?).and_return(false)
+        @plugin.should_receive(:ami_key).with("appliance", "/").and_return('ami/key')
+        @plugin.should_receive(:s3_object_exists?).with("ami/key/appliance.ec2.manifest.xml").and_return(false)
         @plugin.should_receive(:bundle_image).with(:disk => 'a/disk')
         @plugin.should_receive(:fix_sha1_sum)
         @plugin.should_receive(:upload_image)
@@ -230,9 +227,26 @@ module BoxGrinder
       it "should not upload AMI because it's already there" do
         @plugin.should_receive(:validate_plugin_config).with(["bucket", "access_key", "secret_access_key"], "http://community.jboss.org/docs/DOC-15217")
         @plugin.should_receive(:validate_plugin_config).with(["cert_file", "key_file", "account_number"], "http://community.jboss.org/docs/DOC-15217")
-        @plugin.should_receive(:image_already_uploaded?).and_return(true)
+        @plugin.should_receive(:ami_key).with("appliance", "/").and_return('ami/key')
+        @plugin.should_receive(:s3_object_exists?).with("ami/key/appliance.ec2.manifest.xml").and_return(true)
         @plugin.should_not_receive(:upload_image)
         @plugin.should_receive(:register_image)
+
+        @plugin.execute(:ami)
+      end
+
+      it "should upload AMI even if it's already there because we want a snapshot" do
+        @plugin_config.merge!('snapshot' => true)
+
+        @plugin.should_receive(:validate_plugin_config).with(["bucket", "access_key", "secret_access_key"], "http://community.jboss.org/docs/DOC-15217")
+        @plugin.should_receive(:validate_plugin_config).with(["cert_file", "key_file", "account_number"], "http://community.jboss.org/docs/DOC-15217")
+
+        @plugin.should_receive(:ami_key).with("appliance", "/").and_return('ami/key')
+        @plugin.should_receive(:s3_object_exists?).with("ami/key/appliance.ec2.manifest.xml").and_return(true)
+        @plugin.should_receive(:bundle_image).with({})
+        @plugin.should_receive(:fix_sha1_sum)
+        @plugin.should_receive(:upload_image).with("ami/key")
+        @plugin.should_receive(:register_image).with("ami/key/appliance.ec2.manifest.xml")
 
         @plugin.execute(:ami)
       end
@@ -268,58 +282,19 @@ module BoxGrinder
       end
     end
 
-    describe ".image_already_uploaded?" do
-      it "should return true" do
-        bucket = mock('Bucket')
-        bucket.should_receive(:keys)
-
-        @plugin.should_receive(:bucket).with(false).and_return(bucket)
-
-        key = mock('Key')
-        key.should_receive(:exists?).and_return(true)
-
-        bucket.should_receive(:key).with('appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml').and_return(key)
-
-        @plugin.image_already_uploaded?.should == true
-      end
-
-      it "should return false because bucket doesn't exists" do
-        bucket = mock('Bucket')
-        bucket.should_receive(:keys).and_raise('Error!')
-
-        @plugin.should_receive(:bucket).with(false).and_return(bucket)
-
-        @plugin.image_already_uploaded?.should == false
-      end
-
-      it "should return false because the image path doesn't exists" do
-        bucket = mock('Bucket')
-        bucket.should_receive(:keys)
-
-        @plugin.should_receive(:bucket).with(false).and_return(bucket)
-
-        key = mock('Key')
-        key.should_receive(:exists?).and_return(false)
-
-        bucket.should_receive(:key).with('appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml').and_return(key)
-
-        @plugin.image_already_uploaded?.should == false
-      end
-    end
-
     describe ".upload_image" do
       it "should upload image for default region" do
         @plugin.should_receive(:bucket)
-        @exec_helper.should_receive(:execute).with("euca-upload-bundle -U http://s3.amazonaws.com -b bucket/appliance/fedora/14/1.0/x86_64 -m build/path/s3-plugin/ami/appliance.ec2.manifest.xml -a access_key -s secret_access_key")
-        @plugin.upload_image
+        @exec_helper.should_receive(:execute).with("euca-upload-bundle -U http://s3.amazonaws.com -b bucket/ami/key -m build/path/s3-plugin/ami/appliance.ec2.manifest.xml -a access_key -s secret_access_key")
+        @plugin.upload_image("ami/key")
       end
 
       it "should upload image for us-west-1 region" do
         @plugin_config.merge!('region' => 'us-west-1')
 
         @plugin.should_receive(:bucket)
-        @exec_helper.should_receive(:execute).with("euca-upload-bundle -U http://s3-us-west-1.amazonaws.com -b bucket/appliance/fedora/14/1.0/x86_64 -m build/path/s3-plugin/ami/appliance.ec2.manifest.xml -a access_key -s secret_access_key")
-        @plugin.upload_image
+        @exec_helper.should_receive(:execute).with("euca-upload-bundle -U http://s3-us-west-1.amazonaws.com -b bucket/ami/key -m build/path/s3-plugin/ami/appliance.ec2.manifest.xml -a access_key -s secret_access_key")
+        @plugin.upload_image("ami/key")
       end
     end
 
@@ -339,17 +314,17 @@ module BoxGrinder
         end
 
         it "should register the AMI" do
-          @plugin.should_receive(:ami_info).with("appliance", "/")
-          @ec2.should_receive(:register_image).with(:image_location => "bucket/appliance/fedora/14/1.0/x86_64/appliance.ec2.manifest.xml").and_return(@ami_info)
+          @plugin.should_receive(:ami_info).with("ami/manifest/key")
+          @ec2.should_receive(:register_image).with(:image_location => "bucket/ami/manifest/key").and_return(@ami_info)
 
-          @plugin.register_image
+          @plugin.register_image("ami/manifest/key")
         end
 
         it "should report the region where the ami is registed" do
           @plugin.instance_variable_get(:@plugin_config)['region'] = 'a-region'
           @plugin.instance_variable_get(:@log).should_receive(:info).with(/a-region/)
 
-          @plugin.register_image
+          @plugin.register_image("ami/manifest/key")
         end
       end
 
@@ -359,17 +334,17 @@ module BoxGrinder
         end
 
         it "should not register the AMI" do
-          @plugin.should_receive(:ami_info).with("appliance", "/").and_return(@ami_info)
+          @plugin.should_receive(:ami_info).with("ami/manifest/key").and_return(@ami_info)
           @ec2.should_not_receive(:register_image)
 
-          @plugin.register_image
+          @plugin.register_image("ami/manifest/key")
         end
 
         it "should report the region where the ami is registed" do
           @plugin.instance_variable_get(:@plugin_config)['region'] = 'a-region'
           @plugin.instance_variable_get(:@log).should_receive(:info).with(/a-region/)
 
-          @plugin.register_image
+          @plugin.register_image("ami/manifest/key")
         end
       end
     end
