@@ -39,12 +39,12 @@ module BoxGrinder
       @appliance_config.stub!(:hardware).and_return(OpenCascade.new({:arch => 'x86_64'}))
       @appliance_config.stub!(:is64bit?).and_return(true)
 
-      @plugin = FedoraPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::FedoraPlugin, :type => :os, :name => :fedora, :full_name  => "Fedora", :versions   => ["11", "12", "13", "14", "rawhide"]})
+      @plugin = FedoraPlugin.new.init(@config, @appliance_config, :log => Logger.new('/dev/null'), :plugin_info => {:class => BoxGrinder::FedoraPlugin, :type => :os, :name => :fedora, :full_name => "Fedora", :versions => ["11", "12", "13", "14", "rawhide"]})
 
-      @config             = @plugin.instance_variable_get(:@config)
-      @appliance_config   = @plugin.instance_variable_get(:@appliance_config)
-      @exec_helper        = @plugin.instance_variable_get(:@exec_helper)
-      @log                = @plugin.instance_variable_get(:@log)
+      @config = @plugin.instance_variable_get(:@config)
+      @appliance_config = @plugin.instance_variable_get(:@appliance_config)
+      @exec_helper = @plugin.instance_variable_get(:@exec_helper)
+      @log = @plugin.instance_variable_get(:@log)
     end
 
     it "should normalize packages for 32bit" do
@@ -53,32 +53,22 @@ module BoxGrinder
       @appliance_config.should_receive(:is64bit?).and_return(false)
 
       @plugin.normalize_packages(packages)
-      packages.should ==  ["abc", "def", "@core", "system-config-firewall-base", "dhclient", "kernel-PAE"]
+      packages.should == ["abc", "def", "@core", "system-config-firewall-base", "dhclient", "kernel-PAE"]
     end
 
     it "should normalize packages for 64bit" do
       packages = ['abc', 'def', 'kernel']
 
       @plugin.normalize_packages(packages)
-      packages.should ==  ["abc", "def", "@core", "system-config-firewall-base", "dhclient", "kernel"]
+      packages.should == ["abc", "def", "@core", "system-config-firewall-base", "dhclient", "kernel"]
     end
 
     it "should add packages for fedora 13" do
-      packages = ['kernel']
-
-      @plugin.normalize_packages(packages)
-      packages.should == ["@core", "system-config-firewall-base", "dhclient", "kernel"]
-    end
-
-    it "should add packages for fedora 14" do
-      @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '14'}))
-
       packages = []
 
       @plugin.normalize_packages(packages)
       packages.should == ["@core", "system-config-firewall-base", "dhclient", "kernel"]
     end
-
   end
 end
 

@@ -49,15 +49,11 @@ module BoxGrinder
       packages << '@core'
       packages << "system-config-firewall-base"
       packages << "dhclient"
-      packages << "kernel"
-
-      case @appliance_config.os.version
-        when "13"
-          # kernel_PAE for 32 bit, kernel for 64 bit
-          packages.delete('kernel')
-          packages.delete('kernel-PAE')
-          packages << (@appliance_config.is64bit? ? "kernel" : "kernel-PAE")
-      end
+      
+      # kernel_PAE for 32 bit, kernel for 64 bit
+      packages.delete('kernel')
+      packages.delete('kernel-PAE')
+      packages << (@appliance_config.is64bit? ? "kernel" : "kernel-PAE")
     end
   end
 end
