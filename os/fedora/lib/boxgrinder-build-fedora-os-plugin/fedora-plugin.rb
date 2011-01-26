@@ -49,6 +49,7 @@ module BoxGrinder
       packages << '@core'
       packages << "system-config-firewall-base"
       packages << "dhclient"
+      packages << "kernel"
 
       case @appliance_config.os.version
         when "13"

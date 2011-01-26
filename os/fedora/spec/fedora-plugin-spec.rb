@@ -73,10 +73,10 @@ module BoxGrinder
     it "should add packages for fedora 14" do
       @appliance_config.stub!(:os).and_return(OpenCascade.new({:name => 'fedora', :version => '14'}))
 
-      packages = ['kernel']
+      packages = []
 
       @plugin.normalize_packages(packages)
-      packages.should == ["kernel", "@core", "system-config-firewall-base", "dhclient"]
+      packages.should == ["@core", "system-config-firewall-base", "dhclient", "kernel"]
     end
 
   end
