@@ -154,7 +154,7 @@ module BoxGrinder
 
       if @plugin_config['thin_disk']
         @log.debug "Using qemu-img to convert the image..."
-        @exec_helper.execute "qemu-img convert -f raw -O vmdk -o compat6 '#{@previous_deliverables.disk}' '#{@deliverables.disk}'"
+        @image_helper.convert_disk(@previous_deliverables.disk, :vmdk, @deliverables.disk)
         @log.debug "Conversion done."
       else
         copy_raw_image

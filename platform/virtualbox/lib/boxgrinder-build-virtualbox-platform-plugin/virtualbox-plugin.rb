@@ -38,7 +38,7 @@ module BoxGrinder
       @log.debug "Building VirtualBox image."
 
       @log.debug "Using qemu-img to convert the image..."
-      @image_helper.convert_disk(@previous_deliverables.disk, 'vmdk -o compat6', @deliverables.disk)
+      @image_helper.convert_disk(@previous_deliverables.disk, :vmdk, @deliverables.disk)
       @log.debug "Conversion done."
 
       @log.debug "VirtualBox image was built."

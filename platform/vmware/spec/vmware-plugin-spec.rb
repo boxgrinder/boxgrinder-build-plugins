@@ -192,7 +192,7 @@ module BoxGrinder
       it "should build personal thin image" do
         prepare_image({'type' => 'personal', 'thin_disk' => true}, :previous_deliverables => OpenStruct.new({:disk => 'a/base/image/path.raw'}))
 
-        @exec_helper.should_receive(:execute).with("qemu-img convert -f raw -O vmdk -o compat6 'a/base/image/path.raw' 'build/path/vmware-plugin/tmp/full.vmdk'")
+        @image_helper.should_receive(:convert_disk).with('a/base/image/path.raw', :vmdk, 'build/path/vmware-plugin/tmp/full.vmdk')
         File.should_receive(:open).once.with("build/path/vmware-plugin/tmp/full.vmx", "w")
 
         @plugin.build_vmware_personal
