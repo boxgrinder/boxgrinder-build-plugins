@@ -54,11 +54,12 @@ module BoxGrinder
 
         @plugin.normalize_packages(packages)
 
-        packages.size.should == 4
+        packages.size.should == 5
         packages[0].should == '@core'
         packages[1].should == 'curl'
         packages[2].should == 'kernel'
         packages[3].should == 'system-config-securitylevel-tui'
+        packages[4].should == 'util-linux'
       end
 
       it "should not add kernel package if kernel-xen is already choose" do
@@ -68,11 +69,12 @@ module BoxGrinder
 
         @plugin.normalize_packages(packages)
 
-        packages.size.should == 4
+        packages.size.should == 5
         packages[0].should == 'kernel-xen'
         packages[1].should == '@core'
         packages[2].should == 'curl'
         packages[3].should == 'system-config-securitylevel-tui'
+        packages[4].should == 'util-linux'
       end
 
       it "should not add default packages for RHEL 6" do
