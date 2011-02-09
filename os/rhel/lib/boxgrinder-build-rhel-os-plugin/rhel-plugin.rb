@@ -45,6 +45,7 @@ module BoxGrinder
         when '5'
           packages << "kernel" unless packages.include?("kernel") or packages.include?("kernel-xen")
           packages << "system-config-securitylevel-tui" unless packages.include?("system-config-securitylevel-tui")
+          packages << 'util-linux' unless packages.include?('util-linux')
         when '6'
           packages << "kernel" unless packages.include?("kernel")
           packages << "system-config-firewall-base" unless packages.include?("system-config-firewall-base")
