@@ -107,15 +107,6 @@ module BoxGrinder
       end
     end
 
-    it "should sync files between two dirs" do
-      prepare_plugin { |plugin| plugin.stub!(:after_init) }
-
-      exec_helper = @plugin.instance_variable_get(:@exec_helper)
-      exec_helper.should_receive(:execute).with("rsync -u -r -a  from/* to")
-
-      @plugin.sync_files('from', 'to')
-    end
-
     describe '.already_registered?' do
       it "should check if image is already registered and return false if there are no images registered for this account" do
         prepare_plugin { |plugin| plugin.stub!(:after_init) }

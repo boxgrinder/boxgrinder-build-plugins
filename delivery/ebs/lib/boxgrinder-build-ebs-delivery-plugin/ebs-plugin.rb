@@ -218,12 +218,6 @@ module BoxGrinder
       "#{base_path}-SNAPSHOT-#{snapshot}/#{@appliance_config.hardware.arch}"
     end
 
-    def sync_files(from_dir, to_dir)
-      @log.debug "Syncing files between #{from_dir} and #{to_dir}..."
-      @exec_helper.execute "rsync -u -r -a  #{from_dir}/* #{to_dir}"
-      @log.debug "Sync finished."
-    end
-
     def already_registered?(name)
       images = @ec2.describe_images(:owner_id => @plugin_config['account_number'].to_s.gsub(/-/, ''))
 
