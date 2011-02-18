@@ -1,3 +1,7 @@
+v0.0.8
+
+* [BGBUILD-161] Local delivery plugin does not deliver appliance to target path if packaging set to false
+
 v0.0.7
 
 * [BGBUILD-138] enablerepo path is not escaped when calling repoquery

@@ -5,7 +5,7 @@
 
 Summary: Local Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.7
+Version: 0.0.8
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -71,6 +71,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Fri Feb 18 2011  <mgoldman@redhat.com> - 0.0.8-1
+- Upstream release: 0.0.8
+- [BGBUILD-161] Local delivery plugin does not deliver appliance to target path if packaging set to false
+
 * Wed Jan 05 2011  <mgoldman@redhat.com> - 0.0.7-1
 - Upstream release: 0.0.7
 - Added BuildRoot tag to build for EPEL 5

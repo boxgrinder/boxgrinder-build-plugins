@@ -32,7 +32,7 @@ module BoxGrinder
     end
 
     def execute(type = :local)
-      validate_plugin_config(['path'], 'http://community.jboss.org/docs/DOC-15216')
+      validate_plugin_config(['path'], 'http://boxgrinder.org/tutorials/boxgrinder-build-plugins/#Local_delivery_plugin')
 
       if @plugin_config['overwrite'] or !deliverables_exists?
         PackageHelper.new(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).package(File.dirname(@previous_deliverables[:disk]), @deliverables[:package]) if @plugin_config['package']
@@ -41,7 +41,7 @@ module BoxGrinder
 
         @log.debug "Copying files to '#{@plugin_config['path']}'..."
 
-        (@deliverables.empty? ? @previous_deliverables : @deliverables).values.each do |file|
+        (@plugin_config['package'] ? @deliverables : @previous_deliverables).each_value do |file|
           @log.debug "Copying '#{file}'..."
           @exec_helper.execute("cp '#{file}' '#{@plugin_config['path']}'")
         end
@@ -52,7 +52,7 @@ module BoxGrinder
     end
 
     def deliverables_exists?
-      @deliverables.values.each do |file|
+      (@plugin_config['package'] ? @deliverables : @previous_deliverables).each_value do |file|
         return false unless File.exists?("#{@plugin_config['path']}/#{File.basename(file)}")
       end
 

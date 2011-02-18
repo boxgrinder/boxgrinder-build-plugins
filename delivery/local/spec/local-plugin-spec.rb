@@ -42,7 +42,7 @@ module BoxGrinder
       @plugin = LocalPlugin.new.init(@config, @appliance_config,
                                      :log => Logger.new('/dev/null'),
                                      :plugin_info => {:class => BoxGrinder::LocalPlugin, :type => :delivery, :name => :local, :full_name => "Local file system"},
-                                     :previous_deliverables => {:disk => "a_disk.raw"}
+                                     :previous_deliverables => {:disk => "a_disk.raw", :metadata => 'metadata.xml'}
       )
 
       @config = @plugin.instance_variable_get(:@config)
@@ -52,53 +52,82 @@ module BoxGrinder
       @dir = @plugin.instance_variable_get(:@dir)
     end
 
-    it "should package and deliver the appliance" do
-      @plugin.instance_variable_set(:@plugin_config, {
-          'overwrite' => false,
-          'path' => 'a/path',
-          'package' => true
-      })
+    describe ".execute" do
 
-      FileUtils.should_receive(:mkdir_p).with('a/path')
-      package_helper = mock(PackageHelper)
-      package_helper.should_receive(:package).with('.', "build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz").and_return("deliverable")
+      it "should package and deliver the appliance" do
+        @plugin.instance_variable_set(:@plugin_config, {
+            'overwrite' => false,
+            'path' => 'a/path',
+            'package' => true
+        })
 
-      PackageHelper.should_receive(:new).with(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
+        FileUtils.should_receive(:mkdir_p).with('a/path')
+        package_helper = mock(PackageHelper)
+        package_helper.should_receive(:package).with('.', "build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz").and_return("deliverable")
 
-      @exec_helper.should_receive(:execute).with("cp 'build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz' 'a/path'")
-      @plugin.should_receive(:deliverables_exists?).and_return(false)
+        PackageHelper.should_receive(:new).with(@config, @appliance_config, :log => @log, :exec_helper => @exec_helper).and_return(package_helper)
 
-      @plugin.execute
+        @exec_helper.should_receive(:execute).with("cp 'build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz' 'a/path'")
+        @plugin.should_receive(:deliverables_exists?).and_return(false)
+
+        @plugin.execute
+      end
+
+      it "should not package, but deliver the appliance" do
+        @plugin.instance_variable_set(:@plugin_config, {
+            'overwrite' => true,
+            'path' => 'a/path',
+            'package' => false
+        })
+
+        FileUtils.should_receive(:mkdir_p).with('a/path')
+        PackageHelper.should_not_receive(:new)
+
+        @exec_helper.should_receive(:execute).with("cp 'a_disk.raw' 'a/path'")
+        @exec_helper.should_receive(:execute).with("cp 'metadata.xml' 'a/path'")
+
+        @plugin.execute
+      end
+
+      it "should not deliver the package, because it is already delivered" do
+        @plugin.instance_variable_set(:@plugin_config, {
+            'overwrite' => false,
+            'path' => 'a/path',
+            'package' => false
+        })
+
+        PackageHelper.should_not_receive(:new)
+
+        @exec_helper.should_not_receive(:execute)
+        @plugin.should_receive(:deliverables_exists?).and_return(true)
+
+        @plugin.execute
+      end
     end
 
-    it "should not package, but deliver the appliance" do
-      @plugin.instance_variable_set(:@plugin_config, {
-          'overwrite' => true,
-          'path' => 'a/path',
-          'package' => false
-      })
+    describe ".deliverables_exists?" do
+      it "should return true for package" do
+        @plugin.instance_variable_set(:@plugin_config, {
+            'path' => 'a/path',
+            'package' => true
+        })
 
-      FileUtils.should_receive(:mkdir_p).with('a/path')
-      PackageHelper.should_not_receive(:new)
+        File.should_receive(:exists?).with('a/path/appliance-1.0-fedora-13-x86_64-raw.tgz').and_return(true)
 
-      @exec_helper.should_receive(:execute).with("cp 'build/path/local-plugin/tmp/appliance-1.0-fedora-13-x86_64-raw.tgz' 'a/path'")
+        @plugin.deliverables_exists?.should == true
+      end
 
-      @plugin.execute
-    end
+      it "should return true for non-packaged appliance" do
+        @plugin.instance_variable_set(:@plugin_config, {
+            'path' => 'a/path',
+            'package' => false
+        })
 
-    it "should not deliver the package, because it is already delivered" do
-      @plugin.instance_variable_set(:@plugin_config, {
-          'overwrite' => false,
-          'path' => 'a/path',
-          'package' => false
-      })
+        File.should_receive(:exists?).with('a/path/a_disk.raw').and_return(true)
+        File.should_receive(:exists?).with('a/path/metadata.xml').and_return(true)
 
-      PackageHelper.should_not_receive(:new)
-
-      @exec_helper.should_not_receive(:execute)
-      @plugin.should_receive(:deliverables_exists?).and_return(true)
-
-      @plugin.execute
+        @plugin.deliverables_exists?.should == true
+      end
     end
   end
 end
