@@ -5,7 +5,7 @@
 
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.11
+Version: 0.0.12
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
@@ -74,6 +74,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Fri Feb 18 2011  <mgoldman@redhat.com> - 0.0.12-1
+- Upstream release: 0.0.12
+- [BGBUILD-148] Add support for building CentOS/RHEL images on Fedora
+
 * Tue Jan 04 2011  <mgoldman@redhat.com> - 0.0.11-1
 - Upstream release: 0.0.11
 - Added BuildRoot tag to build for EPEL 5
