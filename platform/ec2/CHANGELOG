@@ -1,3 +1,7 @@
+v0.0.10
+
+* [BGBUILD-165] Use version in dependencies in gem and in RPM only where necessary
+
 v0.0.9
 
 * [BGBUILD-129] Use partitions labels instead of device path in grub and fstab

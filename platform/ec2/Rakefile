@@ -6,10 +6,10 @@ Echoe.new('boxgrinder-build-ec2-platform-plugin') do |p|
   p.author = 'Marek Goldmann'
   p.summary = 'Elastic Compute Cloud (EC2) Platform Plugin'
   p.description = 'BoxGrinder Build Elastic Compute Cloud (EC2) Platform Plugin'
-  p.url = 'http://www.jboss.org/boxgrinder'
+  p.url = 'http://boxgrinder.org/'
   p.email = 'info@boxgrinder.org'
-  p.runtime_dependencies = ['boxgrinder-build ~>0.8.0']
-  p.development_dependencies = [ 'boxgrinder-build ~>0.8.0', 'hashery >=1.3.0']
+  p.runtime_dependencies = ['boxgrinder-build ~>0.8.1']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.8.1', 'hashery']
 end
 
 desc "Run all tests"

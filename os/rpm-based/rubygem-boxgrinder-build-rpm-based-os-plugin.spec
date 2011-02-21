@@ -5,21 +5,23 @@
 
 Summary: RPM Based Operating System Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.11
+Version: 0.0.12
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
-URL: http://www.jboss.org/boxgrinder
+URL: http://boxgrinder.org/
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygem(boxgrinder-build) >= 0.8.0
+Requires: rubygem(boxgrinder-build) >= 0.8.1
+Requires: rubygem(boxgrinder-build) < 0.9.0
 Requires: appliance-tools
 Requires: yum-utils
 
 BuildRequires: rubygem(hashery)
-BuildRequires: rubygem(boxgrinder-build) >= 0.8.0
+BuildRequires: rubygem(boxgrinder-build) >= 0.8.1
+BuildRequires: rubygem(boxgrinder-build) < 0.9.0
 BuildRequires: rubygem(echoe)
 BuildRequires: rubygem(rake)
 BuildRequires: rubygem(rspec)
@@ -74,6 +76,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Feb 21 2011  <mgoldman@redhat.com> - 0.0.12-1
+- Upstream release: 0.0.12
+- [BGBUILD-165] Use version in dependencies in gem and in RPM only where necessary
+
 * Tue Jan 04 2011  <mgoldman@redhat.com> - 0.0.11-1
 - Upstream release: 0.0.11
 - Added BuildRoot tag to build for EPEL 5

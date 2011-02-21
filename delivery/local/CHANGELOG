@@ -1,6 +1,7 @@
 v0.0.8
 
 * [BGBUILD-161] Local delivery plugin does not deliver appliance to target path if packaging set to false
+* [BGBUILD-165] Use version in dependencies in gem and in RPM only where necessary
 
 v0.0.7
 

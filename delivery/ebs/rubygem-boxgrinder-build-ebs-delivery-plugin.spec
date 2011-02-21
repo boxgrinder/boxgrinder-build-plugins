@@ -5,20 +5,22 @@
 
 Summary: Elastic Block Storage Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.5
+Version: 0.0.6
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
-URL: http://www.jboss.org/boxgrinder
+URL: http://boxgrinder.org/
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygem(boxgrinder-build-ec2-platform-plugin)
+Requires: rubygem(boxgrinder-build) >= 0.8.1
+Requires: rubygem(boxgrinder-build) < 0.9.0
 Requires: rubygem(amazon-ec2)
 Requires: rubygem(aws)
 
-BuildRequires: rubygem(boxgrinder-build) >= 0.8.0
+BuildRequires: rubygem(boxgrinder-build) >= 0.8.1
+BuildRequires: rubygem(boxgrinder-build) < 0.9.0
 BuildRequires: rubygem(rake)
 BuildRequires: rubygem(rspec)
 BuildRequires: rubygem(aws)
@@ -77,6 +79,10 @@ rm -rf %{buildroot}
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Feb 21 2011  <mgoldman@redhat.com> - 0.0.6-1
+- Upstream release: 0.0.6
+- [BGBUILD-165] Use version in dependencies in gem and in RPM only where necessary
+
 * Sun Jan 09 2011  <mgoldman@redhat.com> - 0.0.5-1
 - Upstream release: 0.0.5
 - Added BuildRoot tag to build for EPEL 5

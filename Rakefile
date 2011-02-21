@@ -4,14 +4,14 @@ require 'spec/rake/spectask'
 
 plugins = [
     {:name => "boxgrinder-build-local-delivery-plugin", :dir => "delivery/local", :desc => 'Local Delivery Plugin'},
-    {:name => "boxgrinder-build-s3-delivery-plugin", :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :runtime_deps => {'aws' => '~>2.3.21', 'amazon-ec2' => '~>0.9.6'}},
-    {:name => "boxgrinder-build-sftp-delivery-plugin", :dir => "delivery/sftp", :desc => 'SSH File Transfer Protocol Delivery Plugin', :runtime_deps => {'net-sftp' => '~>2.0.4', 'net-ssh' => '~>2.0.20', 'progressbar' => '~>0.9.0'}},
-    {:name => "boxgrinder-build-ebs-delivery-plugin", :dir => "delivery/ebs", :desc => 'Elastic Block Storage Delivery Plugin', :runtime_deps => {'amazon-ec2' => '~>0.9.6'}},
+    {:name => "boxgrinder-build-s3-delivery-plugin", :dir => "delivery/s3", :desc => 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin', :runtime_deps => {'aws' => nil, 'amazon-ec2' => nil}},
+    {:name => "boxgrinder-build-sftp-delivery-plugin", :dir => "delivery/sftp", :desc => 'SSH File Transfer Protocol Delivery Plugin', :runtime_deps => {'net-sftp' => nil, 'net-ssh' => nil, 'progressbar' => nil}},
+    {:name => "boxgrinder-build-ebs-delivery-plugin", :dir => "delivery/ebs", :desc => 'Elastic Block Storage Delivery Plugin', :runtime_deps => {'amazon-ec2' => nil}},
 
     {:name => "boxgrinder-build-rpm-based-os-plugin", :dir =>"os/rpm-based", :desc => 'RPM Based Operating System Plugin'},
-    {:name => "boxgrinder-build-fedora-os-plugin", :dir => "os/fedora", :desc => 'Fedora Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.11'}},
-    {:name => "boxgrinder-build-rhel-os-plugin", :dir =>"os/rhel", :desc => 'Red Hat Enterprise Linux Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.11'}},
-    {:name => "boxgrinder-build-centos-os-plugin", :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :runtime_deps => {'boxgrinder-build-rhel-os-plugin' => '~>0.0.8'}},
+    {:name => "boxgrinder-build-fedora-os-plugin", :dir => "os/fedora", :desc => 'Fedora Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.12'}},
+    {:name => "boxgrinder-build-rhel-os-plugin", :dir =>"os/rhel", :desc => 'Red Hat Enterprise Linux Operating System Plugin', :runtime_deps => {'boxgrinder-build-rpm-based-os-plugin' => '~>0.0.12'}},
+    {:name => "boxgrinder-build-centos-os-plugin", :dir => "os/centos", :desc => 'CentOS Operating System Plugin', :runtime_deps => {'boxgrinder-build-rhel-os-plugin' => '~>0.0.9'}},
 
     {:name => "boxgrinder-build-vmware-platform-plugin", :dir =>"platform/vmware", :desc => 'VMware Platform Plugin'},
     {:name => "boxgrinder-build-virtualbox-platform-plugin", :dir =>"platform/virtualbox", :desc => 'VirtualBox Platform Plugin'},
@@ -22,12 +22,17 @@ desc "Recreate Rakefiles for plugins"
 task "rakefiles" do
   plugins.each do |plugin|
 
-    runtime_dependencies = ["'boxgrinder-build ~>0.8.0'"]
-    development_dependencies = ["'boxgrinder-build ~>0.8.0', 'hashery >=1.3.0'"]
+    runtime_dependencies = ["'boxgrinder-build ~>0.8.1'"]
+    development_dependencies = ["'boxgrinder-build ~>0.8.1', 'hashery'"]
 
     unless plugin[:runtime_deps].nil?
       plugin[:runtime_deps].each do |n, v|
-        runtime_dependencies << "'#{n} #{v}'"
+        if v.nil?
+          runtime_dependencies << "'#{n}'"
+        else
+          runtime_dependencies << "'#{n} #{v}'"
+        end
+
       end
     end
 
@@ -55,7 +60,7 @@ end
 task "clean" do
   plugins.each do |plugin|
     Dir.chdir plugin[:dir] do
-      system "rake clean manifest"
+      system "rake clean manifest build_gemspec"
     end
   end
 end
@@ -71,9 +76,9 @@ end
 
 desc "Create RPM"
 task :rpm, :target, :version, :arch, :needs => ['gem'] do |t, args|
-  target  = args[:target]   || 'fedora'
-  version = args[:version]  || 'rawhide'
-  arch    = args[:arch]     || RbConfig::CONFIG['host_cpu']
+  target = args[:target] || 'fedora'
+  version = args[:version] || 'rawhide'
+  arch = args[:arch] || RbConfig::CONFIG['host_cpu']
 
   Dir["**/rubygem-*.spec"].each do |spec|
     `mock -r #{target}-#{version}-#{arch} --buildsrpm --sources #{File.dirname(spec)}/pkg/*.gem --spec #{spec} --resultdir #{File.dirname(spec)}/pkg/`

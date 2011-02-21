@@ -6,7 +6,7 @@ Echoe.new('#NAME#') do |p|
   p.author = 'Marek Goldmann'
   p.summary = '#DESCRIPTION#'
   p.description = 'BoxGrinder Build #DESCRIPTION#'
-  p.url = 'http://www.jboss.org/boxgrinder'
+  p.url = 'http://boxgrinder.org/'
   p.email = 'info@boxgrinder.org'
   p.runtime_dependencies = [#RUNTIME_DEPENDENCIES#]
   p.development_dependencies = [ #DEVELOPMENT_DEPENDENCIES#]

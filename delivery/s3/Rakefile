@@ -6,10 +6,10 @@ Echoe.new('boxgrinder-build-s3-delivery-plugin') do |p|
   p.author = 'Marek Goldmann'
   p.summary = 'Amazon Simple Storage Service (Amazon S3) Delivery Plugin'
   p.description = 'BoxGrinder Build Amazon Simple Storage Service (Amazon S3) Delivery Plugin'
-  p.url = 'http://www.jboss.org/boxgrinder'
+  p.url = 'http://boxgrinder.org/'
   p.email = 'info@boxgrinder.org'
-  p.runtime_dependencies = ['boxgrinder-build-ec2-platform-plugin', 'amazon-ec2 ~>0.9.6', 'aws ~>2.3.21']
-  p.development_dependencies = [ 'boxgrinder-build-ec2-platform-plugin', 'hashery >=1.3.0']
+  p.runtime_dependencies = ['boxgrinder-build ~>0.8.1', 'amazon-ec2', 'aws']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.8.1', 'hashery']
 end
 
 desc "Run all tests"

@@ -6,10 +6,10 @@ Echoe.new('boxgrinder-build-sftp-delivery-plugin') do |p|
   p.author = 'Marek Goldmann'
   p.summary = 'SSH File Transfer Protocol Delivery Plugin'
   p.description = 'BoxGrinder Build SSH File Transfer Protocol Delivery Plugin'
-  p.url = 'http://www.jboss.org/boxgrinder'
+  p.url = 'http://boxgrinder.org/'
   p.email = 'info@boxgrinder.org'
-  p.runtime_dependencies = ['boxgrinder-build ~>0.8.0', 'net-sftp ~>2.0.4', 'net-ssh ~>2.0.20', 'progressbar ~>0.9.0']
-  p.development_dependencies = [ 'boxgrinder-build ~>0.8.0', 'hashery >=1.3.0']
+  p.runtime_dependencies = ['boxgrinder-build ~>0.8.1', 'net-sftp', 'net-ssh', 'progressbar']
+  p.development_dependencies = [ 'boxgrinder-build ~>0.8.1', 'hashery']
 end
 
 desc "Run all tests"

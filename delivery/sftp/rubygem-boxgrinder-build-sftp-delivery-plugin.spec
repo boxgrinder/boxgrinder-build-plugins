@@ -5,21 +5,23 @@
 
 Summary: SSH File Transfer Protocol Delivery Plugin
 Name: rubygem-%{gemname}
-Version: 0.0.6
+Version: 0.0.7
 Release: 1%{?dist}
 Group: Development/Languages
 License: LGPLv3+
-URL: http://www.jboss.org/boxgrinder
+URL: http://boxgrinder.org/
 Source0: http://rubygems.org/gems/%{gemname}-%{version}.gem
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 Requires: ruby(abi) = %{rubyabi}
-Requires: rubygem(boxgrinder-build) >= 0.8.0
+Requires: rubygem(boxgrinder-build) >= 0.8.1
+Requires: rubygem(boxgrinder-build) < 0.9.0
 Requires: rubygem(net-sftp)
 Requires: rubygem(net-ssh)
 Requires: rubygem(progressbar)
 
-BuildRequires: rubygem(boxgrinder-build) >= 0.8.0
+BuildRequires: rubygem(boxgrinder-build) >= 0.8.1
+BuildRequires: rubygem(boxgrinder-build) < 0.9.0
 BuildRequires: rubygem(net-sftp)
 BuildRequires: rubygem(net-ssh)
 BuildRequires: rubygem(progressbar)
@@ -77,6 +79,10 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
+* Mon Feb 21 2011  <mgoldman@redhat.com> - 0.0.7-1
+- Upstream release: 0.0.7
+- [BGBUILD-165] Use version in dependencies in gem and in RPM only where necessary
+
 * Wed Jan 05 2011  <mgoldman@redhat.com> - 0.0.6-1
 - Upstream release: 0.0.6
 - Added BuildRoot tag to build for EPEL 5
