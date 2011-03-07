@@ -73,7 +73,7 @@ popd
 %{gemdir}/doc/%{gemname}-%{version}
 
 %changelog
-* Mon Mar 07 2010  <mgoldman@redhat.com> - 0.0.10.1-1
+* Mon Mar 07 2011  <mgoldman@redhat.com> - 0.0.10.1-1
 - Updated to upstream version: 0.0.10.1
 - [BGBUILD-177] Fedora 13 builds have enabled firewall although they shouldn't have it
 
