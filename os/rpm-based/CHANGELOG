@@ -1,4 +1,8 @@
-v0.0.10
+v0.0.10.1
+
+* [BGBUILD-177] Fedora 13 builds have enabled firewall although they shouldn't have it
+
+ v0.0.10
 
 * [BGBUILD-100] Enable boxgrinder_build to create a Fedora image with encrypted partition(s)
 * [BGBUILD-125] Create kickstart files in RPM-based OS plugin in a temporary directory
